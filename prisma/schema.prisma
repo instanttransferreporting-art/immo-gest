@@ -10,4 +10,428 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. UTILISATEURS, RÔLES & PERMISSIONS
+// ==========================================
+
+enum RoleType {
+  ADMIN
+  GESTIONNAIRE
+  COMPTABLE
+  DIRECTEUR_GENERAL
+}
+
+model User {
+  id           String   @id @default(uuid())
+  nom          String
+  prenom       String
+  email        String   @unique
+  passwordHash String
+  role         RoleType
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  paiementsEnregistres Paiement[]
+  actionsAudit         AuditLog[]
+  demandesMaintenance  Maintenance[] @relation("TechnicienMaintenance")
+
+  @@map("users")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ==========================================
+// 2. PROPRIÉTAIRES
+// ==========================================
+
+model Proprietaire {
+  id             String   @id @default(uuid())
+  nom            String
+  prenom         String?
+  adresse        String
+  ville          String
+  tauxCommission Float    @default(10) // Pourcentage prélevé par l'agence sur les loyers encaissés
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  telephones   TelephoneProprietaire[]
+  emails       EmailProprietaire[]
+  immeubles    Immeuble[]
+  reversements Reversement[]
+
+  @@map("proprietaires")
+}
+
+model TelephoneProprietaire {
+  id             String       @id @default(uuid())
+  proprietaireId String
+  numero         String // Format validé avec indicatif pays
+  estPrincipal   Boolean      @default(false)
+  proprietaire   Proprietaire @relation(fields: [proprietaireId], references: [id], onDelete: Cascade)
+
+  @@map("telephone_proprietaires")
+}
+
+model EmailProprietaire {
+  id             String       @id @default(uuid())
+  proprietaireId String
+  email          String // Email professionnel
+  estPrincipal   Boolean      @default(false)
+  proprietaire   Proprietaire @relation(fields: [proprietaireId], references: [id], onDelete: Cascade)
+
+  @@map("email_proprietaires")
+}
+
+// ==========================================
+// 3. PATRIMOINE IMMOBILIER & UNITÉS
+// ==========================================
+
+model Immeuble {
+  id               String   @id @default(uuid())
+  reference        String   @unique // Générée automatiquement
+  nom              String
+  adresse          String
+  ville            String
+  nombreNiveaux    Int
+  nombreLogements  Int
+  valeurEstimative Float?
+  proprietaireId   String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
+  unites       Unite[]
+
+  @@map("immeubles")
+}
+
+enum TypeUnite {
+  APPARTEMENT
+  VILLA
+  BUREAU
+  COMMERCE
+  ENTREPOT
+}
+
+enum EtatUnite {
+  LIBRE
+  OCCUPE
+  RESERVE
+}
+
+enum TypeCharges {
+  FORFAITAIRE
+  POURCENTAGE
+}
+
+model Unite {
+  id            String      @id @default(uuid())
+  immeubleId    String
+  numero        String // Ex: A21, B34
+  type          TypeUnite
+  surface       Float
+  nombrePieces  Int
+  loyerMensuel  Float
+  typeCharges   TypeCharges
+  valeurCharges Float // Montant fixe ou pourcentage du loyer
+  caution       Float // Dépôt de garantie
+  etat          EtatUnite   @default(LIBRE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  immeuble Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
+  contrats ContratBail[]
+
+  @@map("unites")
+}
+
+// ==========================================
+// 4. LOCATAIRES & ARCHIVAGE DOCUMENTAIRE
+// ==========================================
+
+enum TypeLocataire {
+  PHYSIQUE
+  MORALE
+}
+
+model Locataire {
+  id   String        @id @default(uuid())
+  type TypeLocataire
+
+  // Personne Physique ou Responsable Moral
+  nom                String
+  prenom             String
+  dateNaissance      DateTime?
+  profession         String?
+  telephone          String
+  email              String    @unique
+  adresse            String
+  pieceIdentite      String // Numéro de CNI / Passeport / Carte de séjour
+  revenuMensuelMoyen Float? // Obligatoire pour les physiques
+
+  // Personne Morale (Optionnel)
+  raisonSociale  String?
+  rccm           String?
+  niu            String?
+  telephoneMoral String?
+  emailMoral     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  contrats  ContratBail[]
+  documents DocumentLocataire[]
+
+  @@map("locataires")
+}
+
+model DocumentLocataire {
+  id            String   @id @default(uuid())
+  locataireId   String
+  typeDocument  String // CNI, PHOTO_4X4, CONTRAT_SIMPLIFIE, CONTRAT_SIGNE, PREUVE_ENREGISTREMENT
+  cheminFichier String
+  createdAt     DateTime @default(now())
+
+  locataire Locataire @relation(fields: [locataireId], references: [id], onDelete: Cascade)
+
+  @@map("document_locataires")
+}
+
+// ==========================================
+// 5. CONTRATS DE BAIL & ÉCHÉANCIERS
+// ==========================================
+
+enum FrequenceEcheance {
+  QUOTIDIEN
+  MENSUEL
+  BIMENSUEL
+  TRIMESTRIEL
+  SEMESTRIEL
+  ANNUEL
+}
+
+enum StatutBail {
+  ACTIF
+  SUSPENDU
+  RESILIE
+  EXPIRE
+}
+
+model ContratBail {
+  id            String            @id @default(uuid())
+  numeroContrat String            @unique
+  uniteId       String
+  locataireId   String
+  dateDebut     DateTime
+  dateFin       DateTime // Aligné au 31 décembre
+  loyerBase     Float
+  charges       Float
+  depotGarantie Float
+  frequence     FrequenceEcheance @default(MENSUEL)
+  statut        StatutBail        @default(ACTIF)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  unite     Unite           @relation(fields: [uniteId], references: [id])
+  locataire Locataire       @relation(fields: [locataireId], references: [id])
+  echeances EcheanceLoyer[]
+  cautions  Caution[]
+
+  @@map("contrats_bail")
+}
+
+model EcheanceLoyer {
+  id             String   @id @default(uuid())
+  contratId      String
+  dateEcheance   DateTime
+  montantLoyer   Float
+  montantCharges Float
+  montantTotal   Float
+  soldeRestant   Float
+  estPaye        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  contrat   ContratBail @relation(fields: [contratId], references: [id], onDelete: Cascade)
+  factures  Facture[]
+  paiements Paiement[]
+  relances  Relance[]
+
+  @@map("echeances_loyer")
+}
+
+// ==========================================
+// 6. FACTURATION, PAIEMENTS & TRÉSORERIE
+// ==========================================
+
+enum ModePaiement {
+  ESPECES // Exceptionnel, direction uniquement
+  VIREMENT_BANCAIRE
+  MOBILE_MONEY
+  // Interdit : CHEQUE
+}
+
+model Facture {
+  id           String   @id @default(uuid())
+  numero       String   @unique
+  echeanceId   String
+  montant      Float
+  penalites    Float    @default(0)
+  totalDu      Float
+  dateEmission DateTime @default(now())
+  estSoldee    Boolean  @default(false)
+
+  echeance  EcheanceLoyer @relation(fields: [echeanceId], references: [id])
+  paiements Paiement[]
+
+  @@map("factures")
+}
+
+model Paiement {
+  id           String       @id @default(uuid())
+  factureId    String
+  echeanceId   String
+  userId       String // Utilisateur ayant enregistré le paiement
+  mode         ModePaiement
+  montant      Float
+  reference    String? // Réf transaction Mobile Money ou virement, ou reçu physique espèces
+  datePaiement DateTime     @default(now())
+  estAnnule    Boolean      @default(false) // Nécessite double validation si modification/annulation
+
+  facture       Facture       @relation(fields: [factureId], references: [id])
+  echeance      EcheanceLoyer @relation(fields: [echeanceId], references: [id])
+  enregistrePar User          @relation(fields: [userId], references: [id])
+
+  @@map("paiements")
+}
+
+// ==========================================
+// 7. IMPAYÉS & RELANCES
+// ==========================================
+
+enum NiveauRelance {
+  NIVEAU_1 // Rappel amiable à l'échéance
+  NIVEAU_1_BIS // 2ème rappel amiable + facture pénalités (J+15)
+  NIVEAU_2 // Mise en demeure (J+30)
+  NIVEAU_3 // Procédure contentieuse (avocat)
+}
+
+model Relance {
+  id         String        @id @default(uuid())
+  echeanceId String
+  niveau     NiveauRelance
+  dateEnvoi  DateTime      @default(now())
+  details    String?
+
+  echeance EcheanceLoyer @relation(fields: [echeanceId], references: [id], onDelete: Cascade)
+
+  @@map("relances")
+}
+
+// ==========================================
+// 8. CAUTIONS & RESTITUTIONS
+// ==========================================
+
+enum StatutCaution {
+  EN_COURS
+  RESTITUEE_TOTALE
+  RESTITUEE_PARTIELLE
+  RETENUE_TRAVAUX
+}
+
+model Caution {
+  id              String        @id @default(uuid())
+  contratId       String
+  montantInitial  Float
+  montantRetenu   Float         @default(0)
+  montantRendu    Float         @default(0)
+  statut          StatutCaution @default(EN_COURS)
+  dateRestitution DateTime?
+  notes           String?
+  createdAt       DateTime      @default(now())
+
+  contrat ContratBail @relation(fields: [contratId], references: [id])
+
+  @@map("cautions")
+}
+
+// ==========================================
+// 9. MAINTENANCE & TRAVAUX
+// ==========================================
+
+enum CategorieMaintenance {
+  PLOMBERIE
+  ELECTRICITE
+  PEINTURE
+  SECURITE
+  CLIMATISATION
+  AUTRE
+}
+
+enum StatutMaintenance {
+  OUVERT
+  EN_COURS
+  RESOLU
+  ANNULE
+}
+
+model Maintenance {
+  id             String               @id @default(uuid())
+  technicienId   String?
+  categorie      CategorieMaintenance
+  description    String
+  prestataire    String?
+  cout           Float?
+  statut         StatutMaintenance    @default(OUVERT)
+  dateDemande    DateTime             @default(now())
+  dateResolution DateTime?
+
+  technicien User? @relation("TechnicienMaintenance", fields: [technicienId], references: [id])
+
+  @@map("maintenances")
+}
+
+// ==========================================
+// 10. REVERSEMENTS PROPRIÉTAIRES
+// ==========================================
+
+enum StatutReversement {
+  BROUILLON
+  VALIDE
+}
+
+model Reversement {
+  id             String            @id @default(uuid())
+  proprietaireId String
+  mois           Int
+  annee          Int
+  totalEncaisse  Float
+  tauxCommission Float
+  commission     Float
+  netAPayer      Float
+  statut         StatutReversement @default(BROUILLON)
+  dateGeneration DateTime          @default(now())
+  dateValidation DateTime?
+
+  proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
+
+  @@unique([proprietaireId, mois, annee])
+  @@map("reversements")
 }
