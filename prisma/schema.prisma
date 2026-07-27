@@ -118,6 +118,7 @@ model Immeuble {
 
   proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
   unites       Unite[]
+  incidents    Incident[]
 
   @@map("immeubles")
 }
@@ -156,8 +157,9 @@ model Unite {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  immeuble Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
-  contrats ContratBail[]
+  immeuble  Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
+  contrats  ContratBail[]
+  incidents Incident[]
 
   @@map("unites")
 }
@@ -434,4 +436,40 @@ model Reversement {
 
   @@unique([proprietaireId, mois, annee])
   @@map("reversements")
+}
+
+// ==========================================
+// 11. INCIDENTS (TICKETING)
+// ==========================================
+
+enum PrioriteIncident {
+  BASSE
+  MOYENNE
+  HAUTE
+}
+
+enum StatutIncident {
+  NOUVEAU
+  EN_COURS
+  RESOLU
+}
+
+model Incident {
+  id              String           @id @default(uuid())
+  titre           String
+  description     String
+  priorite        PrioriteIncident
+  statut          StatutIncident   @default(NOUVEAU)
+  uniteId         String?
+  immeubleId      String?
+  prestataire     String?
+  dateSignalement DateTime         @default(now())
+  dateResolution  DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  unite    Unite?    @relation(fields: [uniteId], references: [id], onDelete: Cascade)
+  immeuble Immeuble? @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
+
+  @@map("incidents")
 }

@@ -19,6 +19,8 @@ export const ROUTES = {
 
     PAYMENTS: "/payments",
 
+    INCIDENTS: "/incidents",
+
     REPORTS: "/reports",
 
     SETTINGS: "/settings",

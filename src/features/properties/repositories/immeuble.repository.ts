@@ -53,4 +53,11 @@ export class ImmeubleRepository {
             select: IMMEUBLE_SELECT,
         });
     }
+
+    static async findAllOptions() {
+        return prisma.immeuble.findMany({
+            select: { id: true, nom: true },
+            orderBy: { nom: "asc" },
+        });
+    }
 }

@@ -2,7 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import type { EtatUnite } from "@/generated/prisma/enums";
 import { UniteRepository } from "@/features/units/repositories/unite.repository";
 import type { UniteFormValues } from "@/features/units/schemas/unit.schema";
-import type { UniteDTO, UniteLibreOptionDTO } from "@/features/units/types/unit.types";
+import type { UniteDTO, UniteLibreOptionDTO, UniteOptionDTO } from "@/features/units/types/unit.types";
 
 export class UniteService {
     static async create(input: UniteFormValues): Promise<UniteDTO> {
@@ -19,6 +19,10 @@ export class UniteService {
 
     static async listLibreOptions(): Promise<UniteLibreOptionDTO[]> {
         return UniteRepository.findAllLibreOptions();
+    }
+
+    static async listAllOptions(): Promise<UniteOptionDTO[]> {
+        return UniteRepository.findAllOptions();
     }
 
     static async updateEtat(id: string, etat: EtatUnite, client?: Prisma.TransactionClient): Promise<UniteDTO> {

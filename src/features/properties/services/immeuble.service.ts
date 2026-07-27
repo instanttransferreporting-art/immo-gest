@@ -1,7 +1,7 @@
 import { ImmeubleRepository } from "@/features/properties/repositories/immeuble.repository";
 import { ProprietaireRepository } from "@/features/properties/repositories/proprietaire.repository";
 import type { ImmeubleFormValues } from "@/features/properties/schemas/property.schema";
-import type { ImmeubleDTO } from "@/features/properties/types/property.types";
+import type { ImmeubleDTO, ImmeubleOptionDTO } from "@/features/properties/types/property.types";
 import { isUniqueConstraintError } from "@/lib/prisma-errors";
 
 const REFERENCE_PADDING = 6;
@@ -45,5 +45,9 @@ export class ImmeubleService {
 
     static async getById(id: string): Promise<ImmeubleDTO | null> {
         return ImmeubleRepository.findById(id);
+    }
+
+    static async listOptions(): Promise<ImmeubleOptionDTO[]> {
+        return ImmeubleRepository.findAllOptions();
     }
 }

@@ -7,6 +7,7 @@ import {
     ReceiptText,
     Settings,
     Users,
+    Wrench,
 } from "lucide-react";
 
 import { ROUTES } from "./routes";
@@ -47,6 +48,11 @@ export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
         title: "Paiements",
         href: ROUTES.PAYMENTS,
         icon: Receipt,
+    },
+    {
+        title: "Incidents",
+        href: ROUTES.INCIDENTS,
+        icon: Wrench,
     },
     {
         title: "Paramètres",

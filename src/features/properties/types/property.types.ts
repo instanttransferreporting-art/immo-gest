@@ -41,3 +41,8 @@ export type ImmeubleDTO = Readonly<{
     proprietaire: ProprietaireOptionDTO;
     createdAt: Date;
 }>;
+
+export type ImmeubleOptionDTO = Readonly<{
+    id: string;
+    nom: string;
+}>;

@@ -28,6 +28,14 @@ const UNITE_LIBRE_OPTION_SELECT = {
     },
 } as const;
 
+const UNITE_OPTION_SELECT = {
+    id: true,
+    numero: true,
+    immeuble: {
+        select: { id: true, nom: true },
+    },
+} as const;
+
 export class UniteRepository {
     static async create(data: UniteFormValues) {
         return prisma.unite.create({
@@ -55,6 +63,13 @@ export class UniteRepository {
         return prisma.unite.findMany({
             where: { etat: EtatUnite.LIBRE },
             select: UNITE_LIBRE_OPTION_SELECT,
+            orderBy: { numero: "asc" },
+        });
+    }
+
+    static async findAllOptions() {
+        return prisma.unite.findMany({
+            select: UNITE_OPTION_SELECT,
             orderBy: { numero: "asc" },
         });
     }

@@ -22,3 +22,9 @@ export type UniteLibreOptionDTO = Readonly<{
     caution: number;
     immeuble: Readonly<{ id: string; nom: string }>;
 }>;
+
+export type UniteOptionDTO = Readonly<{
+    id: string;
+    numero: string;
+    immeuble: Readonly<{ id: string; nom: string }>;
+}>;
