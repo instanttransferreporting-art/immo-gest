@@ -1,10 +1,13 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { getCurrentOrganizationId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isUniqueConstraintError } from "@/lib/prisma-errors";
+import { MailService } from "@/lib/mail.service";
 
 import { FactureRepository, type FactureRaw } from "@/features/invoices/repositories/facture.repository";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import { ContratService } from "@/features/leases/services/contrat.service";
+import { OrganizationService } from "@/features/organizations/services/organization.service";
 
 const REFERENCE_PADDING = 6;
 const MAX_REFERENCE_ATTEMPTS = 3;
@@ -30,10 +33,10 @@ export class FactureNotFoundError extends Error {
     }
 }
 
-async function generateNumeroFacture(): Promise<string> {
+async function generateNumeroFacture(organizationId: string): Promise<string> {
     const year = new Date().getFullYear();
     const prefix = `FAC-${year}-`;
-    const count = await FactureRepository.countByNumeroPrefix(prefix);
+    const count = await FactureRepository.countByNumeroPrefix(organizationId, prefix);
     const nextNumber = (count + 1).toString().padStart(REFERENCE_PADDING, "0");
 
     return `${prefix}${nextNumber}`;
@@ -44,6 +47,30 @@ function getMonthRange(mois: number, annee: number): { start: Date; end: Date } 
         start: new Date(annee, mois - 1, 1),
         end: new Date(annee, mois, 1),
     };
+}
+
+function envoyerAvisEcheanceAsync(organizationId: string, facture: FactureDTO): void {
+    void OrganizationService.getById(organizationId).then((organization) => {
+        if (!organization) {
+            return;
+        }
+
+        return MailService.sendAvisEcheance({
+            to: facture.contrat.locataire.email,
+            organizationNom: organization.nom,
+            organizationLogo: organization.logo,
+            locataireNom: facture.contrat.locataire.raisonSociale ??
+                `${facture.contrat.locataire.nom} ${facture.contrat.locataire.prenom}`,
+            uniteLabel: `${facture.contrat.unite.immeuble.nom} — ${facture.contrat.unite.numero}`,
+            numeroFacture: facture.numero,
+            montantTotal: facture.totalDu,
+            dateEcheance: new Date(facture.annee, facture.mois - 1, 1),
+        }).then((sent) => {
+            if (sent) {
+                return FactureRepository.markAvisEnvoye(facture.id, organizationId);
+            }
+        });
+    });
 }
 
 function toFactureDTO(raw: FactureRaw): FactureDTO {
@@ -69,6 +96,8 @@ function toFactureDTO(raw: FactureRaw): FactureDTO {
         soldeRestant: echeance.soldeRestant,
         statut,
         dateEmission: raw.dateEmission,
+        avisEnvoye: raw.avisEnvoye,
+        avisEnvoyeAt: raw.avisEnvoyeAt,
         contrat: {
             id: echeance.contrat.id,
             numeroContrat: echeance.contrat.numeroContrat,
@@ -80,6 +109,7 @@ function toFactureDTO(raw: FactureRaw): FactureDTO {
 
 export class FactureService {
     static async genererFactureMensuelle(contratId: string, mois: number, annee: number): Promise<FactureDTO> {
+        const organizationId = await getCurrentOrganizationId();
         const contrat = await ContratService.getById(contratId);
 
         if (!contrat) {
@@ -89,12 +119,13 @@ export class FactureService {
         const { start, end } = getMonthRange(mois, annee);
 
         for (let attempt = 1; attempt <= MAX_REFERENCE_ATTEMPTS; attempt += 1) {
-            const numero = await generateNumeroFacture();
+            const numero = await generateNumeroFacture(organizationId);
 
             try {
-                return await prisma.$transaction(
+                const facture = await prisma.$transaction(
                     async (tx) => {
                         const existing = await FactureRepository.findExistingForContratMonth(
+                            organizationId,
                             contratId,
                             start,
                             end,
@@ -106,6 +137,7 @@ export class FactureService {
                         }
 
                         const raw = await FactureRepository.createEcheanceAndFacture(
+                            organizationId,
                             {
                                 contratId,
                                 dateEcheance: start,
@@ -120,6 +152,10 @@ export class FactureService {
                     },
                     { maxWait: 10_000, timeout: 15_000 }
                 );
+
+                envoyerAvisEcheanceAsync(organizationId, facture);
+
+                return facture;
             } catch (error) {
                 if (error instanceof DuplicateInvoiceError) {
                     throw error;
@@ -157,18 +193,27 @@ export class FactureService {
     }
 
     static async listAll(): Promise<FactureDTO[]> {
-        const raws = await FactureRepository.findAll();
+        const organizationId = await getCurrentOrganizationId();
+        const raws = await FactureRepository.findAll(organizationId);
+        return raws.map(toFactureDTO);
+    }
+
+    static async listImpayes(): Promise<FactureDTO[]> {
+        const organizationId = await getCurrentOrganizationId();
+        const raws = await FactureRepository.findImpayes(organizationId);
         return raws.map(toFactureDTO);
     }
 
     static async getById(id: string, client?: Prisma.TransactionClient): Promise<FactureDTO | null> {
-        const raw = await FactureRepository.findById(id, client);
+        const organizationId = await getCurrentOrganizationId();
+        const raw = await FactureRepository.findById(id, organizationId, client);
         return raw ? toFactureDTO(raw) : null;
     }
 
     static async registerPayment(
         factureId: string,
         echeanceId: string,
+        organizationId: string,
         soldeRestantActuel: number,
         montantPaye: number,
         client: Prisma.TransactionClient
@@ -179,9 +224,14 @@ export class FactureService {
         const updated = await FactureRepository.updateAfterPayment(
             factureId,
             echeanceId,
+            organizationId,
             { soldeRestant: nouveauSolde, estPaye: estSoldee, estSoldee },
             client
         );
+
+        if (!updated) {
+            throw new FactureNotFoundError();
+        }
 
         return toFactureDTO(updated);
     }

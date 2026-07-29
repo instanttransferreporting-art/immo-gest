@@ -1,17 +1,21 @@
+import { getCurrentOrganizationId } from "@/lib/auth";
 import { LocataireRepository } from "@/features/tenants/repositories/locataire.repository";
 import type { LocataireFormValues } from "@/features/tenants/schemas/tenant.schema";
 import type { LocataireDTO, LocataireOptionDTO } from "@/features/tenants/types/tenant.types";
 
 export class LocataireService {
     static async create(input: LocataireFormValues): Promise<LocataireDTO> {
-        return LocataireRepository.create(input);
+        const organizationId = await getCurrentOrganizationId();
+        return LocataireRepository.create(organizationId, input);
     }
 
     static async listAll(): Promise<LocataireDTO[]> {
-        return LocataireRepository.findAll();
+        const organizationId = await getCurrentOrganizationId();
+        return LocataireRepository.findAll(organizationId);
     }
 
     static async listOptions(): Promise<LocataireOptionDTO[]> {
-        return LocataireRepository.findAllOptions();
+        const organizationId = await getCurrentOrganizationId();
+        return LocataireRepository.findAllOptions(organizationId);
     }
 }

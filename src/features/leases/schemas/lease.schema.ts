@@ -21,3 +21,11 @@ export const contratSchema = z
     });
 
 export type ContratFormValues = z.infer<typeof contratSchema>;
+
+export const resiliationSchema = z.object({
+    contratId: z.string().min(1, { error: "Le contrat est requis." }),
+    dateFin: z.date({ error: "La date de sortie effective est requise." }),
+    motif: z.string().optional(),
+});
+
+export type ResiliationFormValues = z.infer<typeof resiliationSchema>;

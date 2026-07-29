@@ -15,10 +15,12 @@ export type FactureDTO = Readonly<{
     soldeRestant: number;
     statut: StatutFacture;
     dateEmission: Date;
+    avisEnvoye: boolean;
+    avisEnvoyeAt: Date | null;
     contrat: Readonly<{
         id: string;
         numeroContrat: string;
         unite: Readonly<{ numero: string; immeuble: Readonly<{ nom: string }> }>;
-        locataire: Readonly<{ nom: string; prenom: string; raisonSociale: string | null }>;
+        locataire: Readonly<{ nom: string; prenom: string; raisonSociale: string | null; email: string }>;
     }>;
 }>;

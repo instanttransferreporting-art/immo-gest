@@ -23,11 +23,12 @@ const LOCATAIRE_SELECT = {
 } as const;
 
 export class LocataireRepository {
-    static async create(data: LocataireFormValues) {
+    static async create(organizationId: string, data: LocataireFormValues) {
         const isPhysique = data.type === TypeLocataire.PHYSIQUE;
 
         return prisma.locataire.create({
             data: {
+                organizationId,
                 type: data.type,
                 nom: data.nom,
                 prenom: data.prenom,
@@ -48,15 +49,17 @@ export class LocataireRepository {
         });
     }
 
-    static async findAll() {
+    static async findAll(organizationId: string) {
         return prisma.locataire.findMany({
+            where: { organizationId },
             select: LOCATAIRE_SELECT,
             orderBy: { createdAt: "desc" },
         });
     }
 
-    static async findAllOptions() {
+    static async findAllOptions(organizationId: string) {
         return prisma.locataire.findMany({
+            where: { organizationId },
             select: { id: true, nom: true, prenom: true, raisonSociale: true },
             orderBy: { nom: "asc" },
         });

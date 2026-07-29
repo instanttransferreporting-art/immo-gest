@@ -18,15 +18,16 @@ const IMMEUBLE_SELECT = {
 } as const;
 
 export class ImmeubleRepository {
-    static async countByReferencePrefix(prefix: string) {
+    static async countByReferencePrefix(organizationId: string, prefix: string) {
         return prisma.immeuble.count({
-            where: { reference: { startsWith: prefix } },
+            where: { organizationId, reference: { startsWith: prefix } },
         });
     }
 
-    static async create(data: ImmeubleFormValues & { reference: string }) {
+    static async create(organizationId: string, data: ImmeubleFormValues & { reference: string }) {
         return prisma.immeuble.create({
             data: {
+                organizationId,
                 reference: data.reference,
                 nom: data.nom,
                 adresse: data.adresse,
@@ -40,22 +41,24 @@ export class ImmeubleRepository {
         });
     }
 
-    static async findAll() {
+    static async findAll(organizationId: string) {
         return prisma.immeuble.findMany({
+            where: { organizationId },
             select: IMMEUBLE_SELECT,
             orderBy: { createdAt: "desc" },
         });
     }
 
-    static async findById(id: string) {
-        return prisma.immeuble.findUnique({
-            where: { id },
+    static async findById(id: string, organizationId: string) {
+        return prisma.immeuble.findFirst({
+            where: { id, organizationId },
             select: IMMEUBLE_SELECT,
         });
     }
 
-    static async findAllOptions() {
+    static async findAllOptions(organizationId: string) {
         return prisma.immeuble.findMany({
+            where: { organizationId },
             select: { id: true, nom: true },
             orderBy: { nom: "asc" },
         });

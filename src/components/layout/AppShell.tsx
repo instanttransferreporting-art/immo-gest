@@ -6,6 +6,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { SidebarProvider } from "./SidebarProvider";
 import { useSidebar } from "@/hooks/useSidebar";
+import { ImpersonationBanner } from "@/features/platform/components/ImpersonationBanner";
 
 function ShellContent({
                           children,
@@ -28,6 +29,7 @@ function ShellContent({
                 }
             >
                 <div className="print:hidden">
+                    <ImpersonationBanner />
                     <Header />
                 </div>
 

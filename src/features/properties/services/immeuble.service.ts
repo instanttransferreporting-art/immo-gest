@@ -1,3 +1,4 @@
+import { getCurrentOrganizationId } from "@/lib/auth";
 import { ImmeubleRepository } from "@/features/properties/repositories/immeuble.repository";
 import { ProprietaireRepository } from "@/features/properties/repositories/proprietaire.repository";
 import type { ImmeubleFormValues } from "@/features/properties/schemas/property.schema";
@@ -7,10 +8,10 @@ import { isUniqueConstraintError } from "@/lib/prisma-errors";
 const REFERENCE_PADDING = 6;
 const MAX_REFERENCE_ATTEMPTS = 3;
 
-async function generateReference(): Promise<string> {
+async function generateReference(organizationId: string): Promise<string> {
     const year = new Date().getFullYear();
     const prefix = `IMM-${year}-`;
-    const count = await ImmeubleRepository.countByReferencePrefix(prefix);
+    const count = await ImmeubleRepository.countByReferencePrefix(organizationId, prefix);
     const nextNumber = (count + 1).toString().padStart(REFERENCE_PADDING, "0");
 
     return `${prefix}${nextNumber}`;
@@ -18,17 +19,18 @@ async function generateReference(): Promise<string> {
 
 export class ImmeubleService {
     static async create(input: ImmeubleFormValues): Promise<ImmeubleDTO | null> {
-        const proprietaire = await ProprietaireRepository.findById(input.proprietaireId);
+        const organizationId = await getCurrentOrganizationId();
+        const proprietaire = await ProprietaireRepository.findById(input.proprietaireId, organizationId);
 
         if (!proprietaire) {
             return null;
         }
 
         for (let attempt = 1; attempt <= MAX_REFERENCE_ATTEMPTS; attempt += 1) {
-            const reference = await generateReference();
+            const reference = await generateReference(organizationId);
 
             try {
-                return await ImmeubleRepository.create({ ...input, reference });
+                return await ImmeubleRepository.create(organizationId, { ...input, reference });
             } catch (error) {
                 if (!isUniqueConstraintError(error) || attempt === MAX_REFERENCE_ATTEMPTS) {
                     throw error;
@@ -40,14 +42,17 @@ export class ImmeubleService {
     }
 
     static async listAll(): Promise<ImmeubleDTO[]> {
-        return ImmeubleRepository.findAll();
+        const organizationId = await getCurrentOrganizationId();
+        return ImmeubleRepository.findAll(organizationId);
     }
 
     static async getById(id: string): Promise<ImmeubleDTO | null> {
-        return ImmeubleRepository.findById(id);
+        const organizationId = await getCurrentOrganizationId();
+        return ImmeubleRepository.findById(id, organizationId);
     }
 
     static async listOptions(): Promise<ImmeubleOptionDTO[]> {
-        return ImmeubleRepository.findAllOptions();
+        const organizationId = await getCurrentOrganizationId();
+        return ImmeubleRepository.findAllOptions(organizationId);
     }
 }

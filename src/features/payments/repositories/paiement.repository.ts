@@ -19,6 +19,7 @@ const PAIEMENT_SELECT = {
 
 export class PaiementRepository {
     static async create(
+        organizationId: string,
         data: {
             factureId: string;
             echeanceId: string;
@@ -30,14 +31,14 @@ export class PaiementRepository {
         client: Prisma.TransactionClient = prisma
     ) {
         return client.paiement.create({
-            data,
+            data: { ...data, organizationId },
             select: PAIEMENT_SELECT,
         });
     }
 
-    static async findByFacture(factureId: string) {
+    static async findByFacture(factureId: string, organizationId: string) {
         return prisma.paiement.findMany({
-            where: { factureId, estAnnule: false },
+            where: { factureId, organizationId, estAnnule: false },
             select: PAIEMENT_SELECT,
             orderBy: { datePaiement: "asc" },
         });

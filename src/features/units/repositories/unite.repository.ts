@@ -37,48 +37,55 @@ const UNITE_OPTION_SELECT = {
 } as const;
 
 export class UniteRepository {
-    static async create(data: UniteFormValues) {
+    static async create(organizationId: string, data: UniteFormValues) {
         return prisma.unite.create({
-            data,
+            data: { ...data, organizationId },
             select: UNITE_SELECT,
         });
     }
 
-    static async findByImmeuble(immeubleId: string) {
+    static async findByImmeuble(immeubleId: string, organizationId: string) {
         return prisma.unite.findMany({
-            where: { immeubleId },
+            where: { immeubleId, organizationId },
             select: UNITE_SELECT,
             orderBy: { numero: "asc" },
         });
     }
 
-    static async findById(id: string, client: Prisma.TransactionClient = prisma) {
-        return client.unite.findUnique({
-            where: { id },
+    static async findById(id: string, organizationId: string, client: Prisma.TransactionClient = prisma) {
+        return client.unite.findFirst({
+            where: { id, organizationId },
             select: UNITE_SELECT,
         });
     }
 
-    static async findAllLibreOptions() {
+    static async findAllLibreOptions(organizationId: string) {
         return prisma.unite.findMany({
-            where: { etat: EtatUnite.LIBRE },
+            where: { organizationId, etat: EtatUnite.LIBRE },
             select: UNITE_LIBRE_OPTION_SELECT,
             orderBy: { numero: "asc" },
         });
     }
 
-    static async findAllOptions() {
+    static async findAllOptions(organizationId: string) {
         return prisma.unite.findMany({
+            where: { organizationId },
             select: UNITE_OPTION_SELECT,
             orderBy: { numero: "asc" },
         });
     }
 
-    static async updateEtat(id: string, etat: EtatUnite, client: Prisma.TransactionClient = prisma) {
-        return client.unite.update({
-            where: { id },
+    static async updateEtat(
+        id: string,
+        etat: EtatUnite,
+        organizationId: string,
+        client: Prisma.TransactionClient = prisma
+    ) {
+        await client.unite.updateMany({
+            where: { id, organizationId },
             data: { etat },
-            select: UNITE_SELECT,
         });
+
+        return UniteRepository.findById(id, organizationId, client);
     }
 }

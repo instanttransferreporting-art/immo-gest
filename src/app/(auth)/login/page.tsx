@@ -5,6 +5,7 @@ import { Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { getCurrentSession } from "@/lib/auth";
+import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default async function LoginPage() {
     const session = await getCurrentSession();
 
     if (session) {
-        redirect(ROUTES.DASHBOARD);
+        redirect(session.user.role === RoleType.SUPER_ADMIN ? ROUTES.PLATFORM : ROUTES.DASHBOARD);
     }
 
     return (

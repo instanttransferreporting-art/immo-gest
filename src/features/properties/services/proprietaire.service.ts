@@ -1,3 +1,4 @@
+import { getCurrentOrganizationId } from "@/lib/auth";
 import { ProprietaireRepository } from "@/features/properties/repositories/proprietaire.repository";
 import type { ProprietaireFormValues } from "@/features/properties/schemas/property.schema";
 import type { ProprietaireDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
@@ -20,18 +21,22 @@ function withPrimaryPhone(data: ProprietaireFormValues): ProprietaireFormValues 
 
 export class ProprietaireService {
     static async create(input: ProprietaireFormValues): Promise<ProprietaireDTO> {
-        return ProprietaireRepository.create(withPrimaryPhone(input));
+        const organizationId = await getCurrentOrganizationId();
+        return ProprietaireRepository.create(organizationId, withPrimaryPhone(input));
     }
 
     static async listAll(): Promise<ProprietaireDTO[]> {
-        return ProprietaireRepository.findAll();
+        const organizationId = await getCurrentOrganizationId();
+        return ProprietaireRepository.findAll(organizationId);
     }
 
     static async listOptions(): Promise<ProprietaireOptionDTO[]> {
-        return ProprietaireRepository.findAllOptions();
+        const organizationId = await getCurrentOrganizationId();
+        return ProprietaireRepository.findAllOptions(organizationId);
     }
 
     static async getById(id: string): Promise<ProprietaireDTO | null> {
-        return ProprietaireRepository.findById(id);
+        const organizationId = await getCurrentOrganizationId();
+        return ProprietaireRepository.findById(id, organizationId);
     }
 }

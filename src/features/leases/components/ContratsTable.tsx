@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FileText } from "lucide-react";
 
 import {
@@ -9,6 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ROUTES } from "@/constants/routes";
 import { FREQUENCE_LABELS, STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
 import type { ContratDTO } from "@/features/leases/types/lease.types";
 
@@ -61,9 +63,14 @@ export function ContratsTable({ contrats }: ContratsTableProps) {
                     {contrats.map((contrat) => (
                         <TableRow key={contrat.id}>
                             <TableCell>
-                                <Badge variant="outline" className="rounded-lg font-mono text-emerald-700">
-                                    {contrat.numeroContrat}
-                                </Badge>
+                                <Link href={`${ROUTES.LEASES}/${contrat.id}`}>
+                                    <Badge
+                                        variant="outline"
+                                        className="rounded-lg font-mono text-emerald-700 hover:bg-emerald-50"
+                                    >
+                                        {contrat.numeroContrat}
+                                    </Badge>
+                                </Link>
                             </TableCell>
                             <TableCell className="text-slate-600">
                                 {contrat.unite.immeuble.nom} — {contrat.unite.numero}

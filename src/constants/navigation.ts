@@ -1,5 +1,5 @@
 import {
-    Building2,
+    AlertTriangle,
     FileText,
     Home,
     LayoutDashboard,
@@ -18,11 +18,6 @@ export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
         title: "Dashboard",
         href: ROUTES.DASHBOARD,
         icon: LayoutDashboard,
-    },
-    {
-        title: "Entreprises",
-        href: ROUTES.ORGANIZATIONS,
-        icon: Building2,
     },
     {
         title: "Patrimoine",
@@ -48,6 +43,11 @@ export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
         title: "Paiements",
         href: ROUTES.PAYMENTS,
         icon: Receipt,
+    },
+    {
+        title: "Recouvrement",
+        href: ROUTES.RECOUVREMENT,
+        icon: AlertTriangle,
     },
     {
         title: "Incidents",

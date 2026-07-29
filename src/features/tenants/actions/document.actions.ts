@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { DocumentService } from "@/features/tenants/services/document.service";
 import { TYPE_DOCUMENT, type TypeDocument } from "@/features/tenants/constants/tenant.constants";
 import { ROUTES } from "@/constants/routes";
@@ -12,10 +13,14 @@ import type { DocumentLocataireDTO } from "@/features/tenants/types/tenant.types
 const VALID_DOCUMENT_TYPES = Object.values(TYPE_DOCUMENT);
 
 export async function uploadLocataireDocument(formData: FormData): Promise<ActionResponse<DocumentLocataireDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("DOCUMENT_UPLOAD");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const locataireId = formData.get("locataireId");

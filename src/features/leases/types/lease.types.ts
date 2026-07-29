@@ -15,6 +15,7 @@ export type ContratDTO = Readonly<{
     depotGarantie: number;
     frequence: FrequenceEcheance;
     statut: StatutBail;
+    motifResiliation: string | null;
     createdAt: Date;
     unite: Readonly<{
         id: string;

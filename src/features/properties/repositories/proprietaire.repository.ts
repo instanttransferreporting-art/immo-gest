@@ -18,9 +18,10 @@ const PROPRIETAIRE_SELECT = {
 } as const;
 
 export class ProprietaireRepository {
-    static async create(data: ProprietaireFormValues) {
+    static async create(organizationId: string, data: ProprietaireFormValues) {
         return prisma.proprietaire.create({
             data: {
+                organizationId,
                 nom: data.nom,
                 prenom: data.prenom,
                 adresse: data.adresse,
@@ -43,22 +44,24 @@ export class ProprietaireRepository {
         });
     }
 
-    static async findById(id: string) {
-        return prisma.proprietaire.findUnique({
-            where: { id },
+    static async findById(id: string, organizationId: string) {
+        return prisma.proprietaire.findFirst({
+            where: { id, organizationId },
             select: PROPRIETAIRE_SELECT,
         });
     }
 
-    static async findAll() {
+    static async findAll(organizationId: string) {
         return prisma.proprietaire.findMany({
+            where: { organizationId },
             select: PROPRIETAIRE_SELECT,
             orderBy: { createdAt: "desc" },
         });
     }
 
-    static async findAllOptions() {
+    static async findAllOptions(organizationId: string) {
         return prisma.proprietaire.findMany({
+            where: { organizationId },
             select: { id: true, nom: true, prenom: true },
             orderBy: { nom: "asc" },
         });

@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { ImmeubleService } from "@/features/properties/services/immeuble.service";
 import { immeubleSchema } from "@/features/properties/schemas/property.schema";
 import { ROUTES } from "@/constants/routes";
@@ -10,10 +11,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { ImmeubleDTO } from "@/features/properties/types/property.types";
 
 export async function createImmeuble(input: unknown): Promise<ActionResponse<ImmeubleDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("IMMEUBLE_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = immeubleSchema.safeParse(input);

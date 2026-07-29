@@ -14,10 +14,47 @@ datasource db {
 }
 
 // ==========================================
+// 0. ORGANISATION (MULTI-TENANT)
+// ==========================================
+
+model Organization {
+  id                   String   @id @default(uuid())
+  nom                  String
+  logo                 String?
+  tauxCommissionDefaut Float    @default(10)
+  adresse              String?
+  ville                String?
+  telephone            String?
+  email                String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  users         User[]
+  auditLogs     AuditLog[]
+  proprietaires Proprietaire[]
+  immeubles     Immeuble[]
+  unites        Unite[]
+  locataires    Locataire[]
+  contrats      ContratBail[]
+  echeances     EcheanceLoyer[]
+  factures      Facture[]
+  paiements     Paiement[]
+  relances      Relance[]
+  cautions      Caution[]
+  maintenances  Maintenance[]
+  reversements  Reversement[]
+  incidents     Incident[]
+
+  @@map("organizations")
+}
+
+// ==========================================
 // 1. UTILISATEURS, RÔLES & PERMISSIONS
 // ==========================================
 
 enum RoleType {
+  SUPER_ADMIN
   ADMIN
   GESTIONNAIRE
   COMPTABLE
@@ -25,34 +62,41 @@ enum RoleType {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  nom          String
-  prenom       String
-  email        String   @unique
-  passwordHash String
-  role         RoleType
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(uuid())
+  organizationId String?
+  nom            String
+  prenom         String
+  email          String   @unique
+  passwordHash   String
+  role           RoleType
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
 
   // Relations
   paiementsEnregistres Paiement[]
   actionsAudit         AuditLog[]
   demandesMaintenance  Maintenance[] @relation("TechnicienMaintenance")
 
+  @@index([organizationId])
   @@map("users")
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String
-  details   String?
-  ipAddress String?
-  createdAt DateTime @default(now())
+  id             String   @id @default(uuid())
+  organizationId String
+  userId         String
+  action         String
+  details        String?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
 
+  @@index([organizationId])
   @@map("audit_logs")
 }
 
@@ -62,6 +106,7 @@ model AuditLog {
 
 model Proprietaire {
   id             String   @id @default(uuid())
+  organizationId String
   nom            String
   prenom         String?
   adresse        String
@@ -70,12 +115,15 @@ model Proprietaire {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  organization Organization @relation(fields: [organizationId], references: [id])
+
   // Relations
   telephones   TelephoneProprietaire[]
   emails       EmailProprietaire[]
   immeubles    Immeuble[]
   reversements Reversement[]
 
+  @@index([organizationId])
   @@map("proprietaires")
 }
 
@@ -105,7 +153,8 @@ model EmailProprietaire {
 
 model Immeuble {
   id               String   @id @default(uuid())
-  reference        String   @unique // Générée automatiquement
+  organizationId   String
+  reference        String // Générée automatiquement, unique par organisation
   nom              String
   adresse          String
   ville            String
@@ -116,10 +165,13 @@ model Immeuble {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  organization Organization @relation(fields: [organizationId], references: [id])
   proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
   unites       Unite[]
   incidents    Incident[]
 
+  @@unique([organizationId, reference])
+  @@index([organizationId])
   @@map("immeubles")
 }
 
@@ -143,24 +195,27 @@ enum TypeCharges {
 }
 
 model Unite {
-  id            String      @id @default(uuid())
-  immeubleId    String
-  numero        String // Ex: A21, B34
-  type          TypeUnite
-  surface       Float
-  nombrePieces  Int
-  loyerMensuel  Float
-  typeCharges   TypeCharges
-  valeurCharges Float // Montant fixe ou pourcentage du loyer
-  caution       Float // Dépôt de garantie
-  etat          EtatUnite   @default(LIBRE)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id             String      @id @default(uuid())
+  organizationId String
+  immeubleId     String
+  numero         String // Ex: A21, B34
+  type           TypeUnite
+  surface        Float
+  nombrePieces   Int
+  loyerMensuel   Float
+  typeCharges    TypeCharges
+  valeurCharges  Float // Montant fixe ou pourcentage du loyer
+  caution        Float // Dépôt de garantie
+  etat           EtatUnite   @default(LIBRE)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  immeuble  Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
-  contrats  ContratBail[]
-  incidents Incident[]
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  immeuble     Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
+  contrats     ContratBail[]
+  incidents    Incident[]
 
+  @@index([organizationId])
   @@map("unites")
 }
 
@@ -174,8 +229,9 @@ enum TypeLocataire {
 }
 
 model Locataire {
-  id   String        @id @default(uuid())
-  type TypeLocataire
+  id             String        @id @default(uuid())
+  organizationId String
+  type           TypeLocataire
 
   // Personne Physique ou Responsable Moral
   nom                String
@@ -183,7 +239,7 @@ model Locataire {
   dateNaissance      DateTime?
   profession         String?
   telephone          String
-  email              String    @unique
+  email              String // Unique par organisation
   adresse            String
   pieceIdentite      String // Numéro de CNI / Passeport / Carte de séjour
   revenuMensuelMoyen Float? // Obligatoire pour les physiques
@@ -198,10 +254,14 @@ model Locataire {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  organization Organization @relation(fields: [organizationId], references: [id])
+
   // Relations
   contrats  ContratBail[]
   documents DocumentLocataire[]
 
+  @@unique([organizationId, email])
+  @@index([organizationId])
   @@map("locataires")
 }
 
@@ -238,30 +298,36 @@ enum StatutBail {
 }
 
 model ContratBail {
-  id            String            @id @default(uuid())
-  numeroContrat String            @unique
-  uniteId       String
-  locataireId   String
-  dateDebut     DateTime
-  dateFin       DateTime // Aligné au 31 décembre
-  loyerBase     Float
-  charges       Float
-  depotGarantie Float
-  frequence     FrequenceEcheance @default(MENSUEL)
-  statut        StatutBail        @default(ACTIF)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id               String            @id @default(uuid())
+  organizationId   String
+  numeroContrat    String // Générée automatiquement, unique par organisation
+  uniteId          String
+  locataireId      String
+  dateDebut        DateTime
+  dateFin          DateTime // Aligné au 31 décembre
+  loyerBase        Float
+  charges          Float
+  depotGarantie    Float
+  frequence        FrequenceEcheance @default(MENSUEL)
+  statut           StatutBail        @default(ACTIF)
+  motifResiliation String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  unite     Unite           @relation(fields: [uniteId], references: [id])
-  locataire Locataire       @relation(fields: [locataireId], references: [id])
-  echeances EcheanceLoyer[]
-  cautions  Caution[]
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  unite        Unite           @relation(fields: [uniteId], references: [id])
+  locataire    Locataire       @relation(fields: [locataireId], references: [id])
+  echeances    EcheanceLoyer[]
+  cautions     Caution[]
 
+  @@unique([organizationId, numeroContrat])
+  @@index([organizationId])
   @@map("contrats_bail")
 }
 
 model EcheanceLoyer {
   id             String   @id @default(uuid())
+  organizationId String
   contratId      String
   dateEcheance   DateTime
   montantLoyer   Float
@@ -271,11 +337,13 @@ model EcheanceLoyer {
   estPaye        Boolean  @default(false)
   createdAt      DateTime @default(now())
 
-  contrat   ContratBail @relation(fields: [contratId], references: [id], onDelete: Cascade)
-  factures  Facture[]
-  paiements Paiement[]
-  relances  Relance[]
+  organization Organization @relation(fields: [organizationId], references: [id])
+  contrat      ContratBail  @relation(fields: [contratId], references: [id], onDelete: Cascade)
+  factures     Facture[]
+  paiements    Paiement[]
+  relances     Relance[]
 
+  @@index([organizationId])
   @@map("echeances_loyer")
 }
 
@@ -291,36 +359,45 @@ enum ModePaiement {
 }
 
 model Facture {
-  id           String   @id @default(uuid())
-  numero       String   @unique
-  echeanceId   String
-  montant      Float
-  penalites    Float    @default(0)
-  totalDu      Float
-  dateEmission DateTime @default(now())
-  estSoldee    Boolean  @default(false)
+  id             String    @id @default(uuid())
+  organizationId String
+  numero         String // Générée automatiquement, unique par organisation
+  echeanceId     String
+  montant        Float
+  penalites      Float     @default(0)
+  totalDu        Float
+  dateEmission   DateTime  @default(now())
+  estSoldee      Boolean   @default(false)
+  avisEnvoye     Boolean   @default(false)
+  avisEnvoyeAt   DateTime?
 
-  echeance  EcheanceLoyer @relation(fields: [echeanceId], references: [id])
-  paiements Paiement[]
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  echeance     EcheanceLoyer @relation(fields: [echeanceId], references: [id])
+  paiements    Paiement[]
 
+  @@unique([organizationId, numero])
+  @@index([organizationId])
   @@map("factures")
 }
 
 model Paiement {
-  id           String       @id @default(uuid())
-  factureId    String
-  echeanceId   String
-  userId       String // Utilisateur ayant enregistré le paiement
-  mode         ModePaiement
-  montant      Float
-  reference    String? // Réf transaction Mobile Money ou virement, ou reçu physique espèces
-  datePaiement DateTime     @default(now())
-  estAnnule    Boolean      @default(false) // Nécessite double validation si modification/annulation
+  id             String       @id @default(uuid())
+  organizationId String
+  factureId      String
+  echeanceId     String
+  userId         String // Utilisateur ayant enregistré le paiement
+  mode           ModePaiement
+  montant        Float
+  reference      String? // Réf transaction Mobile Money ou virement, ou reçu physique espèces
+  datePaiement   DateTime     @default(now())
+  estAnnule      Boolean      @default(false) // Nécessite double validation si modification/annulation
 
+  organization  Organization  @relation(fields: [organizationId], references: [id])
   facture       Facture       @relation(fields: [factureId], references: [id])
   echeance      EcheanceLoyer @relation(fields: [echeanceId], references: [id])
   enregistrePar User          @relation(fields: [userId], references: [id])
 
+  @@index([organizationId])
   @@map("paiements")
 }
 
@@ -336,14 +413,17 @@ enum NiveauRelance {
 }
 
 model Relance {
-  id         String        @id @default(uuid())
-  echeanceId String
-  niveau     NiveauRelance
-  dateEnvoi  DateTime      @default(now())
-  details    String?
+  id             String        @id @default(uuid())
+  organizationId String
+  echeanceId     String
+  niveau         NiveauRelance
+  dateEnvoi      DateTime      @default(now())
+  details        String?
 
-  echeance EcheanceLoyer @relation(fields: [echeanceId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  echeance     EcheanceLoyer @relation(fields: [echeanceId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@map("relances")
 }
 
@@ -360,6 +440,7 @@ enum StatutCaution {
 
 model Caution {
   id              String        @id @default(uuid())
+  organizationId  String
   contratId       String
   montantInitial  Float
   montantRetenu   Float         @default(0)
@@ -369,8 +450,10 @@ model Caution {
   notes           String?
   createdAt       DateTime      @default(now())
 
-  contrat ContratBail @relation(fields: [contratId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  contrat      ContratBail  @relation(fields: [contratId], references: [id])
 
+  @@index([organizationId])
   @@map("cautions")
 }
 
@@ -396,6 +479,7 @@ enum StatutMaintenance {
 
 model Maintenance {
   id             String               @id @default(uuid())
+  organizationId String
   technicienId   String?
   categorie      CategorieMaintenance
   description    String
@@ -405,8 +489,10 @@ model Maintenance {
   dateDemande    DateTime             @default(now())
   dateResolution DateTime?
 
-  technicien User? @relation("TechnicienMaintenance", fields: [technicienId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  technicien   User?        @relation("TechnicienMaintenance", fields: [technicienId], references: [id])
 
+  @@index([organizationId])
   @@map("maintenances")
 }
 
@@ -421,6 +507,7 @@ enum StatutReversement {
 
 model Reversement {
   id             String            @id @default(uuid())
+  organizationId String
   proprietaireId String
   mois           Int
   annee          Int
@@ -432,9 +519,11 @@ model Reversement {
   dateGeneration DateTime          @default(now())
   dateValidation DateTime?
 
+  organization Organization @relation(fields: [organizationId], references: [id])
   proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
 
   @@unique([proprietaireId, mois, annee])
+  @@index([organizationId])
   @@map("reversements")
 }
 
@@ -456,6 +545,7 @@ enum StatutIncident {
 
 model Incident {
   id              String           @id @default(uuid())
+  organizationId  String
   titre           String
   description     String
   priorite        PrioriteIncident
@@ -468,8 +558,10 @@ model Incident {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  unite    Unite?    @relation(fields: [uniteId], references: [id], onDelete: Cascade)
-  immeuble Immeuble? @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
+  unite        Unite?       @relation(fields: [uniteId], references: [id], onDelete: Cascade)
+  immeuble     Immeuble?    @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@map("incidents")
 }

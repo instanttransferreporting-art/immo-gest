@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { IncidentService } from "@/features/incidents/services/incident.service";
 import {
     assignPrestataireSchema,
@@ -14,10 +15,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { IncidentDTO } from "@/features/incidents/types/incident.types";
 
 export async function createIncident(input: unknown): Promise<ActionResponse<IncidentDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("INCIDENT_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = incidentSchema.safeParse(input);
@@ -49,10 +54,14 @@ export async function createIncident(input: unknown): Promise<ActionResponse<Inc
 }
 
 export async function updateStatutIncident(input: unknown): Promise<ActionResponse<IncidentDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("INCIDENT_UPDATE_STATUT");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = updateStatutIncidentSchema.safeParse(input);
@@ -80,10 +89,14 @@ export async function updateStatutIncident(input: unknown): Promise<ActionRespon
 }
 
 export async function assignPrestataire(input: unknown): Promise<ActionResponse<IncidentDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("INCIDENT_ASSIGN_PRESTATAIRE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = assignPrestataireSchema.safeParse(input);

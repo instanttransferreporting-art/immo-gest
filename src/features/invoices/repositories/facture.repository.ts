@@ -9,6 +9,8 @@ const FACTURE_SELECT = {
     totalDu: true,
     dateEmission: true,
     estSoldee: true,
+    avisEnvoye: true,
+    avisEnvoyeAt: true,
     echeance: {
         select: {
             id: true,
@@ -26,7 +28,7 @@ const FACTURE_SELECT = {
                         select: { numero: true, immeuble: { select: { nom: true } } },
                     },
                     locataire: {
-                        select: { nom: true, prenom: true, raisonSociale: true },
+                        select: { nom: true, prenom: true, raisonSociale: true, email: true },
                     },
                 },
             },
@@ -37,13 +39,14 @@ const FACTURE_SELECT = {
 export type FactureRaw = Prisma.FactureGetPayload<{ select: typeof FACTURE_SELECT }>;
 
 export class FactureRepository {
-    static async countByNumeroPrefix(prefix: string) {
+    static async countByNumeroPrefix(organizationId: string, prefix: string) {
         return prisma.facture.count({
-            where: { numero: { startsWith: prefix } },
+            where: { organizationId, numero: { startsWith: prefix } },
         });
     }
 
     static async findExistingForContratMonth(
+        organizationId: string,
         contratId: string,
         monthStart: Date,
         monthEnd: Date,
@@ -51,6 +54,7 @@ export class FactureRepository {
     ) {
         return client.facture.findFirst({
             where: {
+                organizationId,
                 echeance: {
                     contratId,
                     dateEcheance: { gte: monthStart, lt: monthEnd },
@@ -61,6 +65,7 @@ export class FactureRepository {
     }
 
     static async createEcheanceAndFacture(
+        organizationId: string,
         data: {
             contratId: string;
             dateEcheance: Date;
@@ -74,6 +79,7 @@ export class FactureRepository {
 
         const echeance = await client.echeanceLoyer.create({
             data: {
+                organizationId,
                 contratId: data.contratId,
                 dateEcheance: data.dateEcheance,
                 montantLoyer: data.montantLoyer,
@@ -85,6 +91,7 @@ export class FactureRepository {
 
         return client.facture.create({
             data: {
+                organizationId,
                 numero: data.numero,
                 echeanceId: echeance.id,
                 montant: montantTotal,
@@ -94,16 +101,33 @@ export class FactureRepository {
         });
     }
 
-    static async findAll(): Promise<FactureRaw[]> {
+    static async findAll(organizationId: string): Promise<FactureRaw[]> {
         return prisma.facture.findMany({
+            where: { organizationId },
             select: FACTURE_SELECT,
             orderBy: { dateEmission: "desc" },
         });
     }
 
-    static async findById(id: string, client: Prisma.TransactionClient = prisma): Promise<FactureRaw | null> {
-        return client.facture.findUnique({
-            where: { id },
+    static async findImpayes(organizationId: string): Promise<FactureRaw[]> {
+        return prisma.facture.findMany({
+            where: {
+                organizationId,
+                estSoldee: false,
+                echeance: { dateEcheance: { lt: new Date() } },
+            },
+            select: FACTURE_SELECT,
+            orderBy: { echeance: { dateEcheance: "asc" } },
+        });
+    }
+
+    static async findById(
+        id: string,
+        organizationId: string,
+        client: Prisma.TransactionClient = prisma
+    ): Promise<FactureRaw | null> {
+        return client.facture.findFirst({
+            where: { id, organizationId },
             select: FACTURE_SELECT,
         });
     }
@@ -111,18 +135,27 @@ export class FactureRepository {
     static async updateAfterPayment(
         factureId: string,
         echeanceId: string,
+        organizationId: string,
         data: { soldeRestant: number; estPaye: boolean; estSoldee: boolean },
         client: Prisma.TransactionClient = prisma
-    ): Promise<FactureRaw> {
-        await client.echeanceLoyer.update({
-            where: { id: echeanceId },
+    ): Promise<FactureRaw | null> {
+        await client.echeanceLoyer.updateMany({
+            where: { id: echeanceId, organizationId },
             data: { soldeRestant: data.soldeRestant, estPaye: data.estPaye },
         });
 
-        return client.facture.update({
-            where: { id: factureId },
+        await client.facture.updateMany({
+            where: { id: factureId, organizationId },
             data: { estSoldee: data.estSoldee },
-            select: FACTURE_SELECT,
+        });
+
+        return FactureRepository.findById(factureId, organizationId, client);
+    }
+
+    static async markAvisEnvoye(factureId: string, organizationId: string): Promise<void> {
+        await prisma.facture.updateMany({
+            where: { id: factureId, organizationId },
+            data: { avisEnvoye: true, avisEnvoyeAt: new Date() },
         });
     }
 }

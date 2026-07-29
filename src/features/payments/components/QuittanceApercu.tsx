@@ -1,6 +1,6 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,15 +36,25 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
                         <p className="text-sm text-slate-500">Facture {facture.numero}</p>
                     </div>
 
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-lg print:hidden"
-                        onClick={() => window.print()}
-                    >
-                        <Printer className="h-4 w-4" />
-                        Imprimer
-                    </Button>
+                    <div className="flex gap-2 print:hidden">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="rounded-lg"
+                            onClick={() => window.print()}
+                        >
+                            <Printer className="h-4 w-4" />
+                            Imprimer
+                        </Button>
+
+                        <Button
+                            render={<a href={`/api/export/quittance?factureId=${facture.id}`} />}
+                            className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                        >
+                            <Download className="h-4 w-4" />
+                            Télécharger PDF
+                        </Button>
+                    </div>
                 </div>
 
                 <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">

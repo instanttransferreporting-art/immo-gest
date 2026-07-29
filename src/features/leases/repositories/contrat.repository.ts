@@ -15,6 +15,7 @@ const CONTRAT_SELECT = {
     depotGarantie: true,
     frequence: true,
     statut: true,
+    motifResiliation: true,
     createdAt: true,
     unite: {
         select: {
@@ -28,19 +29,57 @@ const CONTRAT_SELECT = {
     },
 } as const;
 
+const CONTRAT_EXPORT_SELECT = {
+    id: true,
+    numeroContrat: true,
+    dateDebut: true,
+    dateFin: true,
+    loyerBase: true,
+    charges: true,
+    depotGarantie: true,
+    frequence: true,
+    statut: true,
+    unite: {
+        select: {
+            numero: true,
+            type: true,
+            immeuble: {
+                select: {
+                    nom: true,
+                    adresse: true,
+                    ville: true,
+                    proprietaire: { select: { nom: true, prenom: true } },
+                },
+            },
+        },
+    },
+    locataire: {
+        select: {
+            nom: true,
+            prenom: true,
+            raisonSociale: true,
+            telephone: true,
+            email: true,
+            pieceIdentite: true,
+        },
+    },
+} as const;
+
 export class ContratRepository {
-    static async countByNumeroPrefix(prefix: string) {
+    static async countByNumeroPrefix(organizationId: string, prefix: string) {
         return prisma.contratBail.count({
-            where: { numeroContrat: { startsWith: prefix } },
+            where: { organizationId, numeroContrat: { startsWith: prefix } },
         });
     }
 
     static async create(
+        organizationId: string,
         data: ContratFormValues & { numeroContrat: string },
         client: Prisma.TransactionClient = prisma
     ) {
         return client.contratBail.create({
             data: {
+                organizationId,
                 numeroContrat: data.numeroContrat,
                 uniteId: data.uniteId,
                 locataireId: data.locataireId,
@@ -55,25 +94,62 @@ export class ContratRepository {
         });
     }
 
-    static async findAll() {
+    static async findAll(organizationId: string) {
         return prisma.contratBail.findMany({
+            where: { organizationId },
             select: CONTRAT_SELECT,
             orderBy: { createdAt: "desc" },
         });
     }
 
-    static async findById(id: string) {
-        return prisma.contratBail.findUnique({
-            where: { id },
+    static async findById(id: string, organizationId: string, client: Prisma.TransactionClient = prisma) {
+        return client.contratBail.findFirst({
+            where: { id, organizationId },
             select: CONTRAT_SELECT,
         });
     }
 
-    static async findAllActive() {
+    static async findAllActive(organizationId: string) {
         return prisma.contratBail.findMany({
-            where: { statut: StatutBail.ACTIF },
+            where: { organizationId, statut: StatutBail.ACTIF },
             select: CONTRAT_SELECT,
             orderBy: { createdAt: "desc" },
+        });
+    }
+
+    static async findByIdForExport(id: string, organizationId: string) {
+        return prisma.contratBail.findFirst({
+            where: { id, organizationId },
+            select: CONTRAT_EXPORT_SELECT,
+        });
+    }
+
+    static async findAllActiveForExport(organizationId: string) {
+        return prisma.contratBail.findMany({
+            where: { organizationId, statut: StatutBail.ACTIF },
+            select: CONTRAT_EXPORT_SELECT,
+            orderBy: { createdAt: "desc" },
+        });
+    }
+
+    static async updateResiliation(
+        id: string,
+        organizationId: string,
+        data: { dateFin: Date; motifResiliation?: string },
+        client: Prisma.TransactionClient = prisma
+    ) {
+        await client.contratBail.updateMany({
+            where: { id, organizationId, statut: StatutBail.ACTIF },
+            data: {
+                statut: StatutBail.RESILIE,
+                dateFin: data.dateFin,
+                motifResiliation: data.motifResiliation,
+            },
+        });
+
+        return client.contratBail.findFirst({
+            where: { id, organizationId },
+            select: CONTRAT_SELECT,
         });
     }
 }

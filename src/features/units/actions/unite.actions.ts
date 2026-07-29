@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { UniteService } from "@/features/units/services/unite.service";
 import { uniteSchema } from "@/features/units/schemas/unit.schema";
 import { ROUTES } from "@/constants/routes";
@@ -10,10 +11,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { UniteDTO } from "@/features/units/types/unit.types";
 
 export async function createUnite(input: unknown): Promise<ActionResponse<UniteDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("UNITE_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = uniteSchema.safeParse(input);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Receipt } from "lucide-react";
+import { Mail, MailCheck, Receipt } from "lucide-react";
 
 import {
     Table,
@@ -23,6 +23,8 @@ const currencyFormatter = new Intl.NumberFormat("fr-FR", {
     currency: "XAF",
     maximumFractionDigits: 0,
 });
+
+const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
 
 const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "outline"> = {
     EN_ATTENTE: "outline",
@@ -52,6 +54,7 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                         <TableHead>Période</TableHead>
                         <TableHead>Montant total</TableHead>
                         <TableHead>Statut</TableHead>
+                        <TableHead>Email</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -85,6 +88,22 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                                 <Badge variant={STATUT_BADGE_VARIANT[facture.statut]} className="rounded-lg">
                                     {STATUT_FACTURE_LABELS[facture.statut]}
                                 </Badge>
+                            </TableCell>
+                            <TableCell>
+                                {facture.avisEnvoye ? (
+                                    <Badge
+                                        className="rounded-lg bg-emerald-50 text-emerald-700"
+                                        title={facture.avisEnvoyeAt ? dateFormatter.format(facture.avisEnvoyeAt) : undefined}
+                                    >
+                                        <MailCheck className="h-3.5 w-3.5" />
+                                        Avis envoyé
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="outline" className="rounded-lg text-slate-500">
+                                        <Mail className="h-3.5 w-3.5" />
+                                        Non envoyé
+                                    </Badge>
+                                )}
                             </TableCell>
                         </TableRow>
                     ))}

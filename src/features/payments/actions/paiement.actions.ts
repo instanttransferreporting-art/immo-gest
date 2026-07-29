@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import type { Session } from "next-auth";
+
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { InsufficientBalanceError, PaiementService } from "@/features/payments/services/paiement.service";
 import { FactureNotFoundError } from "@/features/invoices/services/facture.service";
 import { paiementSchema } from "@/features/payments/schemas/payment.schema";
@@ -11,10 +14,16 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
 
 export async function createPaiement(input: unknown): Promise<ActionResponse<PaiementDTO>> {
-    const session = await getCurrentSession();
+    let user: Session["user"];
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+    try {
+        user = await checkPermission("PAIEMENT_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
+
+        throw error;
     }
 
     const parsed = paiementSchema.safeParse(input);
@@ -28,10 +37,11 @@ export async function createPaiement(input: unknown): Promise<ActionResponse<Pai
     }
 
     try {
-        const paiement = await PaiementService.create(parsed.data, session.user.id);
+        const paiement = await PaiementService.create(parsed.data, user.id);
 
         revalidatePath(`${ROUTES.INVOICES}/${parsed.data.factureId}`);
         revalidatePath(ROUTES.INVOICES);
+        revalidatePath(ROUTES.RECOUVREMENT);
 
         return {
             success: true,

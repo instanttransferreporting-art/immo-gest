@@ -1,3 +1,4 @@
+import { getCurrentOrganizationId } from "@/lib/auth";
 import { ReversementRepository } from "@/features/payouts/repositories/reversement.repository";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
 import { ProprietaireService } from "@/features/properties/services/proprietaire.service";
@@ -32,13 +33,14 @@ function getMonthRange(mois: number, annee: number): { start: Date; end: Date } 
 
 export class ReversementService {
     static async genererReversement(proprietaireId: string, mois: number, annee: number): Promise<ReversementDTO> {
+        const organizationId = await getCurrentOrganizationId();
         const proprietaire = await ProprietaireService.getById(proprietaireId);
 
         if (!proprietaire) {
             throw new ProprietaireNotFoundError();
         }
 
-        const existing = await ReversementRepository.findExisting(proprietaireId, mois, annee);
+        const existing = await ReversementRepository.findExisting(organizationId, proprietaireId, mois, annee);
 
         if (existing) {
             throw new DuplicateReversementError();
@@ -46,6 +48,7 @@ export class ReversementService {
 
         const { start, end } = getMonthRange(mois, annee);
         const totalEncaisse = await ReversementRepository.sumEncaisseForProprietaireMonth(
+            organizationId,
             proprietaireId,
             start,
             end
@@ -54,7 +57,7 @@ export class ReversementService {
         const commission = (totalEncaisse * proprietaire.tauxCommission) / 100;
         const netAPayer = totalEncaisse - commission;
 
-        return ReversementRepository.create({
+        return ReversementRepository.create(organizationId, {
             proprietaireId,
             mois,
             annee,
@@ -66,16 +69,24 @@ export class ReversementService {
     }
 
     static async validerReversement(reversementId: string): Promise<ReversementDTO> {
-        const reversement = await ReversementRepository.findById(reversementId);
+        const organizationId = await getCurrentOrganizationId();
+        const reversement = await ReversementRepository.findById(reversementId, organizationId);
 
         if (!reversement) {
             throw new ReversementNotFoundError();
         }
 
-        return ReversementRepository.markValide(reversementId);
+        const updated = await ReversementRepository.markValide(reversementId, organizationId);
+
+        if (!updated) {
+            throw new ReversementNotFoundError();
+        }
+
+        return updated;
     }
 
     static async listByProprietaire(proprietaireId: string): Promise<ReversementDTO[]> {
-        return ReversementRepository.findByProprietaire(proprietaireId);
+        const organizationId = await getCurrentOrganizationId();
+        return ReversementRepository.findByProprietaire(proprietaireId, organizationId);
     }
 }

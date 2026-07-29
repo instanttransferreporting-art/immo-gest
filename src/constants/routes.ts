@@ -5,7 +5,7 @@ export const ROUTES = {
 
     DASHBOARD: "/dashboard",
 
-    ORGANIZATIONS: "/organizations",
+    PLATFORM: "/platform",
 
     PROPERTIES: "/properties",
 
@@ -16,6 +16,8 @@ export const ROUTES = {
     LEASES: "/leases",
 
     INVOICES: "/invoices",
+
+    RECOUVREMENT: "/recouvrement",
 
     PAYMENTS: "/payments",
 

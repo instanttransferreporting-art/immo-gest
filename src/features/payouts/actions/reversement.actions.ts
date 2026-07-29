@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import {
     DuplicateReversementError,
     ProprietaireNotFoundError,
@@ -14,10 +15,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
 
 export async function genererReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("REVERSEMENT_GENERER");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = genererReversementSchema.safeParse(input);
@@ -57,10 +62,14 @@ export async function genererReversement(input: unknown): Promise<ActionResponse
 }
 
 export async function validerReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("REVERSEMENT_VALIDER");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = validerReversementSchema.safeParse(input);

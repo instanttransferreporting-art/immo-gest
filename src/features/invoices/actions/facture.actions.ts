@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import {
     ContratNotFoundError,
     DuplicateInvoiceError,
@@ -14,10 +15,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 
 export async function genererFactureUnique(input: unknown): Promise<ActionResponse<FactureDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("FACTURE_GENERER");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = genererFactureSchema.safeParse(input);
@@ -57,10 +62,14 @@ export async function genererFactureUnique(input: unknown): Promise<ActionRespon
 }
 
 export async function genererFacturesDuMois(input: unknown): Promise<ActionResponse<{ crees: number; ignorees: number }>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("FACTURE_GENERER");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = genererFacturesDuMoisSchema.safeParse(input);

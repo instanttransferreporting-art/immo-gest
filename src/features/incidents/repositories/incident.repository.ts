@@ -25,9 +25,10 @@ const INCIDENT_SELECT = {
 } as const;
 
 export class IncidentRepository {
-    static async create(data: IncidentFormValues) {
+    static async create(organizationId: string, data: IncidentFormValues) {
         return prisma.incident.create({
             data: {
+                organizationId,
                 titre: data.titre,
                 description: data.description,
                 priorite: data.priorite,
@@ -39,29 +40,32 @@ export class IncidentRepository {
         });
     }
 
-    static async findAll() {
+    static async findAll(organizationId: string) {
         return prisma.incident.findMany({
+            where: { organizationId },
             select: INCIDENT_SELECT,
             orderBy: { dateSignalement: "desc" },
         });
     }
 
-    static async updateStatut(id: string, statut: StatutIncident) {
-        return prisma.incident.update({
-            where: { id },
+    static async updateStatut(id: string, organizationId: string, statut: StatutIncident) {
+        await prisma.incident.updateMany({
+            where: { id, organizationId },
             data: {
                 statut,
                 dateResolution: statut === "RESOLU" ? new Date() : null,
             },
-            select: INCIDENT_SELECT,
         });
+
+        return prisma.incident.findFirst({ where: { id, organizationId }, select: INCIDENT_SELECT });
     }
 
-    static async updatePrestataire(id: string, prestataire: string) {
-        return prisma.incident.update({
-            where: { id },
+    static async updatePrestataire(id: string, organizationId: string, prestataire: string) {
+        await prisma.incident.updateMany({
+            where: { id, organizationId },
             data: { prestataire },
-            select: INCIDENT_SELECT,
         });
+
+        return prisma.incident.findFirst({ where: { id, organizationId }, select: INCIDENT_SELECT });
     }
 }

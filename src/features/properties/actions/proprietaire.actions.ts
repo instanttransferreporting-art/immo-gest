@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession } from "@/lib/auth";
+import { getCurrentSession, UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { ProprietaireService } from "@/features/properties/services/proprietaire.service";
 import { proprietaireSchema } from "@/features/properties/schemas/property.schema";
 import { ROUTES } from "@/constants/routes";
@@ -10,10 +11,14 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { ProprietaireDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
 
 export async function createProprietaire(input: unknown): Promise<ActionResponse<ProprietaireDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("PROPRIETAIRE_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = proprietaireSchema.safeParse(input);

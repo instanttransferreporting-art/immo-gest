@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { Prisma } from "@/generated/prisma/client";
-import { getCurrentSession } from "@/lib/auth";
+import { UnauthenticatedError } from "@/lib/auth";
+import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { LocataireService } from "@/features/tenants/services/locataire.service";
 import { locataireSchema } from "@/features/tenants/schemas/tenant.schema";
 import { ROUTES } from "@/constants/routes";
@@ -13,10 +14,14 @@ import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
 const UNIQUE_CONSTRAINT_ERROR_CODE = "P2002";
 
 export async function createLocataire(input: unknown): Promise<ActionResponse<LocataireDTO>> {
-    const session = await getCurrentSession();
+    try {
+        await checkPermission("LOCATAIRE_CREATE");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
 
-    if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        throw error;
     }
 
     const parsed = locataireSchema.safeParse(input);
