@@ -1,4 +1,13 @@
-import type { TypeLocataire } from "@/generated/prisma/enums";
+import type { StatutBail, TypeLocataire } from "@/generated/prisma/enums";
+
+export type LocataireContratDTO = Readonly<{
+    id: string;
+    numeroContrat: string;
+    statut: StatutBail;
+    dateDebut: Date;
+    dateFin: Date;
+    unite: Readonly<{ numero: string; immeuble: Readonly<{ nom: string }> }>;
+}>;
 
 export type LocataireDTO = Readonly<{
     id: string;
@@ -18,6 +27,7 @@ export type LocataireDTO = Readonly<{
     telephoneMoral: string | null;
     emailMoral: string | null;
     createdAt: Date;
+    contrats: readonly LocataireContratDTO[];
 }>;
 
 export type LocataireOptionDTO = Readonly<{

@@ -51,7 +51,6 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
                         <TableHead>Nom</TableHead>
                         <TableHead>Ville</TableHead>
                         <TableHead>Propriétaire</TableHead>
-                        <TableHead>Logements</TableHead>
                         <TableHead>Valeur estimative</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -77,7 +76,6 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
                             <TableCell className="text-muted-foreground">
                                 {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">{immeuble.nombreLogements}</TableCell>
                             <TableCell className="text-muted-foreground">
                                 {immeuble.valeurEstimative != null
                                     ? currencyFormatter.format(immeuble.valeurEstimative)

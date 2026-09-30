@@ -19,6 +19,49 @@ const PAIEMENT_SELECT = {
     },
 } as const;
 
+const PAIEMENT_LIST_SELECT = {
+    id: true,
+    factureId: true,
+    mode: true,
+    montant: true,
+    reference: true,
+    datePaiement: true,
+    estAnnule: true,
+    enregistrePar: { select: { nom: true, prenom: true } },
+    facture: { select: { numero: true } },
+    echeance: {
+        select: {
+            contrat: {
+                select: {
+                    unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+                    locataire: { select: { nom: true, prenom: true, raisonSociale: true } },
+                },
+            },
+        },
+    },
+} as const;
+
+const PAIEMENT_EXPORT_SELECT = {
+    id: true,
+    mode: true,
+    montant: true,
+    reference: true,
+    datePaiement: true,
+    enregistrePar: { select: { nom: true, prenom: true } },
+    facture: { select: { numero: true } },
+    echeance: {
+        select: {
+            contrat: {
+                select: {
+                    numeroContrat: true,
+                    unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+                    locataire: { select: { nom: true, prenom: true, raisonSociale: true } },
+                },
+            },
+        },
+    },
+} as const;
+
 export class PaiementRepository {
     static async create(
         organizationId: string,
@@ -50,6 +93,33 @@ export class PaiementRepository {
         return client.paiement.findFirst({
             where: { id, organizationId },
             select: PAIEMENT_SELECT,
+        });
+    }
+
+    static async findAllForPerformance(organizationId: string) {
+        return prisma.paiement.findMany({
+            where: { organizationId, estAnnule: false },
+            select: {
+                montant: true,
+                datePaiement: true,
+                echeance: { select: { contrat: { select: { unite: { select: { immeubleId: true } } } } } },
+            },
+        });
+    }
+
+    static async findAllForOrganization(organizationId: string) {
+        return prisma.paiement.findMany({
+            where: { organizationId },
+            select: PAIEMENT_LIST_SELECT,
+            orderBy: { datePaiement: "desc" },
+        });
+    }
+
+    static async findAllForExport(organizationId: string) {
+        return prisma.paiement.findMany({
+            where: { organizationId, estAnnule: false },
+            select: PAIEMENT_EXPORT_SELECT,
+            orderBy: { datePaiement: "desc" },
         });
     }
 

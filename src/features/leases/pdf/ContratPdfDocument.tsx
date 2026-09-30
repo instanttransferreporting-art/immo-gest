@@ -1,5 +1,7 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
+import { formatMontantPdf } from "@/lib/pdf-format";
+
 type ContratPdfDocumentProps = {
     organizationNom: string;
     organizationAdresse: string | null;
@@ -19,12 +21,6 @@ type ContratPdfDocumentProps = {
     frequenceLabel: string;
     depotGarantie: number;
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const styles = StyleSheet.create({
     page: {
@@ -195,11 +191,11 @@ export function ContratPdfDocument({
                 <Text style={styles.sectionTitle}>Article 3 — Loyer et charges</Text>
                 <View style={styles.row}>
                     <Text style={styles.label}>Loyer mensuel de base</Text>
-                    <Text style={styles.value}>{currencyFormatter.format(loyerBase)}</Text>
+                    <Text style={styles.value}>{formatMontantPdf(loyerBase)}</Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.label}>Charges</Text>
-                    <Text style={styles.value}>{currencyFormatter.format(charges)}</Text>
+                    <Text style={styles.value}>{formatMontantPdf(charges)}</Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.label}>Fréquence de paiement</Text>
@@ -211,7 +207,7 @@ export function ContratPdfDocument({
 
                 <Text style={styles.sectionTitle}>Article 4 — Dépôt de garantie</Text>
                 <Text style={styles.paragraph}>
-                    Un dépôt de garantie de <Text style={styles.value}>{currencyFormatter.format(depotGarantie)}</Text>{" "}
+                    Un dépôt de garantie de <Text style={styles.value}>{formatMontantPdf(depotGarantie)}</Text>{" "}
                     est versé par le Preneur à la signature du présent contrat. Il sera restitué en fin de bail,
                     déduction faite le cas échéant des sommes dues au titre de dégradations locatives ou d&apos;impayés.
                 </Text>

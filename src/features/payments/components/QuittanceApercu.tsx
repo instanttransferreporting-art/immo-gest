@@ -50,6 +50,7 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
                         <Button
                             render={<a href={`/api/export/quittance?factureId=${facture.id}`} />}
                             className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
                             Télécharger PDF

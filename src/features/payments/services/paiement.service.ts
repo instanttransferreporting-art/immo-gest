@@ -9,7 +9,7 @@ import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.cons
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import type { PaiementFormValues } from "@/features/payments/schemas/payment.schema";
-import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import type { PaiementDTO, PaiementListItemDTO } from "@/features/payments/types/payment.types";
 
 export class InsufficientBalanceError extends Error {
     constructor() {
@@ -116,6 +116,27 @@ export class PaiementService {
     static async listByFacture(factureId: string): Promise<PaiementDTO[]> {
         const organizationId = await getCurrentOrganizationId();
         return PaiementRepository.findByFacture(factureId, organizationId);
+    }
+
+    static async listAll(): Promise<PaiementListItemDTO[]> {
+        const organizationId = await getCurrentOrganizationId();
+        const paiements = await PaiementRepository.findAllForOrganization(organizationId);
+
+        return paiements.map((paiement) => ({
+            id: paiement.id,
+            factureId: paiement.factureId,
+            factureNumero: paiement.facture.numero,
+            mode: paiement.mode,
+            montant: paiement.montant,
+            reference: paiement.reference,
+            datePaiement: paiement.datePaiement,
+            estAnnule: paiement.estAnnule,
+            locataireNom:
+                paiement.echeance.contrat.locataire.raisonSociale ??
+                `${paiement.echeance.contrat.locataire.nom} ${paiement.echeance.contrat.locataire.prenom}`,
+            uniteLabel: `${paiement.echeance.contrat.unite.immeuble.nom} — ${paiement.echeance.contrat.unite.numero}`,
+            enregistreParNom: `${paiement.enregistrePar.nom} ${paiement.enregistrePar.prenom}`,
+        }));
     }
 
     /**

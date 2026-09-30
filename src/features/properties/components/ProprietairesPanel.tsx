@@ -68,7 +68,7 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                         <p className="text-sm text-muted-foreground">Ajoutez un propriétaire pour pouvoir créer un immeuble.</p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-slate-100">
+                    <ul className="divide-y divide-border">
                         {proprietaires.map((proprietaire) => (
                             <li key={proprietaire.id} className="flex items-center justify-between py-3">
                                 <div>

@@ -41,7 +41,6 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
             adresse: immeuble.adresse,
             ville: immeuble.ville,
             nombreNiveaux: immeuble.nombreNiveaux,
-            nombreLogements: immeuble.nombreLogements,
             valeurEstimative: immeuble.valeurEstimative ?? undefined,
             proprietaireId: immeuble.proprietaireId,
         },
@@ -55,7 +54,6 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                 adresse: immeuble.adresse,
                 ville: immeuble.ville,
                 nombreNiveaux: immeuble.nombreNiveaux,
-                nombreLogements: immeuble.nombreLogements,
                 valeurEstimative: immeuble.valeurEstimative ?? undefined,
                 proprietaireId: immeuble.proprietaireId,
             });
@@ -162,7 +160,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-nombreNiveaux" className="text-sm font-medium text-foreground">
                                 Niveaux
@@ -176,22 +174,6 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                             />
                             {errors.nombreNiveaux && (
                                 <p className="animate-pulse text-sm text-red-500">{errors.nombreNiveaux.message}</p>
-                            )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label htmlFor="edit-nombreLogements" className="text-sm font-medium text-foreground">
-                                Logements
-                            </label>
-                            <Input
-                                id="edit-nombreLogements"
-                                type="number"
-                                min={1}
-                                className={cn("h-10 rounded-xl", errors.nombreLogements && "border-red-500")}
-                                {...register("nombreLogements", { valueAsNumber: true })}
-                            />
-                            {errors.nombreLogements && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.nombreLogements.message}</p>
                             )}
                         </div>
 

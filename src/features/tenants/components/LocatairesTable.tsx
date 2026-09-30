@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
+import { LocataireContratsList } from "@/features/tenants/components/LocataireContratsList";
 import { LocataireDetailModal } from "@/features/tenants/components/LocataireDetailModal";
 import { LocataireEditModal } from "@/features/tenants/components/LocataireEditModal";
 import { TypeLocataire } from "@/generated/prisma/enums";
@@ -45,6 +46,7 @@ export function LocatairesTable({ locataires }: LocatairesTableProps) {
                         <TableHead>Téléphone</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Pièce d&apos;identité</TableHead>
+                        <TableHead>Contrat(s)</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -78,6 +80,9 @@ export function LocatairesTable({ locataires }: LocatairesTableProps) {
                                     {isPhysique ? locataire.email : locataire.emailMoral ?? locataire.email}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">{locataire.pieceIdentite}</TableCell>
+                                <TableCell>
+                                    <LocataireContratsList contrats={locataire.contrats} maxVisible={1} />
+                                </TableCell>
                                 <TableCell>
                                     <div className="flex items-center justify-end gap-2">
                                         <LocataireDetailModal locataire={locataire} />

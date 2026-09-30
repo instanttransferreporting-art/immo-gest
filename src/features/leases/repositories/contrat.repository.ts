@@ -138,6 +138,22 @@ export class ContratRepository {
         });
     }
 
+    static async findByStatutsForExport(organizationId: string, statuts: StatutBail[]) {
+        return prisma.contratBail.findMany({
+            where: { organizationId, statut: { in: statuts } },
+            select: CONTRAT_EXPORT_SELECT,
+            orderBy: { dateFin: "desc" },
+        });
+    }
+
+    static async findExpiringSoon(organizationId: string, before: Date) {
+        return prisma.contratBail.findMany({
+            where: { organizationId, statut: StatutBail.ACTIF, dateFin: { lte: before } },
+            select: CONTRAT_SELECT,
+            orderBy: { dateFin: "asc" },
+        });
+    }
+
     static async updateResiliation(
         id: string,
         organizationId: string,

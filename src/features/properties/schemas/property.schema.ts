@@ -42,10 +42,6 @@ export const immeubleSchema = z.object({
         .number({ error: "Nombre entier requis." })
         .int({ error: "Nombre entier requis." })
         .min(1, { error: "Doit être au moins 1." }),
-    nombreLogements: z
-        .number({ error: "Nombre entier requis." })
-        .int({ error: "Nombre entier requis." })
-        .min(1, { error: "Doit être au moins 1." }),
     valeurEstimative: z
         .number()
         .min(0, { error: "La valeur ne peut pas être négative." })

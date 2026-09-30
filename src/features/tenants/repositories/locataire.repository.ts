@@ -20,6 +20,17 @@ const LOCATAIRE_SELECT = {
     telephoneMoral: true,
     emailMoral: true,
     createdAt: true,
+    contrats: {
+        select: {
+            id: true,
+            numeroContrat: true,
+            statut: true,
+            dateDebut: true,
+            dateFin: true,
+            unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+        },
+        orderBy: { dateDebut: "desc" },
+    },
 } as const;
 
 export class LocataireRepository {

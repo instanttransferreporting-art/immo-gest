@@ -1,5 +1,7 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
+import { formatMontantPdf } from "@/lib/pdf-format";
+
 type QuittancePdfDocumentProps = {
     organizationNom: string;
     organizationAdresse: string | null;
@@ -15,12 +17,6 @@ type QuittancePdfDocumentProps = {
     totalEncaisse: number;
     soldeRestant: number;
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const styles = StyleSheet.create({
     page: {
@@ -137,30 +133,30 @@ export function QuittancePdfDocument({
                 <View style={styles.section}>
                     <View style={styles.row}>
                         <Text style={styles.label}>Loyer</Text>
-                        <Text>{currencyFormatter.format(montantLoyer)}</Text>
+                        <Text>{formatMontantPdf(montantLoyer)}</Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.label}>Charges</Text>
-                        <Text>{currencyFormatter.format(montantCharges)}</Text>
+                        <Text>{formatMontantPdf(montantCharges)}</Text>
                     </View>
                     {penalites > 0 ? (
                         <View style={styles.row}>
                             <Text style={styles.label}>Pénalités de retard</Text>
-                            <Text style={{ color: "#dc2626" }}>{currencyFormatter.format(penalites)}</Text>
+                            <Text style={{ color: "#dc2626" }}>{formatMontantPdf(penalites)}</Text>
                         </View>
                     ) : null}
                     <View style={styles.row}>
                         <Text style={styles.label}>Total dû</Text>
-                        <Text style={styles.value}>{currencyFormatter.format(totalDu)}</Text>
+                        <Text style={styles.value}>{formatMontantPdf(totalDu)}</Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.label}>Total encaissé</Text>
-                        <Text style={styles.value}>{currencyFormatter.format(totalEncaisse)}</Text>
+                        <Text style={styles.value}>{formatMontantPdf(totalEncaisse)}</Text>
                     </View>
 
                     <View style={styles.totalRow}>
                         <Text>Reste à payer</Text>
-                        <Text>{currencyFormatter.format(soldeRestant)}</Text>
+                        <Text>{formatMontantPdf(soldeRestant)}</Text>
                     </View>
                 </View>
 

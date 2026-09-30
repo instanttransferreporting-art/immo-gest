@@ -161,7 +161,6 @@ model Immeuble {
   adresse          String
   ville            String
   nombreNiveaux    Int
-  nombreLogements  Int
   valeurEstimative Float?
   proprietaireId   String
   createdAt        DateTime @default(now())

@@ -13,6 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
+import { LocataireContratsList } from "@/features/tenants/components/LocataireContratsList";
 import { TypeLocataire } from "@/generated/prisma/enums";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
 
@@ -67,6 +68,11 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                         </Badge>
                     </DialogTitle>
                 </DialogHeader>
+
+                <div className="space-y-1.5">
+                    <p className="text-sm font-medium text-foreground">Contrat(s)</p>
+                    <LocataireContratsList contrats={locataire.contrats} maxVisible={3} />
+                </div>
 
                 <dl className="space-y-3 text-sm">
                     {/* Informations personnelles */}

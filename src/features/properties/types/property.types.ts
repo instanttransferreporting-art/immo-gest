@@ -35,7 +35,6 @@ export type ImmeubleDTO = Readonly<{
     adresse: string;
     ville: string;
     nombreNiveaux: number;
-    nombreLogements: number;
     valeurEstimative: number | null;
     proprietaireId: string;
     proprietaire: ProprietaireOptionDTO;

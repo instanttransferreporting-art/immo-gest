@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button";
 import { DashboardContent } from "@/features/dashboard/components/DashboardContent";
 import { getCurrentSession } from "@/lib/auth";
 import { PERMISSIONS } from "@/constants/permissions";
-import type { RoleType } from "@/generated/prisma/enums";
+import { RoleType } from "@/generated/prisma/enums";
 
 export default async function DashboardPage() {
     const session = await getCurrentSession();
     const parcExportRoles: readonly RoleType[] = PERMISSIONS.PARC_EXPORT;
     const canExportParc =
         !!session && (!!session.user.impersonatedOrganizationId || parcExportRoles.includes(session.user.role));
+    const isDirecteurGeneral =
+        !!session && !session.user.impersonatedOrganizationId && session.user.role === RoleType.DIRECTEUR_GENERAL;
 
     return (
 
@@ -26,7 +28,7 @@ export default async function DashboardPage() {
                     description="Vue d'ensemble de votre activité."
                 />
 
-                {canExportParc && (
+                {canExportParc && !isDirecteurGeneral && (
                     <Button
                         // eslint-disable-next-line @next/next/no-html-link-for-pages -- file download endpoint, not a page route
                         render={<a href="/api/export/parc" />}
@@ -41,7 +43,7 @@ export default async function DashboardPage() {
             </div>
 
             <div className="mt-6">
-                <DashboardContent />
+                <DashboardContent isDirecteurGeneral={isDirecteurGeneral} />
             </div>
 
         </Container>

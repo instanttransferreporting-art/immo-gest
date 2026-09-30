@@ -52,10 +52,6 @@ export default async function ImmeubleDetailPage({ params }: PageProps) {
                                 <dd className="font-medium text-foreground">{immeuble.nombreNiveaux}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Logements</dt>
-                                <dd className="font-medium text-foreground">{immeuble.nombreLogements}</dd>
-                            </div>
-                            <div className="flex justify-between">
                                 <dt className="text-muted-foreground">Unités enregistrées</dt>
                                 <dd className="font-medium text-foreground">{unites.length}</dd>
                             </div>

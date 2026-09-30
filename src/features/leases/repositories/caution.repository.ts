@@ -14,6 +14,23 @@ const CAUTION_SELECT = {
     createdAt: true,
 } as const;
 
+const CAUTION_EXPORT_SELECT = {
+    id: true,
+    montantInitial: true,
+    montantRetenu: true,
+    montantRendu: true,
+    statut: true,
+    dateRestitution: true,
+    createdAt: true,
+    contrat: {
+        select: {
+            numeroContrat: true,
+            unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+            locataire: { select: { nom: true, prenom: true, raisonSociale: true } },
+        },
+    },
+} as const;
+
 export class CautionRepository {
     static async create(
         organizationId: string,
@@ -37,6 +54,14 @@ export class CautionRepository {
         return client.caution.findFirst({
             where: { id, organizationId },
             select: CAUTION_SELECT,
+        });
+    }
+
+    static async findAllForExport(organizationId: string) {
+        return prisma.caution.findMany({
+            where: { organizationId },
+            select: CAUTION_EXPORT_SELECT,
+            orderBy: { createdAt: "desc" },
         });
     }
 

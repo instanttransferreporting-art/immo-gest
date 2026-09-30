@@ -31,6 +31,7 @@ export const PERMISSIONS = {
     PARC_EXPORT: [RoleType.ADMIN, RoleType.GESTIONNAIRE, RoleType.COMPTABLE, RoleType.DIRECTEUR_GENERAL],
     AUDIT_VIEW: [RoleType.ADMIN],
     PAIEMENT_ANNULER: [RoleType.ADMIN],
+    RAPPORTS_VIEW: [RoleType.ADMIN, RoleType.GESTIONNAIRE, RoleType.COMPTABLE, RoleType.DIRECTEUR_GENERAL],
 } as const satisfies Record<string, readonly RoleType[]>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

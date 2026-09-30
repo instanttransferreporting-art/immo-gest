@@ -48,6 +48,7 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
                         <Button
                             render={<a href={`/api/export/reversement?reversementId=${reversement.id}`} />}
                             className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
                             Export Excel

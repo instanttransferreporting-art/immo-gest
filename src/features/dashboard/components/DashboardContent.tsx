@@ -6,8 +6,13 @@ import { Loader2 } from "lucide-react";
 import { getDashboardMetrics } from "@/features/dashboard/actions/dashboard.actions";
 import { KpiCards } from "@/features/dashboard/components/KpiCards";
 import { AlertesSection } from "@/features/dashboard/components/AlertesSection";
+import { DGDashboard } from "@/features/dashboard/components/DGDashboard";
 
-export function DashboardContent() {
+type DashboardContentProps = {
+    isDirecteurGeneral: boolean;
+};
+
+export function DashboardContent({ isDirecteurGeneral }: DashboardContentProps) {
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["dashboard-metrics"],
         queryFn: async () => {
@@ -35,6 +40,10 @@ export function DashboardContent() {
                 {error instanceof Error ? error.message : "Impossible de charger le tableau de bord."}
             </p>
         );
+    }
+
+    if (isDirecteurGeneral) {
+        return <DGDashboard metrics={data} />;
     }
 
     return (

@@ -14,3 +14,17 @@ export type PaiementDTO = Readonly<{
     dateAnnulation: Date | null;
     enregistrePar: Readonly<{ nom: string; prenom: string }>;
 }>;
+
+export type PaiementListItemDTO = Readonly<{
+    id: string;
+    factureId: string;
+    factureNumero: string;
+    mode: ModePaiement;
+    montant: number;
+    reference: string | null;
+    datePaiement: Date;
+    estAnnule: boolean;
+    locataireNom: string;
+    uniteLabel: string;
+    enregistreParNom: string;
+}>;

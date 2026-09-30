@@ -10,6 +10,9 @@ import { ContratNotFoundError } from "@/features/leases/services/contrat.service
 import { ParcExportService } from "@/features/leases/services/parc-export.service";
 import { ReversementExportService } from "@/features/payouts/services/reversement-export.service";
 import { ProprietaireNotFoundError } from "@/features/payouts/services/reversement.service";
+import { ReportExportService } from "@/features/reports/services/report-export.service";
+import { REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
+import type { ReportType } from "@/features/reports/types/report.types";
 
 type RouteParams = { params: Promise<{ type: string }> };
 
@@ -68,6 +71,24 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                 await checkPermission("PARC_EXPORT");
 
                 const { buffer, filename } = await ParcExportService.generate();
+                return buildFileResponse(
+                    buffer,
+                    filename,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                );
+            }
+
+            case "rapport": {
+                await checkPermission("RAPPORTS_VIEW");
+
+                const reportType = searchParams.get("reportType");
+                const isValidReportType = REPORT_DEFINITIONS.some((definition) => definition.type === reportType);
+
+                if (!reportType || !isValidReportType) {
+                    return NextResponse.json({ error: "Le paramètre reportType est invalide." }, { status: 400 });
+                }
+
+                const { buffer, filename } = await ReportExportService.generate(reportType as ReportType);
                 return buildFileResponse(
                     buffer,
                     filename,

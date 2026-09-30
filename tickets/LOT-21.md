@@ -13,6 +13,12 @@ Compléter le cycle de vie du bail au-delà de la création et de la résiliatio
 - **21.4 - Permissions** : réutiliser `CONTRAT_RESILIER` (ADMIN/GESTIONNAIRE) pour ces nouvelles actions, cohérent avec la matrice existante.
 
 ## 4. Critères d'acceptation
-- [ ] Un contrat actif peut être renouvelé en un clic, générant un nouveau contrat lié au précédent sur la période fiscale suivante.
-- [ ] Un contrat peut être suspendu puis réactivé sans perdre son historique ni libérer l'unité associée.
-- [ ] Un contrat résilié ne peut être ni renouvelé, ni suspendu.
+- [x] Un contrat actif peut être renouvelé en un clic, générant un nouveau contrat lié au précédent sur la période fiscale suivante.
+- [x] Un contrat peut être suspendu puis réactivé sans perdre son historique ni libérer l'unité associée.
+- [x] Un contrat résilié ne peut être ni renouvelé, ni suspendu.
+
+## 5. Notes de vérification (2026-09-30, avec données réelles)
+- Suspension du contrat de Njoya Aicha (CTR-2026-000003) : statut → Suspendu, seul le bouton "Réactiver" reste visible ; l'unité A21 reste comptée comme occupée (le dialogue de création de contrat affichait toujours "Aucune unité libre disponible").
+- Réactivation : statut → Actif, boutons Suspendre/Renouveler/Résilier de retour, historique (caution, période) intact.
+- Renouvellement du contrat de Mballa Jean (CTR-2026-000001, 15/01/2026 → 31/12/2026) : nouveau contrat CTR-2026-000007 créé (01/01/2027 → 31/12/2027), mêmes conditions (loyer, charges, dépôt de garantie), nouvelle caution créée (300 000 FCFA, En cours) ; l'ancien contrat est passé au statut Expiré.
+- Contrat expiré (CTR-2026-000004) : aucun bouton Suspendre/Renouveler/Résilier affiché, seul le téléchargement du bail reste disponible.

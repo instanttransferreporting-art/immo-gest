@@ -66,6 +66,7 @@ export default async function ContratDetailPage({ params }: PageProps) {
                                 render={<a href={`/api/export/contrat?contratId=${contrat.id}`} />}
                                 variant="outline"
                                 className="rounded-lg"
+                                nativeButton={false}
                             >
                                 <Download className="h-4 w-4" />
                                 Télécharger le bail

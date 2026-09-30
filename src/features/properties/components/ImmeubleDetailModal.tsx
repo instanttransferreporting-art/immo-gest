@@ -84,11 +84,6 @@ export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Logements</dt>
-                        <dd className="font-medium text-foreground">{immeuble.nombreLogements}</dd>
-                    </div>
-
-                    <div className="flex justify-between border-b border-border pb-2">
                         <dt className="text-muted-foreground">Valeur estimative</dt>
                         <dd className="font-medium text-foreground">
                             {immeuble.valeurEstimative != null

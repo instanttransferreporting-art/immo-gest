@@ -17,6 +17,20 @@ export type IncidentAlerteDTO = Readonly<{
     localisation: string | null;
 }>;
 
+export type ContratEcheanceDTO = Readonly<{
+    id: string;
+    numeroContrat: string;
+    locataireNom: string;
+    uniteLabel: string;
+    dateFin: Date;
+}>;
+
+export type LogementVacantDTO = Readonly<{
+    id: string;
+    numero: string;
+    immeubleNom: string;
+}>;
+
 export type DashboardMetricsDTO = Readonly<{
     tauxOccupation: number;
     totalUnites: number;
@@ -26,4 +40,12 @@ export type DashboardMetricsDTO = Readonly<{
     revenuMensuelEncaisse: number;
     facturesImpayeesUrgentes: readonly FactureAlerteDTO[];
     incidentsNonResolus: readonly IncidentAlerteDTO[];
+    // Vue Directeur Général (lecture seule)
+    totalImmeubles: number;
+    nombreContratsActifs: number;
+    revenuAnnuelEncaisse: number;
+    // Vue Gestionnaire (opérationnel)
+    contratsArrivantEcheance: readonly ContratEcheanceDTO[];
+    logementsVacants: readonly LogementVacantDTO[];
+    nombreLogementsVacants: number;
 }>;

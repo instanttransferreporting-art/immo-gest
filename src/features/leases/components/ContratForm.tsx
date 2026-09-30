@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 
@@ -27,7 +27,10 @@ type ContratFormProps = {
     onSuccess?: (contrat: ContratDTO) => void;
 };
 
-const toDateInputValue = (date: Date) => date.toISOString().slice(0, 10);
+// N'utilise pas toISOString() : ça convertit en UTC et peut décaler la date
+// d'un jour selon le fuseau horaire local (ex: minuit WAT -> 23h UTC la veille).
+const toDateInputValue = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -41,6 +44,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
         handleSubmit,
         watch,
         setValue,
+        control,
         reset,
         formState: { errors, isSubmitting },
     } = useForm<ContratFormValues>({
@@ -201,12 +205,26 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     <label htmlFor="dateFin" className="text-sm font-medium text-foreground">
                         Date de fin
                     </label>
-                    <Input
-                        id="dateFin"
-                        type="date"
-                        disabled={!isNuitee}
-                        className={cn("h-10 rounded-xl", !isNuitee && "bg-muted text-muted-foreground", errors.dateFin && "border-red-500")}
-                        {...register("dateFin", { setValueAs: (value) => (value ? new Date(value) : new Date("")) })}
+                    <Controller
+                        control={control}
+                        name="dateFin"
+                        render={({ field }) => (
+                            <Input
+                                id="dateFin"
+                                type="date"
+                                disabled={!isNuitee}
+                                className={cn("h-10 rounded-xl", !isNuitee && "bg-muted text-muted-foreground", errors.dateFin && "border-red-500")}
+                                value={
+                                    field.value instanceof Date && !Number.isNaN(field.value.getTime())
+                                        ? toDateInputValue(field.value)
+                                        : ""
+                                }
+                                onChange={(event) =>
+                                    field.onChange(event.target.value ? new Date(event.target.value) : new Date(""))
+                                }
+                                onBlur={field.onBlur}
+                            />
+                        )}
                     />
                     {!isNuitee ? (
                         <p className="text-xs text-muted-foreground">

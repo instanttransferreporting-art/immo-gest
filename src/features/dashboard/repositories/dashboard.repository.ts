@@ -1,4 +1,4 @@
-import { EtatUnite } from "@/generated/prisma/enums";
+import { EtatUnite, StatutBail } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
 const FACTURE_ALERTE_SELECT = {
@@ -24,6 +24,20 @@ const INCIDENT_ALERTE_SELECT = {
     priorite: true,
     dateSignalement: true,
     unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+    immeuble: { select: { nom: true } },
+} as const;
+
+const CONTRAT_ECHEANCE_SELECT = {
+    id: true,
+    numeroContrat: true,
+    dateFin: true,
+    unite: { select: { numero: true, immeuble: { select: { nom: true } } } },
+    locataire: { select: { nom: true, prenom: true, raisonSociale: true } },
+} as const;
+
+const LOGEMENT_VACANT_SELECT = {
+    id: true,
+    numero: true,
     immeuble: { select: { nom: true } },
 } as const;
 
@@ -85,5 +99,35 @@ export class DashboardRepository {
             orderBy: { dateSignalement: "desc" },
             take: limit,
         });
+    }
+
+    static async getImmeubleCount(organizationId: string): Promise<number> {
+        return prisma.immeuble.count({ where: { organizationId } });
+    }
+
+    static async getContratsActifsCount(organizationId: string): Promise<number> {
+        return prisma.contratBail.count({ where: { organizationId, statut: StatutBail.ACTIF } });
+    }
+
+    static async findContratsArrivantEcheance(organizationId: string, before: Date, limit: number) {
+        return prisma.contratBail.findMany({
+            where: { organizationId, statut: StatutBail.ACTIF, dateFin: { lte: before } },
+            select: CONTRAT_ECHEANCE_SELECT,
+            orderBy: { dateFin: "asc" },
+            take: limit,
+        });
+    }
+
+    static async findLogementsVacants(organizationId: string, limit: number) {
+        return prisma.unite.findMany({
+            where: { organizationId, etat: EtatUnite.LIBRE },
+            select: LOGEMENT_VACANT_SELECT,
+            orderBy: { createdAt: "desc" },
+            take: limit,
+        });
+    }
+
+    static async getLogementsVacantsCount(organizationId: string): Promise<number> {
+        return prisma.unite.count({ where: { organizationId, etat: EtatUnite.LIBRE } });
     }
 }
