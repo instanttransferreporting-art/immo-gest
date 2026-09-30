@@ -40,7 +40,7 @@ export function SidebarItem({
 
                 active
                     ? "bg-emerald-50 text-emerald-700"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
         >
             <Icon
@@ -48,7 +48,7 @@ export function SidebarItem({
                     "h-5 w-5 flex-shrink-0",
                     active
                         ? "text-emerald-600"
-                        : "text-slate-500 group-hover:text-slate-700"
+                        : "text-muted-foreground group-hover:text-foreground"
                 )}
             />
 

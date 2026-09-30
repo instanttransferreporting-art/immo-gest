@@ -42,4 +42,13 @@ export class OrganizationService {
     static async setActive(id: string, isActive: boolean): Promise<OrganizationDTO> {
         return OrganizationRepository.setActive(id, isActive);
     }
+
+    /**
+     * Liste tous les id d'organisations actives — pour les tâches planifiées
+     * (LOT-17) qui doivent itérer sur l'ensemble de la plateforme.
+     */
+    static async listAllActiveIds(): Promise<string[]> {
+        const organizations = await OrganizationRepository.findAllActiveIds();
+        return organizations.map((organization) => organization.id);
+    }
 }

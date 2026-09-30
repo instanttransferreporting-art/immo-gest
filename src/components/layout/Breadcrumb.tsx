@@ -12,7 +12,7 @@ export function Breadcrumb() {
 
     return (
 
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
 
             {segments.map((segment, index) => (
 

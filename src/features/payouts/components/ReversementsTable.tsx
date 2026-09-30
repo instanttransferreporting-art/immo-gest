@@ -52,19 +52,19 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
 
     if (reversements.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <FileBarChart className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucun reversement généré</p>
-                <p className="text-sm text-slate-400">Générez le bilan du mois pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <FileBarChart className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucun reversement généré</p>
+                <p className="text-sm text-muted-foreground">Générez le bilan du mois pour commencer.</p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
+                    <TableRow className="bg-muted hover:bg-muted">
                         <TableHead>Période</TableHead>
                         <TableHead>Total encaissé</TableHead>
                         <TableHead>Commission</TableHead>
@@ -77,16 +77,16 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
                 <TableBody>
                     {reversements.map((reversement) => (
                         <TableRow key={reversement.id}>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {MOIS_LABELS[reversement.mois - 1]} {reversement.annee}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {currencyFormatter.format(reversement.totalEncaisse)}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {currencyFormatter.format(reversement.commission)} ({reversement.tauxCommission}%)
                             </TableCell>
-                            <TableCell className="font-medium text-slate-900">
+                            <TableCell className="font-medium text-foreground">
                                 {currencyFormatter.format(reversement.netAPayer)}
                             </TableCell>
                             <TableCell>

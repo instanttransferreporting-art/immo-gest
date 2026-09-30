@@ -22,6 +22,7 @@ model Organization {
   nom                  String
   logo                 String?
   tauxCommissionDefaut Float    @default(10)
+  tauxPenaliteRetard   Float    @default(5) // Pourcentage appliqué sur le total dû à partir de la relance Niveau 1 BIS (J+15)
   adresse              String?
   ville                String?
   telephone            String?
@@ -77,6 +78,7 @@ model User {
 
   // Relations
   paiementsEnregistres Paiement[]
+  paiementsAnnules     Paiement[]    @relation("PaiementAnnulePar")
   actionsAudit         AuditLog[]
   demandesMaintenance  Maintenance[] @relation("TechnicienMaintenance")
 
@@ -181,6 +183,9 @@ enum TypeUnite {
   BUREAU
   COMMERCE
   ENTREPOT
+  STUDIO
+  CHAMBRE
+  DUPLEX
 }
 
 enum EtatUnite {
@@ -194,21 +199,33 @@ enum TypeCharges {
   POURCENTAGE
 }
 
+enum FrequencePaiement {
+  NUITEE
+  HEBDOMADAIRE
+  MENSUEL
+  TRIMESTRIEL
+  ANNUEL
+  AUTRE
+}
+
 model Unite {
-  id             String      @id @default(uuid())
-  organizationId String
-  immeubleId     String
-  numero         String // Ex: A21, B34
-  type           TypeUnite
-  surface        Float
-  nombrePieces   Int
-  loyerMensuel   Float
-  typeCharges    TypeCharges
-  valeurCharges  Float // Montant fixe ou pourcentage du loyer
-  caution        Float // Dépôt de garantie
-  etat           EtatUnite   @default(LIBRE)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id                  String            @id @default(uuid())
+  organizationId      String
+  immeubleId          String
+  numero              String // Ex: A21, B34
+  type                TypeUnite
+  surface             Float
+  nombrePieces        Int
+  loyerMensuel        Float
+  typeCharges         TypeCharges
+  valeurCharges       Float // Montant fixe ou pourcentage du loyer
+  caution             Float // Dépôt de garantie
+  etat                EtatUnite         @default(LIBRE)
+  isMeuble            Boolean           @default(false)
+  frequencePaiement   FrequencePaiement @default(MENSUEL)
+  frequenceAutreTexte String? // Texte libre quand frequencePaiement = AUTRE
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   organization Organization  @relation(fields: [organizationId], references: [id])
   immeuble     Immeuble      @relation(fields: [immeubleId], references: [id], onDelete: Cascade)
@@ -309,6 +326,7 @@ model ContratBail {
   charges          Float
   depotGarantie    Float
   frequence        FrequenceEcheance @default(MENSUEL)
+  nombreNuitees    Int? // Pour les baux à la nuitée (frequence = QUOTIDIEN)
   statut           StatutBail        @default(ACTIF)
   motifResiliation String?
   createdAt        DateTime          @default(now())
@@ -381,21 +399,25 @@ model Facture {
 }
 
 model Paiement {
-  id             String       @id @default(uuid())
-  organizationId String
-  factureId      String
-  echeanceId     String
-  userId         String // Utilisateur ayant enregistré le paiement
-  mode           ModePaiement
-  montant        Float
-  reference      String? // Réf transaction Mobile Money ou virement, ou reçu physique espèces
-  datePaiement   DateTime     @default(now())
-  estAnnule      Boolean      @default(false) // Nécessite double validation si modification/annulation
+  id              String       @id @default(uuid())
+  organizationId  String
+  factureId       String
+  echeanceId      String
+  userId          String // Utilisateur ayant enregistré le paiement
+  mode            ModePaiement
+  montant         Float
+  reference       String? // Réf transaction Mobile Money ou virement, ou reçu physique espèces
+  datePaiement    DateTime     @default(now())
+  estAnnule       Boolean      @default(false) // Nécessite double validation si modification/annulation
+  motifAnnulation String?
+  dateAnnulation  DateTime?
+  annuleParId     String?
 
   organization  Organization  @relation(fields: [organizationId], references: [id])
   facture       Facture       @relation(fields: [factureId], references: [id])
   echeance      EcheanceLoyer @relation(fields: [echeanceId], references: [id])
   enregistrePar User          @relation(fields: [userId], references: [id])
+  annulePar     User?         @relation("PaiementAnnulePar", fields: [annuleParId], references: [id])
 
   @@index([organizationId])
   @@map("paiements")

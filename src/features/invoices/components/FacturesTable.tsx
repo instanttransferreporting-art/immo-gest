@@ -35,19 +35,19 @@ const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "out
 export function FacturesTable({ factures }: FacturesTableProps) {
     if (factures.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <Receipt className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucune facture</p>
-                <p className="text-sm text-slate-400">Générez les factures du mois pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <Receipt className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucune facture</p>
+                <p className="text-sm text-muted-foreground">Générez les factures du mois pour commencer.</p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
+                    <TableRow className="bg-muted hover:bg-muted">
                         <TableHead>N° Facture</TableHead>
                         <TableHead>Contrat</TableHead>
                         <TableHead>Locataire</TableHead>
@@ -71,17 +71,17 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                                     </Badge>
                                 </Link>
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {facture.contrat.unite.immeuble.nom} — {facture.contrat.unite.numero}
                             </TableCell>
-                            <TableCell className="font-medium text-slate-900">
+                            <TableCell className="font-medium text-foreground">
                                 {facture.contrat.locataire.raisonSociale ??
                                     `${facture.contrat.locataire.nom} ${facture.contrat.locataire.prenom}`}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {MOIS_LABELS[facture.mois - 1]} {facture.annee}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {currencyFormatter.format(facture.totalDu)}
                             </TableCell>
                             <TableCell>
@@ -99,7 +99,7 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                                         Avis envoyé
                                     </Badge>
                                 ) : (
-                                    <Badge variant="outline" className="rounded-lg text-slate-500">
+                                    <Badge variant="outline" className="rounded-lg text-muted-foreground">
                                         <Mail className="h-3.5 w-3.5" />
                                         Non envoyé
                                     </Badge>

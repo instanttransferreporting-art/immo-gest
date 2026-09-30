@@ -38,26 +38,26 @@ export default async function ImmeubleDetailPage({ params }: PageProps) {
             />
 
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <Card className="rounded-2xl border border-slate-200 shadow-sm lg:col-span-1">
+                <Card className="rounded-2xl border border-border shadow-sm lg:col-span-1">
                     <CardContent className="space-y-3 px-6 py-2">
                         <dl className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                                <dt className="text-slate-500">Propriétaire</dt>
-                                <dd className="font-medium text-slate-900">
+                                <dt className="text-muted-foreground">Propriétaire</dt>
+                                <dd className="font-medium text-foreground">
                                     {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
                                 </dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-slate-500">Niveaux</dt>
-                                <dd className="font-medium text-slate-900">{immeuble.nombreNiveaux}</dd>
+                                <dt className="text-muted-foreground">Niveaux</dt>
+                                <dd className="font-medium text-foreground">{immeuble.nombreNiveaux}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-slate-500">Logements</dt>
-                                <dd className="font-medium text-slate-900">{immeuble.nombreLogements}</dd>
+                                <dt className="text-muted-foreground">Logements</dt>
+                                <dd className="font-medium text-foreground">{immeuble.nombreLogements}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-slate-500">Unités enregistrées</dt>
-                                <dd className="font-medium text-slate-900">{unites.length}</dd>
+                                <dt className="text-muted-foreground">Unités enregistrées</dt>
+                                <dd className="font-medium text-foreground">{unites.length}</dd>
                             </div>
                         </dl>
                     </CardContent>

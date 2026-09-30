@@ -34,9 +34,9 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
     const hasProprietaires = proprietaireOptions.length > 0;
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">
+                <CardTitle className="text-base font-semibold text-foreground">
                     Immeubles
                 </CardTitle>
 
@@ -71,7 +71,7 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
                     </p>
                 )}
 
-                <ImmeublesTable immeubles={immeubles} />
+                <ImmeublesTable immeubles={immeubles} proprietaireOptions={proprietaireOptions} />
             </CardContent>
         </Card>
     );

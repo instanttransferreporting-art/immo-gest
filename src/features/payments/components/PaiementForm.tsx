@@ -57,12 +57,12 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <input type="hidden" {...register("factureId")} />
 
-            <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                Reste à payer : <span className="font-semibold text-slate-900">{currencyFormatter.format(soldeRestant)}</span>
+            <p className="rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
+                Reste à payer : <span className="font-semibold text-foreground">{currencyFormatter.format(soldeRestant)}</span>
             </p>
 
             <div className="space-y-1.5">
-                <label htmlFor="mode" className="text-sm font-medium text-slate-900">
+                <label htmlFor="mode" className="text-sm font-medium text-foreground">
                     Mode de paiement
                 </label>
                 <select
@@ -79,7 +79,7 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="montant" className="text-sm font-medium text-slate-900">
+                <label htmlFor="montant" className="text-sm font-medium text-foreground">
                     Montant reçu
                 </label>
                 <Input
@@ -94,7 +94,7 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="reference" className="text-sm font-medium text-slate-900">
+                <label htmlFor="reference" className="text-sm font-medium text-foreground">
                     Référence (transaction, reçu...)
                 </label>
                 <Input id="reference" className="h-10 rounded-xl" {...register("reference")} />

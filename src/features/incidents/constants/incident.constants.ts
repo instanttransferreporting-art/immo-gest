@@ -7,7 +7,7 @@ export const PRIORITE_INCIDENT_LABELS: Readonly<Record<PrioriteIncident, string>
 };
 
 export const PRIORITE_INCIDENT_STYLES: Readonly<Record<PrioriteIncident, string>> = {
-    BASSE: "bg-slate-100 text-slate-600",
+    BASSE: "bg-muted text-muted-foreground",
     MOYENNE: "bg-amber-100 text-amber-700",
     HAUTE: "bg-red-100 text-red-700",
 };

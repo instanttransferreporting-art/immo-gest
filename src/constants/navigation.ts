@@ -1,6 +1,7 @@
 import {
     AlertTriangle,
     FileText,
+    History,
     Home,
     LayoutDashboard,
     Receipt,
@@ -53,6 +54,11 @@ export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
         title: "Incidents",
         href: ROUTES.INCIDENTS,
         icon: Wrench,
+    },
+    {
+        title: "Journal d'audit",
+        href: ROUTES.AUDIT,
+        icon: History,
     },
     {
         title: "Paramètres",

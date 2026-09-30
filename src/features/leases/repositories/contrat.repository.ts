@@ -14,6 +14,7 @@ const CONTRAT_SELECT = {
     charges: true,
     depotGarantie: true,
     frequence: true,
+    nombreNuitees: true,
     statut: true,
     motifResiliation: true,
     createdAt: true,
@@ -21,6 +22,8 @@ const CONTRAT_SELECT = {
         select: {
             id: true,
             numero: true,
+            isMeuble: true,
+            frequencePaiement: true,
             immeuble: { select: { id: true, nom: true } },
         },
     },
@@ -38,11 +41,13 @@ const CONTRAT_EXPORT_SELECT = {
     charges: true,
     depotGarantie: true,
     frequence: true,
+    nombreNuitees: true,
     statut: true,
     unite: {
         select: {
             numero: true,
             type: true,
+            isMeuble: true,
             immeuble: {
                 select: {
                     nom: true,
@@ -89,6 +94,7 @@ export class ContratRepository {
                 charges: data.charges,
                 depotGarantie: data.depotGarantie,
                 frequence: data.frequence,
+                nombreNuitees: data.nombreNuitees ?? null,
             },
             select: CONTRAT_SELECT,
         });
@@ -145,6 +151,24 @@ export class ContratRepository {
                 dateFin: data.dateFin,
                 motifResiliation: data.motifResiliation,
             },
+        });
+
+        return client.contratBail.findFirst({
+            where: { id, organizationId },
+            select: CONTRAT_SELECT,
+        });
+    }
+
+    static async updateStatut(
+        id: string,
+        organizationId: string,
+        statutActuel: StatutBail,
+        nouveauStatut: StatutBail,
+        client: Prisma.TransactionClient = prisma
+    ) {
+        await client.contratBail.updateMany({
+            where: { id, organizationId, statut: statutActuel },
+            data: { statut: nouveauStatut },
         });
 
         return client.contratBail.findFirst({

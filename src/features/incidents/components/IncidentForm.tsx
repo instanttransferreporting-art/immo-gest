@@ -57,7 +57,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
-                <label htmlFor="titre" className="text-sm font-medium text-slate-900">
+                <label htmlFor="titre" className="text-sm font-medium text-foreground">
                     Titre
                 </label>
                 <Input
@@ -70,7 +70,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="description" className="text-sm font-medium text-slate-900">
+                <label htmlFor="description" className="text-sm font-medium text-foreground">
                     Description
                 </label>
                 <textarea
@@ -88,7 +88,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="priorite" className="text-sm font-medium text-slate-900">
+                <label htmlFor="priorite" className="text-sm font-medium text-foreground">
                     Priorité
                 </label>
                 <select
@@ -106,7 +106,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="uniteId" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="uniteId" className="text-sm font-medium text-foreground">
                         Unité concernée (optionnel)
                     </label>
                     <select
@@ -127,7 +127,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="immeubleId" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="immeubleId" className="text-sm font-medium text-foreground">
                         Immeuble concerné (optionnel)
                     </label>
                     <select
@@ -148,7 +148,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
             {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{errors.uniteId.message}</p>}
 
             <div className="space-y-1.5">
-                <label htmlFor="prestataire" className="text-sm font-medium text-slate-900">
+                <label htmlFor="prestataire" className="text-sm font-medium text-foreground">
                     Prestataire assigné (optionnel)
                 </label>
                 <Input id="prestataire" className="h-10 rounded-xl" {...register("prestataire")} />

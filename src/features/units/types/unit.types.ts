@@ -1,4 +1,4 @@
-import type { EtatUnite, TypeCharges, TypeUnite } from "@/generated/prisma/enums";
+import type { EtatUnite, FrequencePaiement, TypeCharges, TypeUnite } from "@/generated/prisma/enums";
 
 export type UniteDTO = Readonly<{
     id: string;
@@ -12,6 +12,9 @@ export type UniteDTO = Readonly<{
     valeurCharges: number;
     caution: number;
     etat: EtatUnite;
+    isMeuble: boolean;
+    frequencePaiement: FrequencePaiement;
+    frequenceAutreTexte: string | null;
     createdAt: Date;
 }>;
 
@@ -20,6 +23,8 @@ export type UniteLibreOptionDTO = Readonly<{
     numero: string;
     loyerMensuel: number;
     caution: number;
+    isMeuble: boolean;
+    frequencePaiement: FrequencePaiement;
     immeuble: Readonly<{ id: string; nom: string }>;
 }>;
 

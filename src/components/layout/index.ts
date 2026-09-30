@@ -10,5 +10,6 @@ export * from "./Breadcrumb";
 export * from "./SearchBar";
 export * from "./NotificationButton";
 export * from "./MobileSidebar";
+export * from "./ThemeToggle";
 export * from "./UserMenu";
 export * from "./AppShell"

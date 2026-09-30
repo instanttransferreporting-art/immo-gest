@@ -36,19 +36,19 @@ const STATUT_BADGE_VARIANT: Record<ContratDTO["statut"], "default" | "secondary"
 export function ContratsTable({ contrats }: ContratsTableProps) {
     if (contrats.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <FileText className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucun contrat enregistré</p>
-                <p className="text-sm text-slate-400">Créez votre premier contrat de bail pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucun contrat enregistré</p>
+                <p className="text-sm text-muted-foreground">Créez votre premier contrat de bail pour commencer.</p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
+                    <TableRow className="bg-muted hover:bg-muted">
                         <TableHead>N° Contrat</TableHead>
                         <TableHead>Unité</TableHead>
                         <TableHead>Locataire</TableHead>
@@ -72,17 +72,17 @@ export function ContratsTable({ contrats }: ContratsTableProps) {
                                     </Badge>
                                 </Link>
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {contrat.unite.immeuble.nom} — {contrat.unite.numero}
                             </TableCell>
-                            <TableCell className="font-medium text-slate-900">
+                            <TableCell className="font-medium text-foreground">
                                 {contrat.locataire.raisonSociale ?? `${contrat.locataire.nom} ${contrat.locataire.prenom}`}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {dateFormatter.format(contrat.dateDebut)} → {dateFormatter.format(contrat.dateFin)}
                             </TableCell>
-                            <TableCell className="text-slate-600">{currencyFormatter.format(contrat.loyerBase)}</TableCell>
-                            <TableCell className="text-slate-600">{FREQUENCE_LABELS[contrat.frequence]}</TableCell>
+                            <TableCell className="text-muted-foreground">{currencyFormatter.format(contrat.loyerBase)}</TableCell>
+                            <TableCell className="text-muted-foreground">{FREQUENCE_LABELS[contrat.frequence]}</TableCell>
                             <TableCell>
                                 <Badge variant={STATUT_BADGE_VARIANT[contrat.statut]} className="rounded-lg">
                                     {STATUT_BAIL_LABELS[contrat.statut]}

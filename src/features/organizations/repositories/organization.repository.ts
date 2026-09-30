@@ -5,6 +5,7 @@ const ORGANIZATION_SELECT = {
     nom: true,
     logo: true,
     tauxCommissionDefaut: true,
+    tauxPenaliteRetard: true,
     adresse: true,
     ville: true,
     telephone: true,
@@ -27,6 +28,7 @@ export class OrganizationRepository {
             nom: string;
             logo?: string;
             tauxCommissionDefaut: number;
+            tauxPenaliteRetard: number;
             adresse?: string;
             ville?: string;
             telephone?: string;
@@ -45,6 +47,13 @@ export class OrganizationRepository {
             where: { id },
             data: { isActive },
             select: ORGANIZATION_SELECT,
+        });
+    }
+
+    static async findAllActiveIds(): Promise<{ id: string }[]> {
+        return prisma.organization.findMany({
+            where: { isActive: true },
+            select: { id: true },
         });
     }
 }

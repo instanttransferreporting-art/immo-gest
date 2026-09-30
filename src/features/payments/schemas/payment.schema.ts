@@ -10,3 +10,10 @@ export const paiementSchema = z.object({
 });
 
 export type PaiementFormValues = z.infer<typeof paiementSchema>;
+
+export const annulerPaiementSchema = z.object({
+    paiementId: z.string().min(1, { error: "Le paiement est requis." }),
+    motif: z.string().min(5, { error: "Le motif doit contenir au moins 5 caractères." }),
+});
+
+export type AnnulerPaiementFormValues = z.infer<typeof annulerPaiementSchema>;

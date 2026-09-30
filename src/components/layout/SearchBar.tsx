@@ -16,12 +16,12 @@ export function SearchBar({
 }: SearchBarProps) {
     return (
         <div className={cn("relative hidden w-full max-w-sm md:block", className)}>
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
                 type="search"
                 placeholder={placeholder}
-                className="h-10 rounded-full border-slate-200 bg-slate-50 pl-9 focus-visible:bg-white"
+                className="h-10 rounded-full border-border bg-muted pl-9 focus-visible:bg-background"
             />
         </div>
     );

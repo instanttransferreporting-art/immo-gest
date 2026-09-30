@@ -54,3 +54,8 @@ export const immeubleSchema = z.object({
 });
 
 export type ImmeubleFormValues = z.infer<typeof immeubleSchema>;
+
+// Schema de mise à jour : identique au schema de création
+// (proprietaireId reste modifiable via le select dans le modal)
+export const immeubleUpdateSchema = immeubleSchema;
+export type ImmeubleUpdateFormValues = ImmeubleFormValues;

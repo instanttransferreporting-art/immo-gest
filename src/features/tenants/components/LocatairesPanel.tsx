@@ -42,9 +42,9 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
     }
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">Locataires</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">Locataires</CardTitle>
 
                 <Dialog open={open} onOpenChange={handleOpenChange}>
                     <DialogTrigger
@@ -59,7 +59,7 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
                         Ajouter
                     </DialogTrigger>
 
-                    <DialogContent className="max-w-lg rounded-2xl">
+                    <DialogContent className="max-w-xl rounded-2xl">
                         <DialogHeader>
                             <DialogTitle>
                                 {createdLocataire ? "Documents du locataire" : "Nouveau locataire"}

@@ -55,4 +55,16 @@ export class ImmeubleService {
         const organizationId = await getCurrentOrganizationId();
         return ImmeubleRepository.findAllOptions(organizationId);
     }
+
+    static async update(id: string, input: ImmeubleFormValues): Promise<ImmeubleDTO | null> {
+        const organizationId = await getCurrentOrganizationId();
+        await ImmeubleRepository.update(id, organizationId, input);
+        return ImmeubleRepository.findById(id, organizationId);
+    }
+
+    static async delete(id: string) {
+        const organizationId = await getCurrentOrganizationId();
+        await ImmeubleRepository.deleteIm(id, organizationId)
+        // return ImmeubleRepository.findById(id, organizationId);
+    }
 }

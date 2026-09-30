@@ -34,19 +34,19 @@ const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "out
 export function ImpayesTable({ impayes }: ImpayesTableProps) {
     if (impayes.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <AlertTriangle className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucun impayé</p>
-                <p className="text-sm text-slate-400">Toutes les factures échues sont réglées.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucun impayé</p>
+                <p className="text-sm text-muted-foreground">Toutes les factures échues sont réglées.</p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
+                    <TableRow className="bg-muted hover:bg-muted">
                         <TableHead>N° Facture</TableHead>
                         <TableHead>Locataire</TableHead>
                         <TableHead>Unité</TableHead>
@@ -66,11 +66,11 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
                                     {impaye.numero}
                                 </Badge>
                             </TableCell>
-                            <TableCell className="font-medium text-slate-900">
+                            <TableCell className="font-medium text-foreground">
                                 {impaye.contrat.locataire.raisonSociale ??
                                     `${impaye.contrat.locataire.nom} ${impaye.contrat.locataire.prenom}`}
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {impaye.contrat.unite.immeuble.nom} — {impaye.contrat.unite.numero}
                             </TableCell>
                             <TableCell>
@@ -84,7 +84,7 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
                                     {impaye.joursRetard} j
                                 </Badge>
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {currencyFormatter.format(impaye.soldeRestant)}
                             </TableCell>
                             <TableCell>
@@ -92,7 +92,7 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
                                     {STATUT_FACTURE_LABELS[impaye.statut]}
                                 </Badge>
                             </TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">
                                 {impaye.dernierNiveauRelance
                                     ? NIVEAU_RELANCE_LABELS[impaye.dernierNiveauRelance]
                                     : "—"}

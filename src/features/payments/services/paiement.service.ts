@@ -4,6 +4,7 @@ import { MailService } from "@/lib/mail.service";
 
 import { PaiementRepository } from "@/features/payments/repositories/paiement.repository";
 import { FactureNotFoundError, FactureService } from "@/features/invoices/services/facture.service";
+import { buildQuittancePdfSafe } from "@/features/invoices/pdf/quittance-pdf-builder";
 import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
@@ -17,15 +18,37 @@ export class InsufficientBalanceError extends Error {
     }
 }
 
+export class PaiementNotFoundError extends Error {
+    constructor() {
+        super("Le paiement est introuvable.");
+        this.name = "PaiementNotFoundError";
+    }
+}
+
+export class PaiementDejaAnnuleError extends Error {
+    constructor() {
+        super("Ce paiement a déjà été annulé.");
+        this.name = "PaiementDejaAnnuleError";
+    }
+}
+
 function envoyerQuittanceAsync(organizationId: string, facture: FactureDTO, paiement: PaiementDTO): void {
-    void OrganizationService.getById(organizationId).then((organization) => {
+    void OrganizationService.getById(organizationId).then(async (organization) => {
         if (!organization) {
             return;
         }
 
         const soldeRestant = Math.max(facture.soldeRestant - paiement.montant, 0);
+        const factureAJour: FactureDTO = { ...facture, soldeRestant };
 
-        return MailService.sendQuittance({
+        const attachment = await buildQuittancePdfSafe({
+            organizationNom: organization.nom,
+            organizationAdresse: organization.adresse,
+            facture: factureAJour,
+            totalEncaisse: factureAJour.totalDu - soldeRestant,
+        });
+
+        await MailService.sendQuittance({
             to: facture.contrat.locataire.email,
             organizationNom: organization.nom,
             organizationLogo: organization.logo,
@@ -37,6 +60,7 @@ function envoyerQuittanceAsync(organizationId: string, facture: FactureDTO, paie
             modePaiement: MODE_PAIEMENT_LABELS[paiement.mode],
             datePaiement: paiement.datePaiement,
             soldeRestant,
+            attachment,
         });
     });
 }
@@ -92,5 +116,49 @@ export class PaiementService {
     static async listByFacture(factureId: string): Promise<PaiementDTO[]> {
         const organizationId = await getCurrentOrganizationId();
         return PaiementRepository.findByFacture(factureId, organizationId);
+    }
+
+    /**
+     * Annule un paiement et restaure le solde restant dû de la facture associée.
+     * L'appelant (Server Action) est responsable de la double validation côté UI.
+     */
+    static async annuler(paiementId: string, motif: string, userId: string): Promise<PaiementDTO> {
+        const organizationId = await getCurrentOrganizationId();
+
+        return prisma.$transaction(
+            async (tx) => {
+                const paiement = await PaiementRepository.findById(paiementId, organizationId, tx);
+
+                if (!paiement) {
+                    throw new PaiementNotFoundError();
+                }
+
+                if (paiement.estAnnule) {
+                    throw new PaiementDejaAnnuleError();
+                }
+
+                const updated = await PaiementRepository.annuler(
+                    paiementId,
+                    organizationId,
+                    { motif, annuleParId: userId },
+                    tx
+                );
+
+                if (!updated) {
+                    throw new PaiementNotFoundError();
+                }
+
+                await FactureService.reverserPaiement(
+                    paiement.factureId,
+                    paiement.echeanceId,
+                    organizationId,
+                    paiement.montant,
+                    tx
+                );
+
+                return updated;
+            },
+            { maxWait: 10_000, timeout: 15_000 }
+        );
     }
 }

@@ -14,7 +14,7 @@ export function PageTitle({
             </h1>
 
             {description && (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                     {description}
                 </p>
             )}

@@ -25,11 +25,11 @@ export function MobileSidebar() {
                             justify-center
                             rounded-xl
                             border
-                            border-slate-200
-                            bg-white
-                            text-slate-600
+                            border-border
+                            bg-card
+                            text-muted-foreground
                             shadow-sm
-                            hover:bg-slate-50
+                            hover:bg-muted
                             lg:hidden
                         "
                     />
@@ -38,15 +38,15 @@ export function MobileSidebar() {
                 <Menu className="h-5 w-5" />
             </SheetTrigger>
 
-            <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 bg-white p-0">
+            <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 bg-card p-0">
                 <Logo />
 
                 <div className="flex-1 overflow-y-auto">
                     <Navigation onNavigate={() => setOpen(false)} />
                 </div>
 
-                <div className="border-t border-slate-200 p-4">
-                    <p className="text-center text-xs text-slate-500">
+                <div className="border-t border-border p-4">
+                    <p className="text-center text-xs text-muted-foreground">
                         © {new Date().getFullYear()} ImmoGest
                     </p>
                 </div>

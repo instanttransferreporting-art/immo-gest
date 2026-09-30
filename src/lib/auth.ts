@@ -1,4 +1,4 @@
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import { getServerSession, type NextAuthOptions, type Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { AuthService } from "@/features/auth/services/auth.service";
@@ -119,6 +119,21 @@ export async function getCurrentOrganizationId(): Promise<string> {
     }
 
     const organizationId = session.user.impersonatedOrganizationId ?? session.user.organizationId;
+
+    if (!organizationId) {
+        throw new NoOrganizationContextError();
+    }
+
+    return organizationId;
+}
+
+/**
+ * Same resolution as `getCurrentOrganizationId`, but derived from an already-fetched
+ * session user (e.g. the value returned by `checkPermission`) instead of re-fetching
+ * the session — for use in Server Actions that already hold that object.
+ */
+export function effectiveOrganizationId(user: Session["user"]): string {
+    const organizationId = user.impersonatedOrganizationId ?? user.organizationId;
 
     if (!organizationId) {
         throw new NoOrganizationContextError();

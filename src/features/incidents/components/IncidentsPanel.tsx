@@ -55,9 +55,9 @@ export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: Inc
     }, [incidents, immeubleFilter, statutFilter]);
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">Incidents</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">Incidents</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger

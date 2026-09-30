@@ -31,6 +31,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
             nom: organization.nom,
             logo: organization.logo ?? "",
             tauxCommissionDefaut: organization.tauxCommissionDefaut,
+            tauxPenaliteRetard: organization.tauxPenaliteRetard,
             adresse: organization.adresse ?? "",
             ville: organization.ville ?? "",
             telephone: organization.telephone ?? "",
@@ -59,7 +60,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="nom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nom" className="text-sm font-medium text-foreground">
                         Nom de l&apos;agence
                     </label>
                     <Input
@@ -72,7 +73,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="logo" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="logo" className="text-sm font-medium text-foreground">
                         Logo (URL)
                     </label>
                     <Input
@@ -85,7 +86,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-foreground">
                         Taux de commission par défaut (%)
                     </label>
                     <Input
@@ -104,7 +105,29 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="tauxPenaliteRetard" className="text-sm font-medium text-foreground">
+                        Taux de pénalité de retard (%)
+                    </label>
+                    <Input
+                        id="tauxPenaliteRetard"
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="0.1"
+                        disabled={!canEdit}
+                        className={cn("h-10 rounded-xl", errors.tauxPenaliteRetard && "border-red-500")}
+                        {...register("tauxPenaliteRetard", { valueAsNumber: true })}
+                    />
+                    {errors.tauxPenaliteRetard && (
+                        <p className="animate-pulse text-sm text-red-500">{errors.tauxPenaliteRetard.message}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                        Appliqué automatiquement au 2e rappel de relance (J+15).
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
+                    <label htmlFor="email" className="text-sm font-medium text-foreground">
                         Email
                     </label>
                     <Input
@@ -117,7 +140,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="telephone" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="telephone" className="text-sm font-medium text-foreground">
                         Téléphone
                     </label>
                     <Input
@@ -129,14 +152,14 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="ville" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="ville" className="text-sm font-medium text-foreground">
                         Ville
                     </label>
                     <Input id="ville" disabled={!canEdit} className="h-10 rounded-xl" {...register("ville")} />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                    <label htmlFor="adresse" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="adresse" className="text-sm font-medium text-foreground">
                         Adresse
                     </label>
                     <Input id="adresse" disabled={!canEdit} className="h-10 rounded-xl" {...register("adresse")} />

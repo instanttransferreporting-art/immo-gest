@@ -72,7 +72,7 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
                     <input type="hidden" {...register("contratId")} />
 
                     <div className="space-y-1.5">
-                        <label htmlFor="dateFin" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="dateFin" className="text-sm font-medium text-foreground">
                             Date de sortie effective
                         </label>
                         <Input
@@ -90,7 +90,7 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
                     </div>
 
                     <div className="space-y-1.5">
-                        <label htmlFor="motif" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="motif" className="text-sm font-medium text-foreground">
                             Motif (optionnel)
                         </label>
                         <Input id="motif" className="h-10 rounded-xl" {...register("motif")} />

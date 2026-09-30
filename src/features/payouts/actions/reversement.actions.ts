@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
+import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
 import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { AuditService } from "@/lib/audit";
 import {
     DuplicateReversementError,
     ProprietaireNotFoundError,
@@ -15,8 +16,10 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
 
 export async function genererReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
+    let user;
+
     try {
-        await checkPermission("REVERSEMENT_GENERER");
+        user = await checkPermission("REVERSEMENT_GENERER");
     } catch (error) {
         if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
             return { success: false, message: error.message };
@@ -42,6 +45,13 @@ export async function genererReversement(input: unknown): Promise<ActionResponse
             parsed.data.annee
         );
 
+        AuditService.log({
+            organizationId: effectiveOrganizationId(user),
+            userId: user.id,
+            action: "REVERSEMENT_GENERER",
+            details: `Reversement ${parsed.data.mois}/${parsed.data.annee} généré pour le propriétaire ${parsed.data.proprietaireId}.`,
+        });
+
         revalidatePath(`/proprietaires/${parsed.data.proprietaireId}/bilan`);
 
         return {
@@ -62,8 +72,10 @@ export async function genererReversement(input: unknown): Promise<ActionResponse
 }
 
 export async function validerReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
+    let user;
+
     try {
-        await checkPermission("REVERSEMENT_VALIDER");
+        user = await checkPermission("REVERSEMENT_VALIDER");
     } catch (error) {
         if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
             return { success: false, message: error.message };
@@ -83,6 +95,13 @@ export async function validerReversement(input: unknown): Promise<ActionResponse
 
     try {
         const reversement = await ReversementService.validerReversement(parsed.data.reversementId);
+
+        AuditService.log({
+            organizationId: effectiveOrganizationId(user),
+            userId: user.id,
+            action: "REVERSEMENT_VALIDER",
+            details: `Reversement (id: ${reversement.id}) validé.`,
+        });
 
         revalidatePath(`/proprietaires/${reversement.proprietaireId}/bilan`);
 

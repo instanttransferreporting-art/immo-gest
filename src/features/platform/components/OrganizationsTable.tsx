@@ -74,20 +74,20 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
 
     if (organizations.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <Building2 className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucune entreprise enregistrée</p>
-                <p className="text-sm text-slate-400">Ajoutez votre première entreprise pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <Building2 className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucune entreprise enregistrée</p>
+                <p className="text-sm text-muted-foreground">Ajoutez votre première entreprise pour commencer.</p>
             </div>
         );
     }
 
     return (
         <>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
+            <div className="overflow-hidden rounded-xl border border-border">
                 <Table>
                     <TableHeader>
-                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                        <TableRow className="bg-muted hover:bg-muted">
                             <TableHead>Nom</TableHead>
                             <TableHead>Ville</TableHead>
                             <TableHead>Statut</TableHead>
@@ -101,8 +101,8 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                     <TableBody>
                         {organizations.map((organization) => (
                             <TableRow key={organization.id}>
-                                <TableCell className="font-medium text-slate-900">{organization.nom}</TableCell>
-                                <TableCell className="text-slate-600">{organization.ville ?? "—"}</TableCell>
+                                <TableCell className="font-medium text-foreground">{organization.nom}</TableCell>
+                                <TableCell className="text-muted-foreground">{organization.ville ?? "—"}</TableCell>
                                 <TableCell>
                                     <Badge
                                         className={
@@ -114,9 +114,9 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                                         {organization.isActive ? "Active" : "Suspendue"}
                                     </Badge>
                                 </TableCell>
-                                <TableCell className="text-slate-600">{organization.totalImmeubles}</TableCell>
-                                <TableCell className="text-slate-600">{organization.totalUsers}</TableCell>
-                                <TableCell className="text-slate-600">
+                                <TableCell className="text-muted-foreground">{organization.totalImmeubles}</TableCell>
+                                <TableCell className="text-muted-foreground">{organization.totalUsers}</TableCell>
+                                <TableCell className="text-muted-foreground">
                                     {dateFormatter.format(organization.createdAt)}
                                 </TableCell>
                                 <TableCell className="text-right">

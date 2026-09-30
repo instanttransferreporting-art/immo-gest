@@ -11,6 +11,7 @@ export function QueryProvider({ children }: Props) {
     const [client] = useState(
         () =>
             new QueryClient({
+
                 defaultOptions: {
                     queries: {
                         staleTime: 1000 * 60,

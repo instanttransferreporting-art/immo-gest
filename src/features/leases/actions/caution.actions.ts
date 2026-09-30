@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
+import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
 import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { AuditService } from "@/lib/audit";
 import {
     CautionExceedsMontantInitialError,
     CautionNotFoundError,
@@ -15,8 +16,10 @@ import type { ActionResponse } from "@/types/action-response.types";
 import type { CautionDTO } from "@/features/leases/types/caution.types";
 
 export async function restituerCaution(input: unknown): Promise<ActionResponse<CautionDTO>> {
+    let user;
+
     try {
-        await checkPermission("CAUTION_RESTITUER");
+        user = await checkPermission("CAUTION_RESTITUER");
     } catch (error) {
         if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
             return { success: false, message: error.message };
@@ -37,6 +40,13 @@ export async function restituerCaution(input: unknown): Promise<ActionResponse<C
 
     try {
         const caution = await CautionService.restituer(parsed.data);
+
+        AuditService.log({
+            organizationId: effectiveOrganizationId(user),
+            userId: user.id,
+            action: "CAUTION_RESTITUER",
+            details: `Caution du contrat (id: ${caution.contratId}) restituée.`,
+        });
 
         revalidatePath(`${ROUTES.LEASES}/${caution.contratId}`);
 

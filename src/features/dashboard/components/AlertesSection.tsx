@@ -22,9 +22,9 @@ const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
 export function AlertesSection({ metrics }: AlertesSectionProps) {
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card className="rounded-2xl border border-slate-200 shadow-sm">
+            <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-slate-900">
+                    <CardTitle className="text-base font-semibold text-foreground">
                         Factures impayées urgentes
                     </CardTitle>
                     <Link href={ROUTES.INVOICES} className="text-sm text-emerald-700 hover:underline">
@@ -36,7 +36,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.facturesImpayeesUrgentes.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-emerald-500" />
-                            <p className="text-sm text-slate-400">Aucune facture impayée en attente.</p>
+                            <p className="text-sm text-muted-foreground">Aucune facture impayée en attente.</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-slate-100">
@@ -47,17 +47,17 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                         className="flex items-center justify-between gap-3 py-3 hover:text-emerald-700"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Receipt className="h-4 w-4 text-slate-400" />
+                                            <Receipt className="h-4 w-4 text-muted-foreground" />
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900">
+                                                <p className="text-sm font-medium text-foreground">
                                                     {facture.locataireNom}
                                                 </p>
-                                                <p className="text-xs text-slate-500">
+                                                <p className="text-xs text-muted-foreground">
                                                     {facture.uniteLabel} · échéance {dateFormatter.format(facture.dateEcheance)}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className="text-sm font-semibold text-slate-900">
+                                        <span className="text-sm font-semibold text-foreground">
                                             {currencyFormatter.format(facture.totalDu)}
                                         </span>
                                     </Link>
@@ -68,9 +68,9 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                 </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border border-slate-200 shadow-sm">
+            <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-slate-900">
+                    <CardTitle className="text-base font-semibold text-foreground">
                         Incidents non résolus
                     </CardTitle>
                     <Link href={ROUTES.INCIDENTS} className="text-sm text-emerald-700 hover:underline">
@@ -82,17 +82,17 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.incidentsNonResolus.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-emerald-500" />
-                            <p className="text-sm text-slate-400">Aucun incident en cours.</p>
+                            <p className="text-sm text-muted-foreground">Aucun incident en cours.</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-slate-100">
                             {metrics.incidentsNonResolus.map((incident) => (
                                 <li key={incident.id} className="flex items-center justify-between gap-3 py-3">
                                     <div className="flex items-center gap-3">
-                                        <Wrench className="h-4 w-4 text-slate-400" />
+                                        <Wrench className="h-4 w-4 text-muted-foreground" />
                                         <div>
-                                            <p className="text-sm font-medium text-slate-900">{incident.titre}</p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-sm font-medium text-foreground">{incident.titre}</p>
+                                            <p className="text-xs text-muted-foreground">
                                                 {incident.localisation ?? "Non localisé"} ·{" "}
                                                 {dateFormatter.format(incident.dateSignalement)}
                                             </p>

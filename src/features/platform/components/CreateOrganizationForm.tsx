@@ -55,7 +55,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5 sm:col-span-2">
-                    <label htmlFor="nom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nom" className="text-sm font-medium text-foreground">
                         Nom de l&apos;entreprise
                     </label>
                     <Input
@@ -67,7 +67,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-foreground">
                         Taux de commission (%)
                     </label>
                     <Input
@@ -85,12 +85,12 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 </div>
             </div>
 
-            <div className="border-t border-slate-200 pt-4">
-                <p className="mb-3 text-sm font-medium text-slate-700">Compte administrateur de l&apos;entreprise</p>
+            <div className="border-t border-border pt-4">
+                <p className="mb-3 text-sm font-medium text-foreground">Compte administrateur de l&apos;entreprise</p>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <label htmlFor="adminPrenom" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="adminPrenom" className="text-sm font-medium text-foreground">
                             Prénom
                         </label>
                         <Input
@@ -104,7 +104,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                     </div>
 
                     <div className="space-y-1.5">
-                        <label htmlFor="adminNom" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="adminNom" className="text-sm font-medium text-foreground">
                             Nom
                         </label>
                         <Input
@@ -118,7 +118,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
-                        <label htmlFor="adminEmail" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="adminEmail" className="text-sm font-medium text-foreground">
                             Email
                         </label>
                         <Input
@@ -133,7 +133,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
-                        <label htmlFor="adminPassword" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="adminPassword" className="text-sm font-medium text-foreground">
                             Mot de passe initial
                         </label>
                         <Input

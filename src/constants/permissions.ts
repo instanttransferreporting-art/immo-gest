@@ -11,6 +11,7 @@ export const PERMISSIONS = {
     ORGANIZATION_IMPERSONATE: [RoleType.SUPER_ADMIN],
     PROPRIETAIRE_CREATE: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
     IMMEUBLE_CREATE: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
+    IMMEUBLE_DELETE: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
     UNITE_CREATE: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
     LOCATAIRE_CREATE: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
     DOCUMENT_UPLOAD: [RoleType.ADMIN, RoleType.GESTIONNAIRE],
@@ -28,6 +29,8 @@ export const PERMISSIONS = {
     ORGANIZATION_MANAGE: [RoleType.ADMIN],
     REVERSEMENT_EXPORT: [RoleType.ADMIN, RoleType.COMPTABLE],
     PARC_EXPORT: [RoleType.ADMIN, RoleType.GESTIONNAIRE, RoleType.COMPTABLE, RoleType.DIRECTEUR_GENERAL],
+    AUDIT_VIEW: [RoleType.ADMIN],
+    PAIEMENT_ANNULER: [RoleType.ADMIN],
 } as const satisfies Record<string, readonly RoleType[]>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

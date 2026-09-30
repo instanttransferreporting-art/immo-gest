@@ -54,16 +54,16 @@ export function RestitutionCautionForm({ caution, onSuccess }: RestitutionCautio
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <input type="hidden" {...register("cautionId")} />
 
-            <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+            <p className="rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
                 Montant initial :{" "}
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-foreground">
                     {currencyFormatter.format(caution.montantInitial)}
                 </span>
             </p>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="montantRendu" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="montantRendu" className="text-sm font-medium text-foreground">
                         Montant rendu
                     </label>
                     <Input
@@ -80,7 +80,7 @@ export function RestitutionCautionForm({ caution, onSuccess }: RestitutionCautio
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="montantRetenu" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="montantRetenu" className="text-sm font-medium text-foreground">
                         Montant retenu (travaux)
                     </label>
                     <Input
@@ -98,7 +98,7 @@ export function RestitutionCautionForm({ caution, onSuccess }: RestitutionCautio
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="notes" className="text-sm font-medium text-slate-900">
+                <label htmlFor="notes" className="text-sm font-medium text-foreground">
                     Notes (motif de retenue, état des lieux...)
                 </label>
                 <Input id="notes" className="h-10 rounded-xl" {...register("notes")} />

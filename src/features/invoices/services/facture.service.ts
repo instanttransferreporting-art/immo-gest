@@ -5,6 +5,7 @@ import { isUniqueConstraintError } from "@/lib/prisma-errors";
 import { MailService } from "@/lib/mail.service";
 
 import { FactureRepository, type FactureRaw } from "@/features/invoices/repositories/facture.repository";
+import { buildQuittancePdfSafe } from "@/features/invoices/pdf/quittance-pdf-builder";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import { ContratService } from "@/features/leases/services/contrat.service";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
@@ -50,12 +51,19 @@ function getMonthRange(mois: number, annee: number): { start: Date; end: Date } 
 }
 
 function envoyerAvisEcheanceAsync(organizationId: string, facture: FactureDTO): void {
-    void OrganizationService.getById(organizationId).then((organization) => {
+    void OrganizationService.getById(organizationId).then(async (organization) => {
         if (!organization) {
             return;
         }
 
-        return MailService.sendAvisEcheance({
+        const attachment = await buildQuittancePdfSafe({
+            organizationNom: organization.nom,
+            organizationAdresse: organization.adresse,
+            facture,
+            totalEncaisse: facture.totalDu - facture.soldeRestant,
+        });
+
+        const sent = await MailService.sendAvisEcheance({
             to: facture.contrat.locataire.email,
             organizationNom: organization.nom,
             organizationLogo: organization.logo,
@@ -65,11 +73,12 @@ function envoyerAvisEcheanceAsync(organizationId: string, facture: FactureDTO): 
             numeroFacture: facture.numero,
             montantTotal: facture.totalDu,
             dateEcheance: new Date(facture.annee, facture.mois - 1, 1),
-        }).then((sent) => {
-            if (sent) {
-                return FactureRepository.markAvisEnvoye(facture.id, organizationId);
-            }
+            attachment,
         });
+
+        if (sent) {
+            await FactureRepository.markAvisEnvoye(facture.id, organizationId);
+        }
     });
 }
 
@@ -107,67 +116,89 @@ function toFactureDTO(raw: FactureRaw): FactureDTO {
     };
 }
 
+async function genererFactureMensuelleCore(
+    organizationId: string,
+    contratId: string,
+    mois: number,
+    annee: number
+): Promise<FactureDTO> {
+    const contrat = await ContratService.getByIdForOrganization(contratId, organizationId);
+
+    if (!contrat) {
+        throw new ContratNotFoundError();
+    }
+
+    const { start, end } = getMonthRange(mois, annee);
+
+    for (let attempt = 1; attempt <= MAX_REFERENCE_ATTEMPTS; attempt += 1) {
+        const numero = await generateNumeroFacture(organizationId);
+
+        try {
+            const facture = await prisma.$transaction(
+                async (tx) => {
+                    const existing = await FactureRepository.findExistingForContratMonth(
+                        organizationId,
+                        contratId,
+                        start,
+                        end,
+                        tx
+                    );
+
+                    if (existing) {
+                        throw new DuplicateInvoiceError();
+                    }
+
+                    const raw = await FactureRepository.createEcheanceAndFacture(
+                        organizationId,
+                        {
+                            contratId,
+                            dateEcheance: start,
+                            montantLoyer: contrat.loyerBase,
+                            montantCharges: contrat.charges,
+                            numero,
+                        },
+                        tx
+                    );
+
+                    return toFactureDTO(raw);
+                },
+                { maxWait: 10_000, timeout: 15_000 }
+            );
+
+            envoyerAvisEcheanceAsync(organizationId, facture);
+
+            return facture;
+        } catch (error) {
+            if (error instanceof DuplicateInvoiceError) {
+                throw error;
+            }
+
+            if (!isUniqueConstraintError(error) || attempt === MAX_REFERENCE_ATTEMPTS) {
+                throw error;
+            }
+        }
+    }
+
+    throw new Error("Impossible de générer une référence unique pour la facture.");
+}
+
 export class FactureService {
     static async genererFactureMensuelle(contratId: string, mois: number, annee: number): Promise<FactureDTO> {
         const organizationId = await getCurrentOrganizationId();
-        const contrat = await ContratService.getById(contratId);
+        return genererFactureMensuelleCore(organizationId, contratId, mois, annee);
+    }
 
-        if (!contrat) {
-            throw new ContratNotFoundError();
-        }
-
-        const { start, end } = getMonthRange(mois, annee);
-
-        for (let attempt = 1; attempt <= MAX_REFERENCE_ATTEMPTS; attempt += 1) {
-            const numero = await generateNumeroFacture(organizationId);
-
-            try {
-                const facture = await prisma.$transaction(
-                    async (tx) => {
-                        const existing = await FactureRepository.findExistingForContratMonth(
-                            organizationId,
-                            contratId,
-                            start,
-                            end,
-                            tx
-                        );
-
-                        if (existing) {
-                            throw new DuplicateInvoiceError();
-                        }
-
-                        const raw = await FactureRepository.createEcheanceAndFacture(
-                            organizationId,
-                            {
-                                contratId,
-                                dateEcheance: start,
-                                montantLoyer: contrat.loyerBase,
-                                montantCharges: contrat.charges,
-                                numero,
-                            },
-                            tx
-                        );
-
-                        return toFactureDTO(raw);
-                    },
-                    { maxWait: 10_000, timeout: 15_000 }
-                );
-
-                envoyerAvisEcheanceAsync(organizationId, facture);
-
-                return facture;
-            } catch (error) {
-                if (error instanceof DuplicateInvoiceError) {
-                    throw error;
-                }
-
-                if (!isUniqueConstraintError(error) || attempt === MAX_REFERENCE_ATTEMPTS) {
-                    throw error;
-                }
-            }
-        }
-
-        throw new Error("Impossible de générer une référence unique pour la facture.");
+    /**
+     * Variante sans dépendance à la session — pour la tâche planifiée d'avis
+     * d'échéance (LOT-17), qui itère sur toutes les organisations.
+     */
+    static async genererFactureMensuelleForOrganization(
+        organizationId: string,
+        contratId: string,
+        mois: number,
+        annee: number
+    ): Promise<FactureDTO> {
+        return genererFactureMensuelleCore(organizationId, contratId, mois, annee);
     }
 
     static async genererFacturesDuMois(mois: number, annee: number): Promise<{ crees: number; ignorees: number }> {
@@ -204,9 +235,24 @@ export class FactureService {
         return raws.map(toFactureDTO);
     }
 
+    static async listImpayesForOrganization(organizationId: string): Promise<FactureDTO[]> {
+        const raws = await FactureRepository.findImpayes(organizationId);
+        return raws.map(toFactureDTO);
+    }
+
     static async getById(id: string, client?: Prisma.TransactionClient): Promise<FactureDTO | null> {
         const organizationId = await getCurrentOrganizationId();
         const raw = await FactureRepository.findById(id, organizationId, client);
+        return raw ? toFactureDTO(raw) : null;
+    }
+
+    /**
+     * Variante de `getById` sans dépendance à la session — pour les appelants
+     * "fire-and-forget" (emails) qui s'exécutent après qu'une réponse ait déjà
+     * été envoyée, où `getCurrentOrganizationId()` n'est plus fiable.
+     */
+    static async getByIdForOrganization(id: string, organizationId: string): Promise<FactureDTO | null> {
+        const raw = await FactureRepository.findById(id, organizationId);
         return raw ? toFactureDTO(raw) : null;
     }
 
@@ -226,6 +272,52 @@ export class FactureService {
             echeanceId,
             organizationId,
             { soldeRestant: nouveauSolde, estPaye: estSoldee, estSoldee },
+            client
+        );
+
+        if (!updated) {
+            throw new FactureNotFoundError();
+        }
+
+        return toFactureDTO(updated);
+    }
+
+    /**
+     * Applique une pénalité de retard sur une facture (montant fixe déjà calculé
+     * par l'appelant). Idempotent : sans effet si une pénalité est déjà appliquée.
+     */
+    static async appliquerPenalite(
+        factureId: string,
+        echeanceId: string,
+        organizationId: string,
+        montantPenalite: number
+    ): Promise<FactureDTO | null> {
+        const updated = await FactureRepository.appliquerPenalite(
+            factureId,
+            echeanceId,
+            organizationId,
+            montantPenalite
+        );
+
+        return updated ? toFactureDTO(updated) : null;
+    }
+
+    /**
+     * Recalcule le solde restant dû d'une facture suite à l'annulation d'un
+     * paiement (LOT-22). Appelé depuis une transaction du feature Paiements.
+     */
+    static async reverserPaiement(
+        factureId: string,
+        echeanceId: string,
+        organizationId: string,
+        montantAnnule: number,
+        client: Prisma.TransactionClient
+    ): Promise<FactureDTO> {
+        const updated = await FactureRepository.reverserPaiement(
+            factureId,
+            echeanceId,
+            organizationId,
+            montantAnnule,
             client
         );
 

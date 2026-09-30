@@ -9,6 +9,11 @@ export class LocataireService {
         return LocataireRepository.create(organizationId, input);
     }
 
+    static async update(id: string, input: LocataireFormValues): Promise<LocataireDTO | null> {
+        const organizationId = await getCurrentOrganizationId();
+        return LocataireRepository.update(id, organizationId, input);
+    }
+
     static async listAll(): Promise<LocataireDTO[]> {
         const organizationId = await getCurrentOrganizationId();
         return LocataireRepository.findAll(organizationId);

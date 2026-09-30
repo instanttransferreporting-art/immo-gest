@@ -46,9 +46,9 @@ export function ReversementBilanPanel({ proprietaireId, reversements }: Reversem
 
     return (
         <div className="space-y-6">
-            <Card className="rounded-2xl border border-slate-200 shadow-sm">
+            <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-slate-900">Reversements</CardTitle>
+                    <CardTitle className="text-base font-semibold text-foreground">Reversements</CardTitle>
 
                     <div className="flex items-center gap-2">
                         <select

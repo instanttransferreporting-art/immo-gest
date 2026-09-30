@@ -10,6 +10,7 @@ type QuittancePdfDocumentProps = {
     uniteLabel: string;
     montantLoyer: number;
     montantCharges: number;
+    penalites: number;
     totalDu: number;
     totalEncaisse: number;
     soldeRestant: number;
@@ -100,6 +101,7 @@ export function QuittancePdfDocument({
     uniteLabel,
     montantLoyer,
     montantCharges,
+    penalites,
     totalDu,
     totalEncaisse,
     soldeRestant,
@@ -141,6 +143,12 @@ export function QuittancePdfDocument({
                         <Text style={styles.label}>Charges</Text>
                         <Text>{currencyFormatter.format(montantCharges)}</Text>
                     </View>
+                    {penalites > 0 ? (
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Pénalités de retard</Text>
+                            <Text style={{ color: "#dc2626" }}>{currencyFormatter.format(penalites)}</Text>
+                        </View>
+                    ) : null}
                     <View style={styles.row}>
                         <Text style={styles.label}>Total dû</Text>
                         <Text style={styles.value}>{currencyFormatter.format(totalDu)}</Text>

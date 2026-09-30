@@ -1,7 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { EtatUnite } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
-import type { UniteFormValues } from "@/features/units/schemas/unit.schema";
+import type { UniteFormValues, UniteUpdateFormValues } from "@/features/units/schemas/unit.schema";
 
 const UNITE_SELECT = {
     id: true,
@@ -15,6 +15,9 @@ const UNITE_SELECT = {
     valeurCharges: true,
     caution: true,
     etat: true,
+    isMeuble: true,
+    frequencePaiement: true,
+    frequenceAutreTexte: true,
     createdAt: true,
 } as const;
 
@@ -23,6 +26,8 @@ const UNITE_LIBRE_OPTION_SELECT = {
     numero: true,
     loyerMensuel: true,
     caution: true,
+    isMeuble: true,
+    frequencePaiement: true,
     immeuble: {
         select: { id: true, nom: true },
     },
@@ -41,6 +46,25 @@ export class UniteRepository {
         return prisma.unite.create({
             data: { ...data, organizationId },
             select: UNITE_SELECT,
+        });
+    }
+
+    static async update(id: string, organizationId: string, data: UniteUpdateFormValues) {
+        return prisma.unite.updateMany({
+            where: { id, organizationId },
+            data: {
+                numero: data.numero,
+                type: data.type,
+                surface: data.surface,
+                nombrePieces: data.nombrePieces,
+                loyerMensuel: data.loyerMensuel,
+                typeCharges: data.typeCharges,
+                valeurCharges: data.valeurCharges,
+                caution: data.caution,
+                isMeuble: data.isMeuble,
+                frequencePaiement: data.frequencePaiement,
+                frequenceAutreTexte: data.frequenceAutreTexte ?? null,
+            },
         });
     }
 

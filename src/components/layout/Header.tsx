@@ -4,6 +4,7 @@ import { Breadcrumb } from "./Breadcrumb";
 import { SearchBar } from "./SearchBar";
 import { NotificationButton } from "./NotificationButton";
 import { MobileSidebar } from "./MobileSidebar";
+import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 
 export function Header() {
@@ -21,8 +22,8 @@ export function Header() {
             justify-between
             gap-4
             border-b
-            border-slate-200
-            bg-white/90
+            border-border
+            bg-background/90
             px-6
             backdrop-blur
         "
@@ -38,6 +39,8 @@ export function Header() {
                 <SearchBar />
 
                 <NotificationButton count={3} />
+
+                <ThemeToggle />
 
                 <UserMenu />
 

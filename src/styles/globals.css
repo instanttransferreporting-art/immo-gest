@@ -8,7 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   /*--font-sans: var(--font-sans);*/
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  /*--font-sans: var(--font-inter), system-ui, sans-serif;*/
+  /*--font-mono: var(--font-geist-mono);*/
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -127,5 +129,23 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
   }
 }

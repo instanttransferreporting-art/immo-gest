@@ -11,7 +11,7 @@ export function Logo({ collapsed = false }: LogoProps) {
     return (
         <Link
             href={ROUTES.DASHBOARD}
-            className="flex items-center gap-3 px-4 py-5 transition-colors hover:bg-slate-100"
+            className="flex items-center gap-3 px-4 py-5 transition-colors hover:bg-muted"
         >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
                 <Building2 className="h-6 w-6" />
@@ -23,7 +23,7 @@ export function Logo({ collapsed = false }: LogoProps) {
             ImmoGest
           </span>
 
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-muted-foreground">
             Property Management
           </span>
                 </div>

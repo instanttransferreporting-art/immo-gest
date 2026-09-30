@@ -46,14 +46,14 @@ export function UserMenu() {
                 gap-3
                 rounded-xl
                 border
-                border-slate-200
-                bg-white
+                border-border
+                bg-card
                 px-2.5
                 py-2
                 shadow-sm
                 transition-colors
                 duration-200
-                hover:bg-slate-50
+                hover:bg-muted
             "
             >
                 <Avatar>
@@ -63,14 +63,14 @@ export function UserMenu() {
                 </Avatar>
 
                 <div className="hidden text-left sm:block">
-                    <p className="text-sm font-semibold text-slate-900">{displayName}</p>
-                    <p className="text-xs text-slate-500">{roleLabel || displayEmail}</p>
+                    <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                    <p className="text-xs text-muted-foreground">{roleLabel || displayEmail}</p>
                 </div>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56 rounded-xl">
                 <DropdownMenuGroup>
-                    <DropdownMenuLabel className="font-normal text-slate-500">
+                    <DropdownMenuLabel className="font-normal text-muted-foreground">
                         {displayEmail}
                     </DropdownMenuLabel>
                 </DropdownMenuGroup>

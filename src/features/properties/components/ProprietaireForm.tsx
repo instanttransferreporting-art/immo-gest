@@ -58,7 +58,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="nom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nom" className="text-sm font-medium text-foreground">
                         Nom
                     </label>
                     <Input
@@ -70,7 +70,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="prenom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="prenom" className="text-sm font-medium text-foreground">
                         Prénom
                     </label>
                     <Input id="prenom" className="h-10 rounded-xl" {...register("prenom")} />
@@ -79,7 +79,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="adresse" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="adresse" className="text-sm font-medium text-foreground">
                         Adresse
                     </label>
                     <Input
@@ -91,7 +91,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="ville" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="ville" className="text-sm font-medium text-foreground">
                         Ville
                     </label>
                     <Input
@@ -104,7 +104,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="tauxCommission" className="text-sm font-medium text-slate-900">
+                <label htmlFor="tauxCommission" className="text-sm font-medium text-foreground">
                     Taux de commission (%)
                 </label>
                 <Input
@@ -123,7 +123,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-slate-900">Téléphones</label>
+                    <label className="text-sm font-medium text-foreground">Téléphones</label>
                     <Button
                         type="button"
                         variant="outline"
@@ -158,7 +158,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="mt-0.5 text-slate-400 hover:text-red-500"
+                            className="mt-0.5 text-muted-foreground hover:text-red-500"
                             disabled={telephones.fields.length === 1}
                             onClick={() => telephones.remove(index)}
                         >
@@ -174,7 +174,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-slate-900">Emails professionnels</label>
+                    <label className="text-sm font-medium text-foreground">Emails professionnels</label>
                     <Button
                         type="button"
                         variant="outline"
@@ -188,7 +188,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                 </div>
 
                 {emails.fields.length === 0 && (
-                    <p className="text-sm text-slate-500">Aucun email professionnel ajouté.</p>
+                    <p className="text-sm text-muted-foreground">Aucun email professionnel ajouté.</p>
                 )}
 
                 {emails.fields.map((field, index) => (
@@ -214,7 +214,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="mt-0.5 text-slate-400 hover:text-red-500"
+                            className="mt-0.5 text-muted-foreground hover:text-red-500"
                             onClick={() => emails.remove(index)}
                         >
                             <Trash2 className="h-4 w-4" />

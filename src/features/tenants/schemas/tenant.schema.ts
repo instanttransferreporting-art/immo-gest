@@ -43,3 +43,9 @@ export const locataireSchema = z.discriminatedUnion("type", [
 ]);
 
 export type LocataireFormValues = z.infer<typeof locataireSchema>;
+
+// Schemas de mise à jour (identiques mais servant comme alias explicites)
+export const locatairePhysiqueUpdateSchema = locatairePhysiqueSchema;
+export const locataireMoraleUpdateSchema = locataireMoraleSchema;
+export const locataireUpdateSchema = locataireSchema;
+export type LocataireUpdateFormValues = LocataireFormValues;

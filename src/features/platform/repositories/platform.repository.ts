@@ -7,6 +7,7 @@ const ORGANIZATION_SUMMARY_SELECT = {
     nom: true,
     logo: true,
     tauxCommissionDefaut: true,
+    tauxPenaliteRetard: true,
     adresse: true,
     ville: true,
     telephone: true,

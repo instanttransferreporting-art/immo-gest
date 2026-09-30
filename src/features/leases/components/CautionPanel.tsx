@@ -46,9 +46,9 @@ export function CautionPanel({ caution, contratStatut }: CautionPanelProps) {
     }
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">Caution</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">Caution</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -76,21 +76,21 @@ export function CautionPanel({ caution, contratStatut }: CautionPanelProps) {
 
             <CardContent className="space-y-3 px-6">
                 {!isSettled && !isContratResilie && (
-                    <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500">
+                    <p className="rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
                         La caution ne pourra être restituée qu&apos;une fois le contrat résilié.
                     </p>
                 )}
 
                 <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Statut</span>
+                    <span className="text-muted-foreground">Statut</span>
                     <Badge className={`rounded-lg ${STATUT_CAUTION_STYLES[caution.statut]}`}>
                         {STATUT_CAUTION_LABELS[caution.statut]}
                     </Badge>
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Montant initial</span>
-                    <span className="font-medium text-slate-900">
+                    <span className="text-muted-foreground">Montant initial</span>
+                    <span className="font-medium text-foreground">
                         {currencyFormatter.format(caution.montantInitial)}
                     </span>
                 </div>
@@ -98,27 +98,27 @@ export function CautionPanel({ caution, contratStatut }: CautionPanelProps) {
                 {isSettled && (
                     <>
                         <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-500">Montant rendu</span>
-                            <span className="font-medium text-slate-900">
+                            <span className="text-muted-foreground">Montant rendu</span>
+                            <span className="font-medium text-foreground">
                                 {currencyFormatter.format(caution.montantRendu)}
                             </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-500">Montant retenu</span>
-                            <span className="font-medium text-slate-900">
+                            <span className="text-muted-foreground">Montant retenu</span>
+                            <span className="font-medium text-foreground">
                                 {currencyFormatter.format(caution.montantRetenu)}
                             </span>
                         </div>
                         {caution.dateRestitution && (
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-slate-500">Date de restitution</span>
-                                <span className="font-medium text-slate-900">
+                                <span className="text-muted-foreground">Date de restitution</span>
+                                <span className="font-medium text-foreground">
                                     {dateFormatter.format(caution.dateRestitution)}
                                 </span>
                             </div>
                         )}
                         {caution.notes && (
-                            <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                            <p className="rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
                                 {caution.notes}
                             </p>
                         )}

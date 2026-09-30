@@ -14,6 +14,11 @@ const NIVEAU_RELANCE_MESSAGES: Readonly<Record<NiveauRelance, string>> = {
     NIVEAU_3: "En l'absence de règlement malgré la mise en demeure, ce dossier est transmis en procédure contentieuse.",
 };
 
+export type MailAttachment = {
+    filename: string;
+    content: Buffer;
+};
+
 type AvisEcheanceParams = {
     to: string;
     organizationNom: string;
@@ -23,6 +28,7 @@ type AvisEcheanceParams = {
     numeroFacture: string;
     montantTotal: number;
     dateEcheance: Date;
+    attachment?: MailAttachment;
 };
 
 type QuittanceParams = {
@@ -36,6 +42,7 @@ type QuittanceParams = {
     modePaiement: string;
     datePaiement: Date;
     soldeRestant: number;
+    attachment?: MailAttachment;
 };
 
 type RelanceParams = {
@@ -48,6 +55,7 @@ type RelanceParams = {
     soldeRestant: number;
     joursRetard: number;
     niveau: NiveauRelance;
+    attachment?: MailAttachment;
 };
 
 export class MailService {
@@ -62,6 +70,7 @@ export class MailService {
                 from: `${params.organizationNom} <${MAIL_FROM_ADDRESS}>`,
                 to: params.to,
                 subject: `Avis d'échéance — ${params.numeroFacture}`,
+                attachments: params.attachment ? [params.attachment] : undefined,
                 react: (
                     <AvisEcheanceTemplate
                         organizationNom={params.organizationNom}
@@ -93,6 +102,7 @@ export class MailService {
                 from: `${params.organizationNom} <${MAIL_FROM_ADDRESS}>`,
                 to: params.to,
                 subject: `Quittance de loyer — ${params.numeroFacture}`,
+                attachments: params.attachment ? [params.attachment] : undefined,
                 react: (
                     <QuittanceTemplate
                         organizationNom={params.organizationNom}
@@ -128,6 +138,7 @@ export class MailService {
                 from: `${params.organizationNom} <${MAIL_FROM_ADDRESS}>`,
                 to: params.to,
                 subject: `${niveauLabel} — Facture ${params.numeroFacture}`,
+                attachments: params.attachment ? [params.attachment] : undefined,
                 react: (
                     <RelanceTemplate
                         organizationNom={params.organizationNom}

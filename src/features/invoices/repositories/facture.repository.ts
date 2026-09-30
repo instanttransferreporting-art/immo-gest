@@ -152,10 +152,74 @@ export class FactureRepository {
         return FactureRepository.findById(factureId, organizationId, client);
     }
 
+    /**
+     * Effet inverse de `updateAfterPayment` — remet le solde restant dû à la
+     * hausse suite à l'annulation d'un paiement.
+     */
+    static async reverserPaiement(
+        factureId: string,
+        echeanceId: string,
+        organizationId: string,
+        montantAnnule: number,
+        client: Prisma.TransactionClient = prisma
+    ): Promise<FactureRaw | null> {
+        const echeance = await client.echeanceLoyer.findFirst({
+            where: { id: echeanceId, organizationId },
+            select: { soldeRestant: true },
+        });
+
+        if (!echeance) {
+            return null;
+        }
+
+        const nouveauSolde = echeance.soldeRestant + montantAnnule;
+
+        await client.echeanceLoyer.updateMany({
+            where: { id: echeanceId, organizationId },
+            data: { soldeRestant: nouveauSolde, estPaye: nouveauSolde <= 0 },
+        });
+
+        await client.facture.updateMany({
+            where: { id: factureId, organizationId },
+            data: { estSoldee: nouveauSolde <= 0 },
+        });
+
+        return FactureRepository.findById(factureId, organizationId, client);
+    }
+
     static async markAvisEnvoye(factureId: string, organizationId: string): Promise<void> {
         await prisma.facture.updateMany({
             where: { id: factureId, organizationId },
             data: { avisEnvoye: true, avisEnvoyeAt: new Date() },
         });
+    }
+
+    /**
+     * Applique une pénalité de retard une seule fois par facture — le filtre
+     * `penalites: 0` dans le where garantit l'idempotence (aucun effet si déjà appliquée).
+     */
+    static async appliquerPenalite(
+        factureId: string,
+        echeanceId: string,
+        organizationId: string,
+        montantPenalite: number,
+        client: Prisma.TransactionClient = prisma
+    ): Promise<FactureRaw | null> {
+        const result = await client.facture.updateMany({
+            where: { id: factureId, organizationId, penalites: 0 },
+            data: { penalites: montantPenalite, totalDu: { increment: montantPenalite } },
+        });
+
+        if (result.count > 0) {
+            await client.echeanceLoyer.updateMany({
+                where: { id: echeanceId, organizationId },
+                data: {
+                    soldeRestant: { increment: montantPenalite },
+                    montantTotal: { increment: montantPenalite },
+                },
+            });
+        }
+
+        return FactureRepository.findById(factureId, organizationId, client);
     }
 }

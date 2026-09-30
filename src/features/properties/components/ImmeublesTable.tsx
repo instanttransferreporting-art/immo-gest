@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 import {
@@ -11,10 +14,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
-import type { ImmeubleDTO } from "@/features/properties/types/property.types";
+import { ImmeubleDetailModal } from "@/features/properties/components/ImmeubleDetailModal";
+import { ImmeubleEditModal } from "@/features/properties/components/ImmeubleEditModal";
+import type { ImmeubleDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
 
 type ImmeublesTableProps = {
     immeubles: readonly ImmeubleDTO[];
+    proprietaireOptions: readonly ProprietaireOptionDTO[];
 };
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR", {
@@ -23,28 +29,31 @@ const currencyFormatter = new Intl.NumberFormat("fr-FR", {
     maximumFractionDigits: 0,
 });
 
-export function ImmeublesTable({ immeubles }: ImmeublesTableProps) {
+export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTableProps) {
+    const router = useRouter();
+
     if (immeubles.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <Building2 className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucun immeuble enregistré</p>
-                <p className="text-sm text-slate-400">Ajoutez votre premier immeuble pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <Building2 className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucun immeuble enregistré</p>
+                <p className="text-sm text-muted-foreground">Ajoutez votre premier immeuble pour commencer.</p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
+                    <TableRow className="bg-muted hover:bg-muted">
                         <TableHead>Référence</TableHead>
                         <TableHead>Nom</TableHead>
                         <TableHead>Ville</TableHead>
                         <TableHead>Propriétaire</TableHead>
                         <TableHead>Logements</TableHead>
                         <TableHead>Valeur estimative</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -56,7 +65,7 @@ export function ImmeublesTable({ immeubles }: ImmeublesTableProps) {
                                     {immeuble.reference}
                                 </Badge>
                             </TableCell>
-                            <TableCell className="font-medium text-slate-900">
+                            <TableCell className="font-medium text-foreground">
                                 <Link
                                     href={`${ROUTES.PROPERTIES}/${immeuble.id}`}
                                     className="hover:text-emerald-700 hover:underline"
@@ -64,15 +73,25 @@ export function ImmeublesTable({ immeubles }: ImmeublesTableProps) {
                                     {immeuble.nom}
                                 </Link>
                             </TableCell>
-                            <TableCell className="text-slate-600">{immeuble.ville}</TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">{immeuble.ville}</TableCell>
+                            <TableCell className="text-muted-foreground">
                                 {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
                             </TableCell>
-                            <TableCell className="text-slate-600">{immeuble.nombreLogements}</TableCell>
-                            <TableCell className="text-slate-600">
+                            <TableCell className="text-muted-foreground">{immeuble.nombreLogements}</TableCell>
+                            <TableCell className="text-muted-foreground">
                                 {immeuble.valeurEstimative != null
                                     ? currencyFormatter.format(immeuble.valeurEstimative)
                                     : "—"}
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center justify-end gap-2">
+                                    <ImmeubleDetailModal immeuble={immeuble} />
+                                    <ImmeubleEditModal
+                                        immeuble={immeuble}
+                                        proprietaireOptions={proprietaireOptions}
+                                        onSuccess={() => router.refresh()}
+                                    />
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

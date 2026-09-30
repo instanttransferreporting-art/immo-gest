@@ -63,4 +63,25 @@ export class ImmeubleRepository {
             orderBy: { nom: "asc" },
         });
     }
+
+    static async update(id: string, organizationId: string, data: Omit<ImmeubleFormValues, never>) {
+        return prisma.immeuble.updateMany({
+            where: { id, organizationId },
+            data: {
+                nom: data.nom,
+                adresse: data.adresse,
+                ville: data.ville,
+                nombreNiveaux: data.nombreNiveaux,
+                nombreLogements: data.nombreLogements,
+                valeurEstimative: data.valeurEstimative ?? null,
+                proprietaireId: data.proprietaireId,
+            },
+        });
+    }
+
+    static async deleteIm(id: string, organizationId: string) {
+        return prisma.immeuble.delete({
+            where: { id, organizationId },
+        });
+    }
 }

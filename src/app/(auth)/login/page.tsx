@@ -20,17 +20,17 @@ export default async function LoginPage() {
     }
 
     return (
-        <Card className="w-full max-w-md rounded-2xl border border-slate-200 shadow-md">
+        <Card className="w-full max-w-md rounded-2xl border border-border shadow-md">
             <CardHeader className="flex flex-col items-center gap-3 pt-8 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
                     <Building2 className="h-6 w-6" />
                 </div>
 
                 <div>
-                    <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                    <h1 className="text-xl font-bold tracking-tight text-foreground">
                         Immo Gest
                     </h1>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-muted-foreground">
                         Connectez-vous à votre espace de gestion.
                     </p>
                 </div>

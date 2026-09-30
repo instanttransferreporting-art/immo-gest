@@ -22,7 +22,7 @@ export function SidebarToggle() {
                 rounded-lg
                 border
                 p-2
-                hover:bg-slate-100
+                hover:bg-muted
             "
         >
 

@@ -18,8 +18,8 @@ export function Sidebar() {
                 collapsed ? "w-20" : "w-72",
                 "flex-col",
                 "border-r",
-                "border-slate-200",
-                "bg-white",
+                "border-border",
+                "bg-card",
                 "transition-all duration-300",
             ].join(" ")}
         >
@@ -29,9 +29,9 @@ export function Sidebar() {
                 <Navigation collapsed={collapsed} />
             </div>
 
-            <div className="border-t border-slate-200 p-4">
+            <div className="border-t border-border p-4">
                 {!collapsed && (
-                    <p className="text-center text-xs text-slate-500">
+                    <p className="text-center text-xs text-muted-foreground">
                         © {new Date().getFullYear()} ImmoGest
                     </p>
                 )}

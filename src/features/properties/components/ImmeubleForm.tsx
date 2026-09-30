@@ -55,7 +55,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
-                <label htmlFor="proprietaireId" className="text-sm font-medium text-slate-900">
+                <label htmlFor="proprietaireId" className="text-sm font-medium text-foreground">
                     Propriétaire
                 </label>
                 <select
@@ -79,7 +79,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="nom" className="text-sm font-medium text-slate-900">
+                <label htmlFor="nom" className="text-sm font-medium text-foreground">
                     Nom de l&apos;immeuble
                 </label>
                 <Input
@@ -92,7 +92,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="adresse" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="adresse" className="text-sm font-medium text-foreground">
                         Adresse
                     </label>
                     <Input
@@ -104,7 +104,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="ville" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="ville" className="text-sm font-medium text-foreground">
                         Ville
                     </label>
                     <Input
@@ -118,7 +118,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                    <label htmlFor="nombreNiveaux" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nombreNiveaux" className="text-sm font-medium text-foreground">
                         Niveaux
                     </label>
                     <Input
@@ -134,7 +134,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="nombreLogements" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nombreLogements" className="text-sm font-medium text-foreground">
                         Logements
                     </label>
                     <Input
@@ -150,7 +150,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="valeurEstimative" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="valeurEstimative" className="text-sm font-medium text-foreground">
                         Valeur estimative
                     </label>
                     <Input

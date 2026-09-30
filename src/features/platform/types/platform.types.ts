@@ -10,6 +10,7 @@ export type OrganizationSummaryDTO = Readonly<{
     nom: string;
     logo: string | null;
     tauxCommissionDefaut: number;
+    tauxPenaliteRetard: number;
     adresse: string | null;
     ville: string | null;
     telephone: string | null;

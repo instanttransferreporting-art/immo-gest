@@ -7,6 +7,10 @@ export const organizationSchema = z.object({
         .number({ error: "Le taux de commission est requis." })
         .min(0, { error: "Le taux ne peut pas être négatif." })
         .max(100, { error: "Le taux ne peut pas dépasser 100%." }),
+    tauxPenaliteRetard: z
+        .number({ error: "Le taux de pénalité est requis." })
+        .min(0, { error: "Le taux ne peut pas être négatif." })
+        .max(100, { error: "Le taux ne peut pas dépasser 100%." }),
     adresse: z.string().optional(),
     ville: z.string().optional(),
     telephone: z.string().optional(),

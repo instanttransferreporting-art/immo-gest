@@ -31,9 +31,9 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
     }
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">
+                <CardTitle className="text-base font-semibold text-foreground">
                     Propriétaires
                 </CardTitle>
 
@@ -62,10 +62,10 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
 
             <CardContent className="px-6">
                 {proprietaires.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-10 text-center">
-                        <User className="h-8 w-8 text-slate-300" />
-                        <p className="text-sm font-medium text-slate-600">Aucun propriétaire enregistré</p>
-                        <p className="text-sm text-slate-400">Ajoutez un propriétaire pour pouvoir créer un immeuble.</p>
+                    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-10 text-center">
+                        <User className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-sm font-medium text-muted-foreground">Aucun propriétaire enregistré</p>
+                        <p className="text-sm text-muted-foreground">Ajoutez un propriétaire pour pouvoir créer un immeuble.</p>
                     </div>
                 ) : (
                     <ul className="divide-y divide-slate-100">
@@ -74,14 +74,14 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                                 <div>
                                     <Link
                                         href={`/proprietaires/${proprietaire.id}/bilan`}
-                                        className="text-sm font-medium text-slate-900 hover:text-emerald-700 hover:underline"
+                                        className="text-sm font-medium text-foreground hover:text-emerald-700 hover:underline"
                                     >
                                         {`${proprietaire.nom} ${proprietaire.prenom ?? ""}`.trim()}
                                     </Link>
-                                    <p className="text-xs text-slate-500">{proprietaire.ville}</p>
+                                    <p className="text-xs text-muted-foreground">{proprietaire.ville}</p>
                                 </div>
 
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-muted-foreground">
                                     {proprietaire.telephones.length} tél. · {proprietaire.emails.length} email(s)
                                 </p>
                             </li>

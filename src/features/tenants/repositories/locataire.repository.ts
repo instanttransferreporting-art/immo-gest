@@ -49,6 +49,40 @@ export class LocataireRepository {
         });
     }
 
+    static async update(id: string, organizationId: string, data: LocataireFormValues) {
+        const isPhysique = data.type === TypeLocataire.PHYSIQUE;
+
+        await prisma.locataire.updateMany({
+            where: { id, organizationId },
+            data: {
+                type: data.type,
+                nom: data.nom,
+                prenom: data.prenom,
+                telephone: data.telephone,
+                email: data.email,
+                adresse: data.adresse,
+                pieceIdentite: data.pieceIdentite,
+                dateNaissance: isPhysique ? data.dateNaissance ?? null : null,
+                profession: isPhysique ? (data.profession ?? null) : null,
+                revenuMensuelMoyen: isPhysique ? data.revenuMensuelMoyen : null,
+                raisonSociale: !isPhysique ? data.raisonSociale : null,
+                rccm: !isPhysique ? data.rccm : null,
+                niu: !isPhysique ? data.niu : null,
+                telephoneMoral: !isPhysique ? data.telephoneMoral : null,
+                emailMoral: !isPhysique ? data.emailMoral : null,
+            },
+        });
+
+        return LocataireRepository.findById(id, organizationId);
+    }
+
+    static async findById(id: string, organizationId: string) {
+        return prisma.locataire.findFirst({
+            where: { id, organizationId },
+            select: LOCATAIRE_SELECT,
+        });
+    }
+
     static async findAll(organizationId: string) {
         return prisma.locataire.findMany({
             where: { organizationId },

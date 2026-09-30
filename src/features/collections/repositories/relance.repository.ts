@@ -24,7 +24,7 @@ const ECHEANCE_CONTEXT_SELECT = {
         },
     },
     factures: {
-        select: { numero: true },
+        select: { id: true, numero: true, totalDu: true },
         orderBy: { dateEmission: "desc" as const },
         take: 1,
     },

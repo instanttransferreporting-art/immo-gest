@@ -37,9 +37,9 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
 
     return (
         <div className="space-y-6">
-            <Card className="rounded-2xl border border-slate-200 shadow-sm">
+            <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-slate-900">
+                    <CardTitle className="text-base font-semibold text-foreground">
                         Historique des paiements
                     </CardTitle>
 

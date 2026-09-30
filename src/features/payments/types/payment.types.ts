@@ -10,5 +10,7 @@ export type PaiementDTO = Readonly<{
     reference: string | null;
     datePaiement: Date;
     estAnnule: boolean;
+    motifAnnulation: string | null;
+    dateAnnulation: Date | null;
     enregistrePar: Readonly<{ nom: string; prenom: string }>;
 }>;

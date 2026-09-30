@@ -28,12 +28,12 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
         `${facture.contrat.locataire.nom} ${facture.contrat.locataire.prenom}`;
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardContent className="space-y-6 px-6 py-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-900">Quittance de Loyer</h2>
-                        <p className="text-sm text-slate-500">Facture {facture.numero}</p>
+                        <h2 className="text-lg font-bold text-foreground">Quittance de Loyer</h2>
+                        <p className="text-sm text-muted-foreground">Facture {facture.numero}</p>
                     </div>
 
                     <div className="flex gap-2 print:hidden">
@@ -59,47 +59,53 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
 
                 <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt className="text-slate-500">Locataire</dt>
-                        <dd className="font-medium text-slate-900">{locataireNom}</dd>
+                        <dt className="text-muted-foreground">Locataire</dt>
+                        <dd className="font-medium text-foreground">{locataireNom}</dd>
                     </div>
                     <div>
-                        <dt className="text-slate-500">Unité</dt>
-                        <dd className="font-medium text-slate-900">
+                        <dt className="text-muted-foreground">Unité</dt>
+                        <dd className="font-medium text-foreground">
                             {facture.contrat.unite.immeuble.nom} — {facture.contrat.unite.numero}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-slate-500">Période</dt>
-                        <dd className="font-medium text-slate-900">
+                        <dt className="text-muted-foreground">Période</dt>
+                        <dd className="font-medium text-foreground">
                             {MOIS_LABELS[facture.mois - 1]} {facture.annee}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-slate-500">Date d&apos;émission</dt>
-                        <dd className="font-medium text-slate-900">{dateFormatter.format(facture.dateEmission)}</dd>
+                        <dt className="text-muted-foreground">Date d&apos;émission</dt>
+                        <dd className="font-medium text-foreground">{dateFormatter.format(facture.dateEmission)}</dd>
                     </div>
                 </dl>
 
-                <div className="space-y-2 border-t border-slate-200 pt-4 text-sm">
+                <div className="space-y-2 border-t border-border pt-4 text-sm">
                     <div className="flex justify-between">
-                        <span className="text-slate-500">Loyer</span>
-                        <span className="text-slate-900">{currencyFormatter.format(facture.montantLoyer)}</span>
+                        <span className="text-muted-foreground">Loyer</span>
+                        <span className="text-foreground">{currencyFormatter.format(facture.montantLoyer)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-slate-500">Charges</span>
-                        <span className="text-slate-900">{currencyFormatter.format(facture.montantCharges)}</span>
+                        <span className="text-muted-foreground">Charges</span>
+                        <span className="text-foreground">{currencyFormatter.format(facture.montantCharges)}</span>
                     </div>
+                    {facture.penalites > 0 && (
+                        <div className="flex justify-between text-red-600">
+                            <span>Pénalités de retard</span>
+                            <span>{currencyFormatter.format(facture.penalites)}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between font-semibold">
-                        <span className="text-slate-900">Total dû</span>
-                        <span className="text-slate-900">{currencyFormatter.format(facture.totalDu)}</span>
+                        <span className="text-foreground">Total dû</span>
+                        <span className="text-foreground">{currencyFormatter.format(facture.totalDu)}</span>
                     </div>
                     <div className="flex justify-between text-emerald-700">
                         <span>Total encaissé</span>
                         <span>{currencyFormatter.format(totalPaye)}</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                        <span className="text-slate-900">Reste à payer</span>
-                        <span className="text-slate-900">{currencyFormatter.format(facture.soldeRestant)}</span>
+                        <span className="text-foreground">Reste à payer</span>
+                        <span className="text-foreground">{currencyFormatter.format(facture.soldeRestant)}</span>
                     </div>
                 </div>
             </CardContent>

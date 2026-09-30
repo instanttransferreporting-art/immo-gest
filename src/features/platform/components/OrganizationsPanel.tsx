@@ -31,9 +31,9 @@ export function OrganizationsPanel({ organizations }: OrganizationsPanelProps) {
     }
 
     return (
-        <Card className="rounded-2xl border border-slate-200 shadow-sm">
+        <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-slate-900">Entreprises</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">Entreprises</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger

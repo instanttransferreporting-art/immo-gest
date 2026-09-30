@@ -2,13 +2,19 @@ import type { Prisma } from "@/generated/prisma/client";
 import type { EtatUnite } from "@/generated/prisma/enums";
 import { getCurrentOrganizationId } from "@/lib/auth";
 import { UniteRepository } from "@/features/units/repositories/unite.repository";
-import type { UniteFormValues } from "@/features/units/schemas/unit.schema";
+import type { UniteFormValues, UniteUpdateFormValues } from "@/features/units/schemas/unit.schema";
 import type { UniteDTO, UniteLibreOptionDTO, UniteOptionDTO } from "@/features/units/types/unit.types";
 
 export class UniteService {
     static async create(input: UniteFormValues): Promise<UniteDTO> {
         const organizationId = await getCurrentOrganizationId();
         return UniteRepository.create(organizationId, input);
+    }
+
+    static async update(id: string, input: UniteUpdateFormValues): Promise<UniteDTO | null> {
+        const organizationId = await getCurrentOrganizationId();
+        await UniteRepository.update(id, organizationId, input);
+        return UniteRepository.findById(id, organizationId);
     }
 
     static async listByImmeuble(immeubleId: string): Promise<UniteDTO[]> {

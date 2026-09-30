@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import {QueryProvider, SessionProvider, ThemeProvider} from "@/providers";
 import { Toaster } from "@/components/ui/toast";
@@ -7,6 +7,16 @@ import { Toaster } from "@/components/ui/toast";
 const inter = Inter({
     subsets: ["latin"],
     variable: "--font-inter",
+});
+
+const geistSans = Geist({
+    subsets: ['latin'],
+    variable: '--font-geist-sans',
+});
+
+const geistMono = Geist_Mono({
+    subsets: ['latin'],
+    variable: '--font-geist-mono',
 });
 
 export const metadata: Metadata = {
@@ -20,7 +30,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="fr" suppressHydrationWarning className={inter.variable}>
+        <html lang="fr" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
         <body>
         <ThemeProvider>
             <SessionProvider>

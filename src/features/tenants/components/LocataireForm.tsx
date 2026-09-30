@@ -87,7 +87,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
                 {Object.values(TypeLocataire).map((option) => (
                     <button
                         key={option}
@@ -96,8 +96,8 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         className={cn(
                             "h-9 rounded-lg text-sm font-medium transition-all duration-200",
                             type === option
-                                ? "bg-white text-emerald-700 shadow-sm"
-                                : "text-slate-500 hover:text-slate-700"
+                                ? "bg-card text-emerald-700 shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
                         )}
                     >
                         {TYPE_LOCATAIRE_LABELS[option]}
@@ -107,7 +107,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="nom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="nom" className="text-sm font-medium text-foreground">
                         {isPhysique ? "Nom" : "Nom du représentant légal"}
                     </label>
                     <Input
@@ -119,7 +119,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="prenom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="prenom" className="text-sm font-medium text-foreground">
                         {isPhysique ? "Prénom" : "Prénom du représentant légal"}
                     </label>
                     <Input
@@ -133,7 +133,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="telephone" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="telephone" className="text-sm font-medium text-foreground">
                         Téléphone
                     </label>
                     <Input
@@ -148,7 +148,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="email" className="text-sm font-medium text-foreground">
                         Email
                     </label>
                     <Input
@@ -162,7 +162,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="adresse" className="text-sm font-medium text-slate-900">
+                <label htmlFor="adresse" className="text-sm font-medium text-foreground">
                     Adresse
                 </label>
                 <Input
@@ -174,7 +174,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="pieceIdentite" className="text-sm font-medium text-slate-900">
+                <label htmlFor="pieceIdentite" className="text-sm font-medium text-foreground">
                     N° pièce d&apos;identité (CNI / Passeport)
                 </label>
                 <Input
@@ -190,14 +190,14 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             {isPhysique ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <label htmlFor="profession" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="profession" className="text-sm font-medium text-foreground">
                             Profession
                         </label>
                         <Input id="profession" className="h-10 rounded-xl" {...register("profession")} />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label htmlFor="revenuMensuelMoyen" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="revenuMensuelMoyen" className="text-sm font-medium text-foreground">
                             Revenu mensuel moyen
                         </label>
                         <Input
@@ -215,7 +215,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             ) : (
                 <>
                     <div className="space-y-1.5">
-                        <label htmlFor="raisonSociale" className="text-sm font-medium text-slate-900">
+                        <label htmlFor="raisonSociale" className="text-sm font-medium text-foreground">
                             Raison sociale
                         </label>
                         <Input
@@ -230,7 +230,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <label htmlFor="rccm" className="text-sm font-medium text-slate-900">
+                            <label htmlFor="rccm" className="text-sm font-medium text-foreground">
                                 RCCM
                             </label>
                             <Input
@@ -242,7 +242,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label htmlFor="niu" className="text-sm font-medium text-slate-900">
+                            <label htmlFor="niu" className="text-sm font-medium text-foreground">
                                 NIU
                             </label>
                             <Input
@@ -256,7 +256,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <label htmlFor="telephoneMoral" className="text-sm font-medium text-slate-900">
+                            <label htmlFor="telephoneMoral" className="text-sm font-medium text-foreground">
                                 Téléphone de l&apos;entreprise
                             </label>
                             <Input
@@ -271,7 +271,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label htmlFor="emailMoral" className="text-sm font-medium text-slate-900">
+                            <label htmlFor="emailMoral" className="text-sm font-medium text-foreground">
                                 Email de l&apos;entreprise
                             </label>
                             <Input

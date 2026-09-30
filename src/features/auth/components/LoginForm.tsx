@@ -52,7 +52,7 @@ export function LoginForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-1.5">
-                <label htmlFor="email" className="text-sm font-medium text-slate-900">
+                <label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email
                 </label>
 
@@ -75,7 +75,7 @@ export function LoginForm() {
             </div>
 
             <div className="space-y-1.5">
-                <label htmlFor="password" className="text-sm font-medium text-slate-900">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">
                     Mot de passe
                 </label>
 
@@ -98,7 +98,7 @@ export function LoginForm() {
                         onClick={() => setShowPassword((prev) => !prev)}
                         tabIndex={-1}
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-muted-foreground"
                     >
                         {showPassword ? (
                             <EyeOff className="h-4 w-4" />

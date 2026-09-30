@@ -20,7 +20,7 @@ export default async function RecouvrementPage() {
             />
 
             <div className="mt-6">
-                <Card className="rounded-2xl border border-slate-200 shadow-sm">
+                <Card className="rounded-2xl border border-border shadow-sm">
                     <CardContent className="px-6">
                         <ImpayesTable impayes={impayes} />
                     </CardContent>

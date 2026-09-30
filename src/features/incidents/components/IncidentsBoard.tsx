@@ -36,10 +36,10 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
 
     if (incidents.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 py-12 text-center">
-                <Wrench className="h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-600">Aucun incident</p>
-                <p className="text-sm text-slate-400">Signalez une panne pour commencer.</p>
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
+                <Wrench className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Aucun incident</p>
+                <p className="text-sm text-muted-foreground">Signalez une panne pour commencer.</p>
             </div>
         );
     }
@@ -50,12 +50,12 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                 const columnIncidents = incidents.filter((incident) => incident.statut === statut);
 
                 return (
-                    <div key={statut} className="space-y-3 rounded-xl bg-slate-50 p-3">
+                    <div key={statut} className="space-y-3 rounded-xl bg-muted p-3">
                         <div className="flex items-center justify-between px-1">
                             <span className={`rounded-lg px-2 py-1 text-xs font-semibold ${STATUT_INCIDENT_STYLES[statut]}`}>
                                 {STATUT_INCIDENT_LABELS[statut]}
                             </span>
-                            <span className="text-xs text-slate-400">{columnIncidents.length}</span>
+                            <span className="text-xs text-muted-foreground">{columnIncidents.length}</span>
                         </div>
 
                         <div className="space-y-3">
@@ -67,10 +67,10 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                                 return (
                                     <div
                                         key={incident.id}
-                                        className="space-y-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+                                        className="space-y-2 rounded-xl border border-border bg-card p-3 shadow-sm"
                                     >
                                         <div className="flex items-start justify-between gap-2">
-                                            <p className="text-sm font-medium text-slate-900">{incident.titre}</p>
+                                            <p className="text-sm font-medium text-foreground">{incident.titre}</p>
                                             <Badge
                                                 className={`rounded-lg ${PRIORITE_INCIDENT_STYLES[incident.priorite]}`}
                                             >
@@ -78,17 +78,17 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                                             </Badge>
                                         </div>
 
-                                        <p className="line-clamp-2 text-xs text-slate-500">{incident.description}</p>
+                                        <p className="line-clamp-2 text-xs text-muted-foreground">{incident.description}</p>
 
-                                        {lieu && <p className="text-xs text-slate-400">{lieu}</p>}
+                                        {lieu && <p className="text-xs text-muted-foreground">{lieu}</p>}
 
                                         {incident.prestataire && (
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-muted-foreground">
                                                 Prestataire : {incident.prestataire}
                                             </p>
                                         )}
 
-                                        <p className="text-xs text-slate-400">
+                                        <p className="text-xs text-muted-foreground">
                                             Signalé le {dateFormatter.format(incident.dateSignalement)}
                                         </p>
 

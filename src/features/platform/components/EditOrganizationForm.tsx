@@ -28,6 +28,7 @@ export function EditOrganizationForm({ organization, onSuccess }: EditOrganizati
             nom: organization.nom,
             logo: organization.logo ?? "",
             tauxCommissionDefaut: organization.tauxCommissionDefaut,
+            tauxPenaliteRetard: organization.tauxPenaliteRetard,
             adresse: organization.adresse ?? "",
             ville: organization.ville ?? "",
             telephone: organization.telephone ?? "",
@@ -51,7 +52,7 @@ export function EditOrganizationForm({ organization, onSuccess }: EditOrganizati
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-nom" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-nom" className="text-sm font-medium text-foreground">
                         Nom de l&apos;agence
                     </label>
                     <Input
@@ -63,14 +64,14 @@ export function EditOrganizationForm({ organization, onSuccess }: EditOrganizati
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-logo" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-logo" className="text-sm font-medium text-foreground">
                         Logo (URL)
                     </label>
                     <Input id="edit-logo" className="h-10 rounded-xl" {...register("logo")} />
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-tauxCommissionDefaut" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-tauxCommissionDefaut" className="text-sm font-medium text-foreground">
                         Taux de commission (%)
                     </label>
                     <Input
@@ -88,7 +89,25 @@ export function EditOrganizationForm({ organization, onSuccess }: EditOrganizati
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-email" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-tauxPenaliteRetard" className="text-sm font-medium text-foreground">
+                        Taux de pénalité de retard (%)
+                    </label>
+                    <Input
+                        id="edit-tauxPenaliteRetard"
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="0.1"
+                        className={cn("h-10 rounded-xl", errors.tauxPenaliteRetard && "border-red-500")}
+                        {...register("tauxPenaliteRetard", { valueAsNumber: true })}
+                    />
+                    {errors.tauxPenaliteRetard && (
+                        <p className="animate-pulse text-sm text-red-500">{errors.tauxPenaliteRetard.message}</p>
+                    )}
+                </div>
+
+                <div className="space-y-1.5">
+                    <label htmlFor="edit-email" className="text-sm font-medium text-foreground">
                         Email
                     </label>
                     <Input
@@ -100,21 +119,21 @@ export function EditOrganizationForm({ organization, onSuccess }: EditOrganizati
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-telephone" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-telephone" className="text-sm font-medium text-foreground">
                         Téléphone
                     </label>
                     <Input id="edit-telephone" className="h-10 rounded-xl" {...register("telephone")} />
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="edit-ville" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-ville" className="text-sm font-medium text-foreground">
                         Ville
                     </label>
                     <Input id="edit-ville" className="h-10 rounded-xl" {...register("ville")} />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                    <label htmlFor="edit-adresse" className="text-sm font-medium text-slate-900">
+                    <label htmlFor="edit-adresse" className="text-sm font-medium text-foreground">
                         Adresse
                     </label>
                     <Input id="edit-adresse" className="h-10 rounded-xl" {...register("adresse")} />

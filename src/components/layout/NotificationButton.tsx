@@ -20,14 +20,14 @@ export function NotificationButton({ count = 0 }: NotificationButtonProps) {
                 justify-center
                 rounded-full
                 border
-                border-slate-200
-                bg-white
-                text-slate-500
+                border-border
+                bg-card
+                text-muted-foreground
                 shadow-sm
                 transition-all
                 duration-200
-                hover:bg-slate-50
-                hover:text-slate-700
+                hover:bg-muted
+                hover:text-foreground
             "
         >
             <Bell className="h-5 w-5" />

@@ -42,12 +42,12 @@ export function DocumentUploadForm({ locataireId }: DocumentUploadFormProps) {
     }
 
     return (
-        <div className="space-y-3 rounded-xl border border-dashed border-slate-200 p-4">
-            <p className="text-sm font-medium text-slate-900">Pièces jointes (optionnel)</p>
+        <div className="space-y-3 rounded-xl border border-dashed border-border p-4">
+            <p className="text-sm font-medium text-foreground">Pièces jointes (optionnel)</p>
 
             {UPLOADABLE_TYPES.map((typeDocument) => (
                 <div key={typeDocument} className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-slate-600">{TYPE_DOCUMENT_LABELS[typeDocument]}</span>
+                    <span className="text-sm text-muted-foreground">{TYPE_DOCUMENT_LABELS[typeDocument]}</span>
 
                     <Button
                         type="button"
