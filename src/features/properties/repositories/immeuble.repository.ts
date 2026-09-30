@@ -1,0 +1,84 @@
+import { prisma } from "@/lib/prisma";
+import type { ImmeubleFormValues } from "@/features/properties/schemas/property.schema";
+
+const IMMEUBLE_SELECT = {
+    id: true,
+    reference: true,
+    nom: true,
+    adresse: true,
+    ville: true,
+    nombreNiveaux: true,
+    valeurEstimative: true,
+    proprietaireId: true,
+    createdAt: true,
+    proprietaire: {
+        select: { id: true, nom: true, prenom: true },
+    },
+} as const;
+
+export class ImmeubleRepository {
+    static async countByReferencePrefix(organizationId: string, prefix: string) {
+        return prisma.immeuble.count({
+            where: { organizationId, reference: { startsWith: prefix } },
+        });
+    }
+
+    static async create(organizationId: string, data: ImmeubleFormValues & { reference: string }) {
+        return prisma.immeuble.create({
+            data: {
+                organizationId,
+                reference: data.reference,
+                nom: data.nom,
+                adresse: data.adresse,
+                ville: data.ville,
+                nombreNiveaux: data.nombreNiveaux,
+                valeurEstimative: data.valeurEstimative,
+                proprietaireId: data.proprietaireId,
+            },
+            select: IMMEUBLE_SELECT,
+        });
+    }
+
+    static async findAll(organizationId: string) {
+        return prisma.immeuble.findMany({
+            where: { organizationId },
+            select: IMMEUBLE_SELECT,
+            orderBy: { createdAt: "desc" },
+        });
+    }
+
+    static async findById(id: string, organizationId: string) {
+        return prisma.immeuble.findFirst({
+            where: { id, organizationId },
+            select: IMMEUBLE_SELECT,
+        });
+    }
+
+    static async findAllOptions(organizationId: string) {
+        return prisma.immeuble.findMany({
+            where: { organizationId },
+            select: { id: true, nom: true },
+            orderBy: { nom: "asc" },
+        });
+    }
+
+    static async update(id: string, organizationId: string, data: Omit<ImmeubleFormValues, never>) {
+        return prisma.immeuble.updateMany({
+            where: { id, organizationId },
+            data: {
+                nom: data.nom,
+                adresse: data.adresse,
+                ville: data.ville,
+                nombreNiveaux: data.nombreNiveaux,
+                valeurEstimative: data.valeurEstimative ?? null,
+                proprietaireId: data.proprietaireId,
+            },
+        });
+    }
+
+    static async deleteIm(id: string, organizationId: string) {
+        return prisma.immeuble.delete({
+            where: { id, organizationId },
+        });
+    }
+}

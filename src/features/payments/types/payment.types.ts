@@ -1,0 +1,30 @@
+import type { ModePaiement } from "@/generated/prisma/enums";
+
+export type PaiementDTO = Readonly<{
+    id: string;
+    factureId: string;
+    echeanceId: string;
+    userId: string;
+    mode: ModePaiement;
+    montant: number;
+    reference: string | null;
+    datePaiement: Date;
+    estAnnule: boolean;
+    motifAnnulation: string | null;
+    dateAnnulation: Date | null;
+    enregistrePar: Readonly<{ nom: string; prenom: string }>;
+}>;
+
+export type PaiementListItemDTO = Readonly<{
+    id: string;
+    factureId: string;
+    factureNumero: string;
+    mode: ModePaiement;
+    montant: number;
+    reference: string | null;
+    datePaiement: Date;
+    estAnnule: boolean;
+    locataireNom: string;
+    uniteLabel: string;
+    enregistreParNom: string;
+}>;
