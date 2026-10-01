@@ -24,6 +24,18 @@ export class UserRepository {
         });
     }
 
+    static async findSessionStateById(id: string) {
+        return prisma.user.findUnique({
+            where: { id },
+            select: {
+                organizationId: true,
+                role: true,
+                isActive: true,
+                organization: { select: { isActive: true } },
+            },
+        });
+    }
+
     static async create(
         data: {
             organizationId: string;

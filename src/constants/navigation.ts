@@ -8,6 +8,7 @@ import {
     Receipt,
     ReceiptText,
     Settings,
+    UserCog,
     Users,
     Wrench,
 } from "lucide-react";
@@ -60,6 +61,11 @@ export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
         title: "Rapports",
         href: ROUTES.REPORTS,
         icon: BarChart3,
+    },
+    {
+        title: "Utilisateurs",
+        href: ROUTES.USERS,
+        icon: UserCog,
     },
     {
         title: "Journal d'audit",

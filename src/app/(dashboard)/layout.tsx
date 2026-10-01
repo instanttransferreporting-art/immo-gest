@@ -12,7 +12,11 @@ export default async function DashboardLayout({
 }) {
     const session = await getCurrentSession();
 
-    if (session?.user.role === RoleType.SUPER_ADMIN && !session.user.impersonatedOrganizationId) {
+    if (!session) {
+        redirect(ROUTES.LOGIN);
+    }
+
+    if (session.user.role === RoleType.SUPER_ADMIN && !session.user.impersonatedOrganizationId) {
         redirect(ROUTES.PLATFORM);
     }
 

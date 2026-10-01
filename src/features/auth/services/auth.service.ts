@@ -15,8 +15,12 @@ export class EmailAlreadyUsedError extends Error {
 }
 
 export class AuthService {
+    static async hashPassword(password: string): Promise<string> {
+        return bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
+    }
+
     static async register(input: RegisterUserInput, client?: Prisma.TransactionClient): Promise<UserDTO> {
-        const passwordHash = await bcrypt.hash(input.password, PASSWORD_SALT_ROUNDS);
+        const passwordHash = await AuthService.hashPassword(input.password);
 
         try {
             return await UserRepository.create(
@@ -37,6 +41,23 @@ export class AuthService {
 
             throw error;
         }
+    }
+
+    /**
+     * État à jour d'un compte déjà connecté, relu à chaque lecture de session :
+     * retourne null si le compte (ou son entreprise) a été désactivé entre-temps,
+     * sinon son rôle et son entreprise actuels (un changement de rôle s'applique sans reconnexion).
+     */
+    static async getActiveSessionState(
+        userId: string
+    ): Promise<Pick<UserDTO, "organizationId" | "role"> | null> {
+        const user = await UserRepository.findSessionStateById(userId);
+
+        if (!user || !user.isActive || (user.organization && !user.organization.isActive)) {
+            return null;
+        }
+
+        return { organizationId: user.organizationId, role: user.role };
     }
 
     static async authenticate({ email, password }: LoginCredentials): Promise<UserDTO | null> {

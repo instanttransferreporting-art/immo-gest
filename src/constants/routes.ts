@@ -27,5 +27,7 @@ export const ROUTES = {
 
     AUDIT: "/audit",
 
+    USERS: "/users",
+
     SETTINGS: "/settings",
 } as const;

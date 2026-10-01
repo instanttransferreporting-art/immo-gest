@@ -7,6 +7,13 @@ import { OrganizationService } from "@/features/organizations/services/organizat
 import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
 
+class RevokedSessionError extends Error {
+    constructor() {
+        super("Ce compte a été désactivé.");
+        this.name = "RevokedSessionError";
+    }
+}
+
 export const authOptions: NextAuthOptions = {
     secret: process.env.AUTH_SECRET,
     session: {
@@ -53,6 +60,16 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.impersonatedOrganizationId = null;
                 token.impersonatedOrganizationNom = null;
+            } else {
+                // Lève une erreur si le compte a été désactivé : next-auth invalide alors la session.
+                const state = await AuthService.getActiveSessionState(token.id);
+
+                if (!state) {
+                    throw new RevokedSessionError();
+                }
+
+                token.organizationId = state.organizationId;
+                token.role = state.role;
             }
 
             if (trigger === "update" && session && token.role === RoleType.SUPER_ADMIN) {
