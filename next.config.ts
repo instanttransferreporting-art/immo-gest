@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
   // dans ce cas, ce qui fait planter Prisma au runtime sur Vercel
   // ("could not locate the Query Engine"). On force leur inclusion explicite.
   outputFileTracingIncludes: {
-    "/*": ["./src/generated/prisma/**/*"],
+    // "/*": ["./src/generated/prisma/**/*"],
+    "/**/*": ["./src/generated/prisma/**/*"],
   },
 };
 
