@@ -3,7 +3,9 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-const databaseUrl = process.env["DATABASE_URL"];
+// Le CLI (migrations) passe par le pooler en mode session (DIRECT_URL) : le mode
+// transaction (port 6543) utilisé par l'app au runtime ne supporte pas les migrations.
+const databaseUrl = process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"];
 
 if (!databaseUrl) {
   throw new Error("La variable d'environnement DATABASE_URL est requise.");

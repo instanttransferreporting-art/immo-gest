@@ -1,5 +1,6 @@
 import { getServerSession, type NextAuthOptions, type Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { JWT } from "next-auth/jwt";
 
 import { AuthService } from "@/features/auth/services/auth.service";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
@@ -12,6 +13,30 @@ class RevokedSessionError extends Error {
         super("Ce compte a été désactivé.");
         this.name = "RevokedSessionError";
     }
+}
+
+/**
+ * Resynchronise le rôle et l'entreprise du jeton avec la base. Seul un compte
+ * confirmé désactivé lève RevokedSessionError (next-auth invalide alors la session) ;
+ * une erreur d'accès à la base (pool saturé, réseau…) conserve le jeton tel quel
+ * pour ne pas déconnecter l'utilisateur à cause d'un incident transitoire.
+ */
+async function refreshSessionState(token: JWT): Promise<void> {
+    let state: Awaited<ReturnType<typeof AuthService.getActiveSessionState>>;
+
+    try {
+        state = await AuthService.getActiveSessionState(token.id);
+    } catch (error) {
+        console.warn("[auth] Vérification de session impossible, jeton conservé.", error);
+        return;
+    }
+
+    if (!state) {
+        throw new RevokedSessionError();
+    }
+
+    token.organizationId = state.organizationId;
+    token.role = state.role;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -61,15 +86,7 @@ export const authOptions: NextAuthOptions = {
                 token.impersonatedOrganizationId = null;
                 token.impersonatedOrganizationNom = null;
             } else {
-                // Lève une erreur si le compte a été désactivé : next-auth invalide alors la session.
-                const state = await AuthService.getActiveSessionState(token.id);
-
-                if (!state) {
-                    throw new RevokedSessionError();
-                }
-
-                token.organizationId = state.organizationId;
-                token.role = state.role;
+                await refreshSessionState(token);
             }
 
             if (trigger === "update" && session && token.role === RoleType.SUPER_ADMIN) {
