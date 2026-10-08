@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "TypeDocumentContrat" ADD VALUE 'CONTRAT_SIGNE_SUIVANT';

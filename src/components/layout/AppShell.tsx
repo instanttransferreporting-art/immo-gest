@@ -28,7 +28,8 @@ function ShellContent({
                         : "transition-all duration-300 lg:ml-72 print:ml-0"
                 }
             >
-                <div className="print:hidden">
+                {/* Le sticky doit être sur ce wrapper : le parent direct du header n'a que sa hauteur. */}
+                <div className="sticky top-0 z-30 print:hidden">
                     <ImpersonationBanner />
                     <Header />
                 </div>

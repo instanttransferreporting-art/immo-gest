@@ -66,6 +66,10 @@ export class ContratService {
                             throw new UniteNotAvailableError();
                         }
 
+                        if (input.isMeuble !== undefined && input.isMeuble !== unite.isMeuble) {
+                            await UniteService.updateMeuble(input.uniteId, input.isMeuble, organizationId, tx);
+                        }
+
                         const dateFin =
                             input.frequence === FrequenceEcheance.QUOTIDIEN
                                 ? input.dateFin

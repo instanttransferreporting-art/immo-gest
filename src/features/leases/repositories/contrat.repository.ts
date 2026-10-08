@@ -47,6 +47,8 @@ const CONTRAT_EXPORT_SELECT = {
         select: {
             numero: true,
             type: true,
+            surface: true,
+            nombrePieces: true,
             isMeuble: true,
             immeuble: {
                 select: {

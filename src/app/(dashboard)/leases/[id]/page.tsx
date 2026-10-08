@@ -11,6 +11,10 @@ import { ContratService } from "@/features/leases/services/contrat.service";
 import { CautionService } from "@/features/leases/services/caution.service";
 import { CautionPanel } from "@/features/leases/components/CautionPanel";
 import { ResilierContratButton } from "@/features/leases/components/ResilierContratButton";
+import { GenererContratDialog } from "@/features/leases/components/GenererContratDialog";
+import { ContratDocumentService } from "@/features/leases/services/contrat-document.service";
+import { DocumentsContratPanel } from "@/features/leases/components/DocumentsContratPanel";
+import { DocumentContratService } from "@/features/leases/services/document-contrat.service";
 import { ContratStatutActions } from "@/features/leases/components/ContratStatutActions";
 import { RenouvelerContratButton } from "@/features/leases/components/RenouvelerContratButton";
 import { FREQUENCE_LABELS, STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
@@ -46,6 +50,8 @@ export default async function ContratDetailPage({ params }: PageProps) {
     }
 
     const caution = await CautionService.getByContrat(id);
+    const documents = await DocumentContratService.listByContrat(id);
+    const documentDefaults = await ContratDocumentService.getDefaults(id);
     const locataireNom =
         contrat.locataire.raisonSociale ?? `${contrat.locataire.nom} ${contrat.locataire.prenom}`;
 
@@ -58,10 +64,10 @@ export default async function ContratDetailPage({ params }: PageProps) {
 
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <Card className="rounded-2xl border border-border shadow-sm lg:col-span-2">
-                    <CardHeader className="flex flex-row items-center justify-between px-6">
+                    <CardHeader className="flex flex-col gap-3 px-6">
                         <CardTitle className="text-base font-semibold text-foreground">Détails du contrat</CardTitle>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <Button
                                 render={<a href={`/api/export/contrat?contratId=${contrat.id}`} />}
                                 variant="outline"
@@ -71,6 +77,8 @@ export default async function ContratDetailPage({ params }: PageProps) {
                                 <Download className="h-4 w-4" />
                                 Télécharger le bail
                             </Button>
+
+                            <GenererContratDialog contratId={contrat.id} defaults={documentDefaults} />
 
                             {(contrat.statut === StatutBail.ACTIF || contrat.statut === StatutBail.SUSPENDU) && (
                                 <ContratStatutActions contratId={contrat.id} statut={contrat.statut} />
@@ -143,8 +151,13 @@ export default async function ContratDetailPage({ params }: PageProps) {
                     </CardContent>
                 </Card>
 
-                <div className="lg:col-span-1">
+                <div className="space-y-6 lg:col-span-1">
                     {caution && <CautionPanel caution={caution} contratStatut={contrat.statut} />}
+                    <DocumentsContratPanel
+                        contratId={contrat.id}
+                        documents={documents}
+                        avecContratSuivant={contrat.dateDebut.getMonth() > 0 || contrat.dateDebut.getDate() > 1}
+                    />
                 </div>
             </div>
         </Container>

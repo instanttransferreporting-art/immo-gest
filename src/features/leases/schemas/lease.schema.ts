@@ -14,6 +14,8 @@ export const contratSchema = z
             .number({ error: "La caution est requise." })
             .nonnegative({ error: "La caution ne peut pas être négative." }),
         frequence: z.enum(FrequenceEcheance, { error: "La fréquence est requise." }),
+        // Nature du logement choisie à la création (met à jour l'unité si elle diffère)
+        isMeuble: z.boolean().optional(),
         // Pour les baux à la nuitée (frequence = QUOTIDIEN)
         nombreNuitees: z
             .number({ error: "Le nombre de nuitées est requis." })

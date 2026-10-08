@@ -40,6 +40,15 @@ export class UniteService {
         return UniteRepository.findAllOptions(organizationId);
     }
 
+    static async updateMeuble(
+        id: string,
+        isMeuble: boolean,
+        organizationId: string,
+        client?: Prisma.TransactionClient
+    ): Promise<void> {
+        await UniteRepository.updateMeuble(id, isMeuble, organizationId, client);
+    }
+
     static async updateEtat(
         id: string,
         etat: EtatUnite,

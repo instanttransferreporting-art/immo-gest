@@ -13,9 +13,6 @@ export function Header() {
 
         <header
             className="
-            sticky
-            top-0
-            z-30
             flex
             h-20
             items-center

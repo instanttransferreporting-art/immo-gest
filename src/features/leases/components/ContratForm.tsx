@@ -90,6 +90,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             setValue("loyerBase", selectedUnite.loyerMensuel);
             setValue("charges", 0);
             setValue("depotGarantie", selectedUnite.caution);
+            setValue("isMeuble", selectedUnite.isMeuble);
 
             // Pré-sélectionner la fréquence selon l'unité si meublée
             if (selectedUnite.isMeuble && selectedUnite.frequencePaiement === "NUITEE") {
@@ -156,6 +157,24 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     ))}
                 </select>
                 {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{errors.uniteId.message}</p>}
+            </div>
+
+            {/* Nature du logement */}
+            <div className="space-y-1.5">
+                <label htmlFor="isMeuble" className="text-sm font-medium text-foreground">
+                    Nature du logement
+                </label>
+                <select
+                    id="isMeuble"
+                    className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    {...register("isMeuble", { setValueAs: (value) => value === true || value === "true" })}
+                >
+                    <option value="false">Non meublé</option>
+                    <option value="true">Meublé</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                    Pré-rempli selon l&apos;unité ; si vous le modifiez, l&apos;unité sera mise à jour.
+                </p>
             </div>
 
             {/* Locataire */}

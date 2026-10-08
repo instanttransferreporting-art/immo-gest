@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Téléversement des pièces de bail (10 Mo max côté métier + marge multipart).
+    serverActions: { bodySizeLimit: "12mb" },
+  },
   // Prisma Client est généré dans un dossier personnalisé (src/generated/prisma),
   // pas l'emplacement par défaut (node_modules/.prisma/client). Le traceur de
   // fichiers de Next.js ne détecte pas toujours les binaires moteur (.so.node)
@@ -9,6 +13,8 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     // "/*": ["./src/generated/prisma/**/*"],
     "/**/*": ["./src/generated/prisma/**/*"],
+    // Modèle Word du bail, lu au runtime par la génération des contrats.
+    "/api/contrats/**/*": ["./src/features/leases/templates/**/*"],
   },
 };
 

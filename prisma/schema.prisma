@@ -32,21 +32,22 @@ model Organization {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  users         User[]
-  auditLogs     AuditLog[]
-  proprietaires Proprietaire[]
-  immeubles     Immeuble[]
-  unites        Unite[]
-  locataires    Locataire[]
-  contrats      ContratBail[]
-  echeances     EcheanceLoyer[]
-  factures      Facture[]
-  paiements     Paiement[]
-  relances      Relance[]
-  cautions      Caution[]
-  maintenances  Maintenance[]
-  reversements  Reversement[]
-  incidents     Incident[]
+  users            User[]
+  auditLogs        AuditLog[]
+  proprietaires    Proprietaire[]
+  immeubles        Immeuble[]
+  unites           Unite[]
+  locataires       Locataire[]
+  contrats         ContratBail[]
+  echeances        EcheanceLoyer[]
+  factures         Facture[]
+  paiements        Paiement[]
+  relances         Relance[]
+  cautions         Caution[]
+  maintenances     Maintenance[]
+  reversements     Reversement[]
+  incidents        Incident[]
+  documentContrats DocumentContrat[]
 
   @@map("organizations")
 }
@@ -332,15 +333,41 @@ model ContratBail {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  organization Organization    @relation(fields: [organizationId], references: [id])
-  unite        Unite           @relation(fields: [uniteId], references: [id])
-  locataire    Locataire       @relation(fields: [locataireId], references: [id])
-  echeances    EcheanceLoyer[]
-  cautions     Caution[]
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  unite            Unite             @relation(fields: [uniteId], references: [id])
+  locataire        Locataire         @relation(fields: [locataireId], references: [id])
+  echeances        EcheanceLoyer[]
+  cautions         Caution[]
+  documentContrats DocumentContrat[]
 
   @@unique([organizationId, numeroContrat])
   @@index([organizationId])
   @@map("contrats_bail")
+}
+
+// Pièces téléversées d'un bail : contrat signé, états des lieux d'entrée et de sortie
+enum TypeDocumentContrat {
+  CONTRAT_SIGNE
+  CONTRAT_SIGNE_SUIVANT
+  ETAT_LIEUX_ENTREE
+  ETAT_LIEUX_SORTIE
+}
+
+model DocumentContrat {
+  id             String              @id @default(uuid())
+  organizationId String
+  contratId      String
+  type           TypeDocumentContrat
+  nomFichier     String
+  cheminFichier  String
+  createdAt      DateTime            @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  contrat      ContratBail  @relation(fields: [contratId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([contratId])
+  @@map("documents_contrat")
 }
 
 model EcheanceLoyer {

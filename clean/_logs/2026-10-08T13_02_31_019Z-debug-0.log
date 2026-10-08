@@ -1,0 +1,18 @@
+0 verbose cli C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.13.0
+3 silly config load:file:C:\Users\ivan\AppData\Local\nvm\v22.13.0\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\ivan\Documents\projects\IST\immo-gest\.npmrc
+5 silly config load:file:C:\Users\ivan\.npmrc
+6 silly config load:file:C:\nvm4w\nodejs\etc\npmrc
+7 verbose title npm run dev force
+8 verbose argv "run" "dev" "--cache" "clean" "force"
+9 verbose logfile logs-max:10 dir:C:\Users\ivan\Documents\projects\IST\immo-gest\clean\_logs\2026-10-08T13_02_31_019Z-
+10 verbose logfile C:\Users\ivan\Documents\projects\IST\immo-gest\clean\_logs\2026-10-08T13_02_31_019Z-debug-0.log
+11 silly logfile done cleaning log files
+12 verbose cwd C:\Users\ivan\Documents\projects\IST\immo-gest
+13 verbose os Windows_NT 10.0.26340
+14 verbose node v22.13.0
+15 verbose npm  v10.9.2
+16 verbose exit 1
+17 verbose code 1

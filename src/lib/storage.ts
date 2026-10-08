@@ -30,3 +30,18 @@ export async function uploadFile(path: string, file: File): Promise<string> {
 
     return path;
 }
+
+const SIGNED_URL_TTL_SECONDS = 60 * 5;
+
+/** Lien de téléchargement temporaire (le bucket est privé). */
+export async function createSignedDownloadUrl(path: string, filename: string): Promise<string> {
+    const { data, error } = await getStorageClient()
+        .storage.from(DOCUMENTS_BUCKET)
+        .createSignedUrl(path, SIGNED_URL_TTL_SECONDS, { download: filename });
+
+    if (error || !data) {
+        throw new Error(`Impossible de générer le lien de téléchargement : ${error?.message ?? "inconnu"}`);
+    }
+
+    return data.signedUrl;
+}

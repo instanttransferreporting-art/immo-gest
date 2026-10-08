@@ -137,6 +137,18 @@ export class UniteRepository {
         });
     }
 
+    static async updateMeuble(
+        id: string,
+        isMeuble: boolean,
+        organizationId: string,
+        client: Prisma.TransactionClient = prisma
+    ) {
+        await client.unite.updateMany({
+            where: { id, organizationId },
+            data: { isMeuble },
+        });
+    }
+
     static async updateEtat(
         id: string,
         etat: EtatUnite,
