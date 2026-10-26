@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { V } from "@/i18n/validation-keys";
 
 export const CIVILITES = ["Monsieur", "Madame"] as const;
 
@@ -14,59 +15,59 @@ export const PERIODICITE_BAIL_LABELS: Readonly<Record<PeriodiciteBail, string>> 
     ANNUEL: "Annuelle",
 };
 
-const requiredText = (message: string) => z.string({ error: message }).trim().min(1, { error: message });
+const requiredText = (message: (typeof V)[keyof typeof V]) => z.string({ error: message }).trim().min(1, { error: message });
 
 export const contratDocumentSchema = z.object({
     // Preneur
-    civilite: z.enum(CIVILITES, { error: "La civilité est requise." }),
-    locataireNom: requiredText("Le nom du locataire est requis."),
-    nationalite: requiredText("La nationalité est requise."),
-    pieceIdentite: requiredText("Le numéro de CNI est requis."),
-    pieceDelivreeLe: requiredText("La date de délivrance de la CNI est requise."),
-    pieceDelivreeA: requiredText("Le lieu de délivrance de la CNI est requis."),
-    telephone: requiredText("Le téléphone est requis."),
+    civilite: z.enum(CIVILITES, { error: V.civiliteRequired }),
+    locataireNom: requiredText(V.tenantNameRequired),
+    nationalite: requiredText(V.nationalityRequired),
+    pieceIdentite: requiredText(V.cniRequired),
+    pieceDelivreeLe: requiredText(V.cniIssueDateRequired),
+    pieceDelivreeA: requiredText(V.cniIssuePlaceRequired),
+    telephone: requiredText(V.phoneRequired),
 
     // Local loué
-    localisation: requiredText("La localisation du local est requise."),
-    surface: z.number({ error: "La surface est requise." }).positive({ error: "La surface doit être positive." }),
-    composition: requiredText("La composition du local est requise."),
+    localisation: requiredText(V.locationRequired),
+    surface: z.number({ error: V.surfaceRequired }).positive({ error: V.surfacePositive }),
+    composition: requiredText(V.compositionRequired),
 
     // Durée
-    dateDebut: z.coerce.date({ error: "La date de prise d'effet est invalide." }),
+    dateDebut: z.coerce.date({ error: V.effectiveDateInvalid }),
     reconductionAuto: z.boolean(),
     genererContratSuivant: z.boolean(),
 
     // Loyer & paiement
-    loyer: z.number({ error: "Le loyer est requis." }).positive({ error: "Le loyer doit être positif." }),
-    periodicite: z.enum(PERIODICITES_BAIL, { error: "La périodicité est requise." }),
+    loyer: z.number({ error: V.rentRequired }).positive({ error: V.rentPositive }),
+    periodicite: z.enum(PERIODICITES_BAIL, { error: V.periodicityRequired }),
     moisAvance: z
-        .number({ error: "Le nombre de mois d'avance est requis." })
-        .int({ error: "Nombre entier requis." })
-        .min(1, { error: "Au moins 1 mois." }),
+        .number({ error: V.advanceMonthsRequired })
+        .int({ error: V.integerRequired })
+        .min(1, { error: V.atLeastOneMonth }),
 
     // Dépôt de garantie
     depotMois: z
-        .number({ error: "Le nombre de mois de garantie est requis." })
-        .int({ error: "Nombre entier requis." })
-        .min(1, { error: "Au moins 1 mois." }),
-    depotMontant: z.number({ error: "Le montant du dépôt est requis." }).nonnegative({ error: "Montant invalide." }),
+        .number({ error: V.depositMonthsRequired })
+        .int({ error: V.integerRequired })
+        .min(1, { error: V.atLeastOneMonth }),
+    depotMontant: z.number({ error: V.depositAmountRequired }).nonnegative({ error: V.invalidAmount }),
 
     // Charges
-    chargesMontant: z.number({ error: "Le montant des charges est requis." }).nonnegative({ error: "Montant invalide." }),
+    chargesMontant: z.number({ error: V.chargesAmountRequired }).nonnegative({ error: V.invalidAmount }),
     natureCharges: z.string().trim().optional(),
 
     // Pénalités de retard
     tauxPenalite: z
-        .number({ error: "Le taux de pénalité est requis." })
-        .min(0, { error: "Taux invalide." })
-        .max(100, { error: "Taux invalide." }),
+        .number({ error: V.penaltyRateRequired })
+        .min(0, { error: V.invalidRate })
+        .max(100, { error: V.invalidRate }),
     delaiPenaliteJours: z
-        .number({ error: "Le délai est requis." })
-        .int({ error: "Nombre entier requis." })
-        .min(1, { error: "Au moins 1 jour." }),
+        .number({ error: V.delayRequired })
+        .int({ error: V.integerRequired })
+        .min(1, { error: V.atLeastOneDay }),
 
     // Signature
-    dateSignature: z.coerce.date({ error: "La date de signature est invalide." }),
+    dateSignature: z.coerce.date({ error: V.signatureDateInvalid }),
 });
 
 export type ContratDocumentValues = z.infer<typeof contratDocumentSchema>;

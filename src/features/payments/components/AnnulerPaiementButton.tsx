@@ -15,22 +15,16 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { annulerPaiement } from "@/features/payments/actions/paiement.actions";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type AnnulerPaiementButtonProps = {
     paiement: PaiementDTO;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState<"motif" | "confirm">("motif");
@@ -67,51 +61,51 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger render={<Button size="sm" variant="destructive" className="rounded-lg" />}>
                 <Undo2 className="h-3.5 w-3.5" />
-                Annuler
+                {t.payments.cancel.trigger}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Annuler le paiement</DialogTitle>
+                    <DialogTitle>{t.payments.cancel.title}</DialogTitle>
                 </DialogHeader>
 
                 {step === "motif" && (
                     <div className="space-y-4">
                         <div className="space-y-1.5 rounded-xl bg-muted px-3 py-2 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Montant</span>
+                                <span className="text-muted-foreground">{t.common.amount}</span>
                                 <span className="font-medium text-foreground">
-                                    {currencyFormatter.format(paiement.montant)}
+                                    {f.currency(paiement.montant)}
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Date</span>
+                                <span className="text-muted-foreground">{t.common.date}</span>
                                 <span className="font-medium text-foreground">
-                                    {dateFormatter.format(paiement.datePaiement)}
+                                    {f.date(paiement.datePaiement)}
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Mode</span>
+                                <span className="text-muted-foreground">{t.payments.mode}</span>
                                 <span className="font-medium text-foreground">
-                                    {MODE_PAIEMENT_LABELS[paiement.mode]}
+                                    {t.enums.modePaiement[paiement.mode]}
                                 </span>
                             </div>
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="motif" className="text-sm font-medium text-foreground">
-                                Motif de l&apos;annulation
+                                {t.payments.cancel.reason}
                             </label>
                             <Input
                                 id="motif"
                                 value={motif}
                                 onChange={(event) => setMotif(event.target.value)}
-                                placeholder="Ex : erreur de saisie, doublon..."
+                                placeholder={t.payments.cancel.reasonPlaceholder}
                                 className="h-10 rounded-xl"
                             />
                             {motif.length > 0 && motif.length < 5 && (
                                 <p className="animate-pulse text-sm text-red-500">
-                                    Le motif doit contenir au moins 5 caractères.
+                                    {t.validation.reasonMin5}
                                 </p>
                             )}
                         </div>
@@ -122,7 +116,7 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
                             onClick={() => setStep("confirm")}
                             className="h-10 w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800"
                         >
-                            Continuer
+                            {t.payments.cancel.continue}
                         </Button>
                     </div>
                 )}
@@ -131,11 +125,7 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
                     <div className="space-y-4">
                         <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
                             <AlertTriangle className="h-5 w-5 shrink-0" />
-                            <p>
-                                Vous êtes sur le point d&apos;annuler définitivement un paiement de{" "}
-                                <strong>{currencyFormatter.format(paiement.montant)}</strong>. Le solde restant dû de
-                                la facture sera recalculé. Cette action ne peut pas être défaite.
-                            </p>
+                            <p>{t.payments.cancel.warning(f.currency(paiement.montant))}</p>
                         </div>
 
                         <label className="flex items-start gap-2 text-sm text-foreground">
@@ -145,7 +135,7 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
                                 onChange={(event) => setConfirmed(event.target.checked)}
                                 className="mt-0.5 h-4 w-4 rounded border-input"
                             />
-                            Je confirme vouloir annuler ce paiement de {currencyFormatter.format(paiement.montant)}.
+                            {t.payments.cancel.confirmCheckbox(f.currency(paiement.montant))}
                         </label>
 
                         <div className="flex gap-2">
@@ -155,7 +145,7 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
                                 className="h-10 flex-1 rounded-xl"
                                 onClick={() => setStep("motif")}
                             >
-                                Retour
+                                {t.common.back}
                             </Button>
 
                             <Button
@@ -167,7 +157,7 @@ export function AnnulerPaiementButton({ paiement }: AnnulerPaiementButtonProps) 
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    "Confirmer l'annulation"
+                                    t.payments.cancel.confirm
                                 )}
                             </Button>
                         </div>

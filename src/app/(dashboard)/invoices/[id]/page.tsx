@@ -5,6 +5,7 @@ import { Container, PageTitle } from "@/components/layout";
 import { FactureService } from "@/features/invoices/services/facture.service";
 import { PaiementService } from "@/features/payments/services/paiement.service";
 import { FactureDetailPanel } from "@/features/payments/components/FactureDetailPanel";
+import { getI18n } from "@/i18n/server";
 
 type PageProps = {
     params: Promise<{ id: string }>;
@@ -12,14 +13,16 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
-    const facture = await FactureService.getById(id);
+    const [facture, { t }] = await Promise.all([FactureService.getById(id), getI18n()]);
 
     return {
-        title: facture ? `Facture ${facture.numero} | Immo Gest` : "Facture | Immo Gest",
+        title: `${facture ? t.invoices.invoiceTitle(facture.numero) : t.invoices.invoiceFallbackTitle} | ${t.common.appName}`,
     };
 }
 
 export default async function FactureDetailPage({ params }: PageProps) {
+    const { t } = await getI18n();
+
     const { id } = await params;
     const facture = await FactureService.getById(id);
 
@@ -32,7 +35,7 @@ export default async function FactureDetailPage({ params }: PageProps) {
     return (
         <Container>
             <PageTitle
-                title={`Facture ${facture.numero}`}
+                title={t.invoices.invoiceTitle(facture.numero)}
                 description={`${facture.contrat.unite.immeuble.nom} — ${facture.contrat.unite.numero}`}
             />
 

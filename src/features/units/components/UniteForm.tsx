@@ -10,13 +10,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { createUnite } from "@/features/units/actions/unite.actions";
 import { uniteSchema, type UniteFormValues } from "@/features/units/schemas/unit.schema";
-import {
-    FREQUENCE_PAIEMENT_LABELS,
-    TYPE_CHARGES_LABELS,
-    TYPE_UNITE_LABELS,
-} from "@/features/units/constants/unit.constants";
 import { FrequencePaiement, TypeCharges, TypeUnite } from "@/generated/prisma/enums";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { useI18n } from "@/i18n/client";
 
 type UniteFormProps = {
     immeubleId: string;
@@ -24,6 +20,8 @@ type UniteFormProps = {
 };
 
 export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -73,7 +71,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="numero" className="text-sm font-medium text-foreground">
-                        Numéro
+                        {t.units.number}
                     </label>
                     <Input
                         id="numero"
@@ -81,19 +79,19 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                         className={cn("h-10 rounded-xl", errors.numero && "border-red-500")}
                         {...register("numero")}
                     />
-                    {errors.numero && <p className="animate-pulse text-sm text-red-500">{errors.numero.message}</p>}
+                    {errors.numero && <p className="animate-pulse text-sm text-red-500">{tv(errors.numero.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="type" className="text-sm font-medium text-foreground">
-                        Type
+                        {t.common.type}
                     </label>
                     <select
                         id="type"
                         className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                         {...register("type")}
                     >
-                        {Object.entries(TYPE_UNITE_LABELS).map(([value, label]) => (
+                        {Object.entries(t.enums.typeUnite).map(([value, label]) => (
                             <option key={value} value={value}>
                                 {label}
                             </option>
@@ -105,7 +103,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="surface" className="text-sm font-medium text-foreground">
-                        Surface (m²)
+                        {t.units.surfaceM2}
                     </label>
                     <Input
                         id="surface"
@@ -115,12 +113,12 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                         className={cn("h-10 rounded-xl", errors.surface && "border-red-500")}
                         {...register("surface", { valueAsNumber: true })}
                     />
-                    {errors.surface && <p className="animate-pulse text-sm text-red-500">{errors.surface.message}</p>}
+                    {errors.surface && <p className="animate-pulse text-sm text-red-500">{tv(errors.surface.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="nombrePieces" className="text-sm font-medium text-foreground">
-                        Nombre de pièces
+                        {t.units.roomsCount}
                     </label>
                     <Input
                         id="nombrePieces"
@@ -130,14 +128,14 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                         {...register("nombrePieces", { valueAsNumber: true })}
                     />
                     {errors.nombrePieces && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.nombrePieces.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.nombrePieces.message)}</p>
                     )}
                 </div>
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="loyerMensuel" className="text-sm font-medium text-foreground">
-                    Loyer de base
+                    {t.units.baseRent}
                 </label>
                 <Input
                     id="loyerMensuel"
@@ -147,21 +145,21 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                     {...register("loyerMensuel", { valueAsNumber: true })}
                 />
                 {errors.loyerMensuel && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.loyerMensuel.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.loyerMensuel.message)}</p>
                 )}
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="typeCharges" className="text-sm font-medium text-foreground">
-                        Type de charges
+                        {t.units.chargesType}
                     </label>
                     <select
                         id="typeCharges"
                         className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                         {...register("typeCharges")}
                     >
-                        {Object.entries(TYPE_CHARGES_LABELS).map(([value, label]) => (
+                        {Object.entries(t.enums.typeCharges).map(([value, label]) => (
                             <option key={value} value={value}>
                                 {label}
                             </option>
@@ -171,7 +169,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
 
                 <div className="space-y-1.5">
                     <label htmlFor="valeurCharges" className="text-sm font-medium text-foreground">
-                        {typeCharges === TypeCharges.POURCENTAGE ? "Charges (% du loyer)" : "Charges (montant fixe)"}
+                        {typeCharges === TypeCharges.POURCENTAGE ? t.units.chargesPercent : t.units.chargesFixed}
                     </label>
                     <Input
                         id="valeurCharges"
@@ -182,14 +180,14 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                         {...register("valeurCharges", { valueAsNumber: true })}
                     />
                     {errors.valeurCharges && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.valeurCharges.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.valeurCharges.message)}</p>
                     )}
                 </div>
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="caution" className="text-sm font-medium text-foreground">
-                    Caution (dépôt de garantie)
+                    {t.units.depositLong}
                 </label>
                 <Input
                     id="caution"
@@ -198,7 +196,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                     className={cn("h-10 rounded-xl", errors.caution && "border-red-500")}
                     {...register("caution", { valueAsNumber: true })}
                 />
-                {errors.caution && <p className="animate-pulse text-sm text-red-500">{errors.caution.message}</p>}
+                {errors.caution && <p className="animate-pulse text-sm text-red-500">{tv(errors.caution.message)}</p>}
             </div>
 
             {/* Meublé toggle */}
@@ -211,15 +209,15 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                 />
                 <div>
                     <label htmlFor="isMeuble" className="text-sm font-medium text-foreground cursor-pointer">
-                        Unité meublée
+                        {t.units.furnishedUnit}
                     </label>
                     <p className="text-xs text-muted-foreground">
-                        Cochez si cette unité est louée meublée (meubles inclus).
+                        {t.units.furnishedHint}
                     </p>
                 </div>
                 {isMeuble && (
                     <span className="ml-auto rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                        Meublé
+                        {t.units.furnished}
                     </span>
                 )}
             </div>
@@ -227,14 +225,14 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
             {/* Fréquence de paiement */}
             <div className="space-y-1.5">
                 <label htmlFor="frequencePaiement" className="text-sm font-medium text-foreground">
-                    Fréquence de paiement
+                    {t.units.paymentFrequency}
                 </label>
                 <select
                     id="frequencePaiement"
                     className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     {...register("frequencePaiement")}
                 >
-                    {Object.entries(FREQUENCE_PAIEMENT_LABELS).map(([value, label]) => (
+                    {Object.entries(t.enums.frequencePaiement).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>
@@ -245,16 +243,16 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
             {frequencePaiement === FrequencePaiement.AUTRE && (
                 <div className="space-y-1.5">
                     <label htmlFor="frequenceAutreTexte" className="text-sm font-medium text-foreground">
-                        Précisez la fréquence
+                        {t.units.customFrequency}
                     </label>
                     <Input
                         id="frequenceAutreTexte"
-                        placeholder="Ex: Bimestriel, quinzaine…"
+                        placeholder={t.units.customFrequencyPlaceholder}
                         className={cn("h-10 rounded-xl", errors.frequenceAutreTexte && "border-red-500")}
                         {...register("frequenceAutreTexte")}
                     />
                     {errors.frequenceAutreTexte && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.frequenceAutreTexte.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.frequenceAutreTexte.message)}</p>
                     )}
                 </div>
             )}
@@ -264,7 +262,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer l'unité"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.units.submit}
             </Button>
         </form>
     );

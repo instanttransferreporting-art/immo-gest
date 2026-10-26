@@ -1,4 +1,4 @@
-import type { RoleType } from "@/generated/prisma/enums";
+import type { Locale, RoleType } from "@/generated/prisma/enums";
 import type { DefaultSession, DefaultUser } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
 
@@ -8,6 +8,7 @@ declare module "next-auth" {
             id: string;
             organizationId: string | null;
             role: RoleType;
+            locale: Locale;
             impersonatedOrganizationId: string | null;
             impersonatedOrganizationNom: string | null;
         } & DefaultSession["user"];
@@ -16,6 +17,7 @@ declare module "next-auth" {
     interface User extends DefaultUser {
         organizationId: string | null;
         role: RoleType;
+        locale: Locale;
     }
 }
 
@@ -24,6 +26,7 @@ declare module "next-auth/jwt" {
         id: string;
         organizationId: string | null;
         role: RoleType;
+        locale: Locale;
         impersonatedOrganizationId: string | null;
         impersonatedOrganizationNom: string | null;
     }

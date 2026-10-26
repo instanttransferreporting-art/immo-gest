@@ -12,28 +12,18 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
 import { LocataireContratsList } from "@/features/tenants/components/LocataireContratsList";
 import { TypeLocataire } from "@/generated/prisma/enums";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocataireDetailModalProps = {
     locataire: LocataireDTO;
 };
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-});
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
 export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
+    const { t, f } = useI18n();
+
     const [open, setOpen] = useState(false);
 
     const isPhysique = locataire.type === TypeLocataire.PHYSIQUE;
@@ -53,7 +43,7 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                 }
             >
                 <Eye className="h-4 w-4" />
-                Détail
+                {t.common.details}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
@@ -64,13 +54,13 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                             variant={isPhysique ? "outline" : "secondary"}
                             className="rounded-lg text-xs"
                         >
-                            {TYPE_LOCATAIRE_LABELS[locataire.type]}
+                            {t.enums.typeLocataire[locataire.type]}
                         </Badge>
                     </DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-1.5">
-                    <p className="text-sm font-medium text-foreground">Contrat(s)</p>
+                    <p className="text-sm font-medium text-foreground">{t.tenants.leases}</p>
                     <LocataireContratsList contrats={locataire.contrats} maxVisible={3} />
                 </div>
 
@@ -78,14 +68,14 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                     {/* Informations personnelles */}
                     {!isPhysique && (
                         <div className="flex justify-between border-b border-border pb-2">
-                            <dt className="text-muted-foreground">Raison sociale</dt>
+                            <dt className="text-muted-foreground">{t.tenants.companyName}</dt>
                             <dd className="font-medium text-foreground">{locataire.raisonSociale ?? "—"}</dd>
                         </div>
                     )}
 
                     <div className="flex justify-between border-b border-border pb-2">
                         <dt className="text-muted-foreground">
-                            {isPhysique ? "Nom complet" : "Représentant légal"}
+                            {isPhysique ? t.tenants.fullName : t.tenants.legalRepresentative}
                         </dt>
                         <dd className="font-medium text-foreground">
                             {locataire.nom} {locataire.prenom}
@@ -93,26 +83,26 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Téléphone</dt>
+                        <dt className="text-muted-foreground">{t.common.phone}</dt>
                         <dd className="font-medium text-foreground">
                             {isPhysique ? locataire.telephone : (locataire.telephoneMoral ?? locataire.telephone)}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Email</dt>
+                        <dt className="text-muted-foreground">{t.common.email}</dt>
                         <dd className="font-medium text-foreground break-all">
                             {isPhysique ? locataire.email : (locataire.emailMoral ?? locataire.email)}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Adresse</dt>
+                        <dt className="text-muted-foreground">{t.common.address}</dt>
                         <dd className="text-right font-medium text-foreground">{locataire.adresse}</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Pièce d&apos;identité</dt>
+                        <dt className="text-muted-foreground">{t.tenants.idDocument}</dt>
                         <dd className="font-medium text-foreground">{locataire.pieceIdentite}</dd>
                     </div>
 
@@ -120,25 +110,25 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                         <>
                             {locataire.profession && (
                                 <div className="flex justify-between border-b border-border pb-2">
-                                    <dt className="text-muted-foreground">Profession</dt>
+                                    <dt className="text-muted-foreground">{t.tenants.profession}</dt>
                                     <dd className="font-medium text-foreground">{locataire.profession}</dd>
                                 </div>
                             )}
 
                             {locataire.revenuMensuelMoyen && (
                                 <div className="flex justify-between border-b border-border pb-2">
-                                    <dt className="text-muted-foreground">Revenu mensuel</dt>
+                                    <dt className="text-muted-foreground">{t.tenants.monthlyIncome}</dt>
                                     <dd className="font-medium text-foreground">
-                                        {currencyFormatter.format(locataire.revenuMensuelMoyen)}
+                                        {f.currency(locataire.revenuMensuelMoyen)}
                                     </dd>
                                 </div>
                             )}
 
                             {locataire.dateNaissance && (
                                 <div className="flex justify-between border-b border-border pb-2">
-                                    <dt className="text-muted-foreground">Date de naissance</dt>
+                                    <dt className="text-muted-foreground">{t.tenants.birthDate}</dt>
                                     <dd className="font-medium text-foreground">
-                                        {dateFormatter.format(new Date(locataire.dateNaissance))}
+                                        {f.dateLong(locataire.dateNaissance)}
                                     </dd>
                                 </div>
                             )}
@@ -149,14 +139,14 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                         <>
                             {locataire.rccm && (
                                 <div className="flex justify-between border-b border-border pb-2">
-                                    <dt className="text-muted-foreground">RCCM</dt>
+                                    <dt className="text-muted-foreground">{t.tenants.rccm}</dt>
                                     <dd className="font-medium text-foreground">{locataire.rccm}</dd>
                                 </div>
                             )}
 
                             {locataire.niu && (
                                 <div className="flex justify-between border-b border-border pb-2">
-                                    <dt className="text-muted-foreground">NIU</dt>
+                                    <dt className="text-muted-foreground">{t.tenants.niu}</dt>
                                     <dd className="font-medium text-foreground">{locataire.niu}</dd>
                                 </div>
                             )}
@@ -164,9 +154,9 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                     )}
 
                     <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Enregistré le</dt>
+                        <dt className="text-muted-foreground">{t.tenants.registeredOn}</dt>
                         <dd className="font-medium text-foreground">
-                            {dateFormatter.format(new Date(locataire.createdAt))}
+                            {f.dateLong(locataire.createdAt)}
                         </dd>
                     </div>
                 </dl>

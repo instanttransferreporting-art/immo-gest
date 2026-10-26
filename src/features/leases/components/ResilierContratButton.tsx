@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { resilierContrat } from "@/features/leases/actions/contrat.actions";
 import { resiliationSchema, type ResiliationFormValues } from "@/features/leases/schemas/lease.schema";
+import { useI18n } from "@/i18n/client";
 
 type ResilierContratButtonProps = {
     contratId: string;
@@ -27,6 +28,8 @@ type ResilierContratButtonProps = {
 const toDateInputValue = (date: Date) => date.toISOString().slice(0, 10);
 
 export function ResilierContratButton({ contratId }: ResilierContratButtonProps) {
+    const { t, tv } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -60,12 +63,12 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
                 render={<Button variant="destructive" className="rounded-lg" />}
             >
                 <FileWarning className="h-4 w-4" />
-                Résilier le contrat
+                {t.leases.termination.trigger}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Résilier le contrat</DialogTitle>
+                    <DialogTitle>{t.leases.termination.title}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -73,7 +76,7 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
 
                     <div className="space-y-1.5">
                         <label htmlFor="dateFin" className="text-sm font-medium text-foreground">
-                            Date de sortie effective
+                            {t.leases.termination.exitDate}
                         </label>
                         <Input
                             id="dateFin"
@@ -85,19 +88,19 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
                             })}
                         />
                         {errors.dateFin && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.dateFin.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.dateFin.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="motif" className="text-sm font-medium text-foreground">
-                            Motif (optionnel)
+                            {t.leases.termination.reason}
                         </label>
                         <Input id="motif" className="h-10 rounded-xl" {...register("motif")} />
                     </div>
 
                     <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                        L&apos;unité sera immédiatement remise disponible pour un nouveau bail.
+                        {t.leases.termination.unitReleased}
                     </p>
 
                     <Button
@@ -105,7 +108,7 @@ export function ResilierContratButton({ contratId }: ResilierContratButtonProps)
                         disabled={isSubmitting}
                         className="h-10 w-full rounded-xl bg-red-600 text-white hover:bg-red-700"
                     >
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer la résiliation"}
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.leases.termination.confirm}
                     </Button>
                 </form>
             </DialogContent>

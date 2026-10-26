@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/dialog";
 import { IncidentForm } from "@/features/incidents/components/IncidentForm";
 import { IncidentsBoard } from "@/features/incidents/components/IncidentsBoard";
-import { STATUT_INCIDENT_LABELS, STATUT_INCIDENT_ORDER } from "@/features/incidents/constants/incident.constants";
+import { STATUT_INCIDENT_ORDER } from "@/features/incidents/constants/incident.constants";
 import type { IncidentDTO, UniteOptionDTO } from "@/features/incidents/types/incident.types";
 import type { ImmeubleOptionDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type IncidentsPanelProps = {
     incidents: readonly IncidentDTO[];
@@ -29,6 +30,8 @@ const ALL_VALUE = "TOUS";
 const ACTION_REQUISE_VALUE = "ACTION_REQUISE";
 
 export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: IncidentsPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [immeubleFilter, setImmeubleFilter] = useState<string>(ALL_VALUE);
@@ -57,7 +60,7 @@ export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: Inc
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Incidents</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.operations.incidents.listTitle}</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -69,12 +72,12 @@ export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: Inc
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Signaler
+                        {t.operations.incidents.report}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouvel incident</DialogTitle>
+                            <DialogTitle>{t.operations.incidents.new}</DialogTitle>
                         </DialogHeader>
 
                         <IncidentForm
@@ -93,7 +96,7 @@ export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: Inc
                         onChange={(event) => setImmeubleFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Tous les immeubles</option>
+                        <option value={ALL_VALUE}>{t.operations.incidents.allBuildings}</option>
                         {immeubleOptions.map((option) => (
                             <option key={option.id} value={option.id}>
                                 {option.nom}
@@ -106,11 +109,11 @@ export function IncidentsPanel({ incidents, uniteOptions, immeubleOptions }: Inc
                         onChange={(event) => setStatutFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Tous les statuts</option>
-                        <option value={ACTION_REQUISE_VALUE}>Nécessite une action</option>
+                        <option value={ALL_VALUE}>{t.operations.incidents.allStatuses}</option>
+                        <option value={ACTION_REQUISE_VALUE}>{t.operations.incidents.actionRequired}</option>
                         {STATUT_INCIDENT_ORDER.map((statut) => (
                             <option key={statut} value={statut}>
-                                {STATUT_INCIDENT_LABELS[statut]}
+                                {t.enums.statutIncident[statut]}
                             </option>
                         ))}
                     </select>

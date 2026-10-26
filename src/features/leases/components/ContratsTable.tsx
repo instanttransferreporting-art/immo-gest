@@ -11,20 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
-import { FREQUENCE_LABELS, STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
 import type { ContratDTO } from "@/features/leases/types/lease.types";
+import { useI18n } from "@/i18n/client";
 
 type ContratsTableProps = {
     contrats: readonly ContratDTO[];
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR");
 
 const STATUT_BADGE_VARIANT: Record<ContratDTO["statut"], "default" | "secondary" | "destructive" | "outline"> = {
     ACTIF: "default",
@@ -34,12 +26,14 @@ const STATUT_BADGE_VARIANT: Record<ContratDTO["statut"], "default" | "secondary"
 };
 
 export function ContratsTable({ contrats }: ContratsTableProps) {
+    const { t, f } = useI18n();
+
     if (contrats.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <FileText className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun contrat enregistré</p>
-                <p className="text-sm text-muted-foreground">Créez votre premier contrat de bail pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.leases.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.leases.emptyHint}</p>
             </div>
         );
     }
@@ -49,13 +43,13 @@ export function ContratsTable({ contrats }: ContratsTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>N° Contrat</TableHead>
-                        <TableHead>Unité</TableHead>
-                        <TableHead>Locataire</TableHead>
-                        <TableHead>Période</TableHead>
-                        <TableHead>Loyer</TableHead>
-                        <TableHead>Fréquence</TableHead>
-                        <TableHead>Statut</TableHead>
+                        <TableHead>{t.leases.number}</TableHead>
+                        <TableHead>{t.leases.unit}</TableHead>
+                        <TableHead>{t.leases.tenant}</TableHead>
+                        <TableHead>{t.leases.period}</TableHead>
+                        <TableHead>{t.leases.rent}</TableHead>
+                        <TableHead>{t.leases.frequency}</TableHead>
+                        <TableHead>{t.common.status}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -79,13 +73,13 @@ export function ContratsTable({ contrats }: ContratsTableProps) {
                                 {contrat.locataire.raisonSociale ?? `${contrat.locataire.nom} ${contrat.locataire.prenom}`}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {dateFormatter.format(contrat.dateDebut)} → {dateFormatter.format(contrat.dateFin)}
+                                {f.dateShort(contrat.dateDebut)} → {f.dateShort(contrat.dateFin)}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">{currencyFormatter.format(contrat.loyerBase)}</TableCell>
-                            <TableCell className="text-muted-foreground">{FREQUENCE_LABELS[contrat.frequence]}</TableCell>
+                            <TableCell className="text-muted-foreground">{f.currency(contrat.loyerBase)}</TableCell>
+                            <TableCell className="text-muted-foreground">{t.enums.frequenceEcheance[contrat.frequence]}</TableCell>
                             <TableCell>
                                 <Badge variant={STATUT_BADGE_VARIANT[contrat.statut]} className="rounded-lg">
-                                    {STATUT_BAIL_LABELS[contrat.statut]}
+                                    {t.enums.statutBail[contrat.statut]}
                                 </Badge>
                             </TableCell>
                         </TableRow>

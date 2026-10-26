@@ -1,20 +1,21 @@
 import { z } from "zod";
+import { V } from "@/i18n/validation-keys";
 
 export const createOrganizationSchema = z.object({
-    nom: z.string().min(1, { error: "Le nom de l'entreprise est requis." }),
+    nom: z.string().min(1, { error: V.companyNameRequired }),
     tauxCommissionDefaut: z
-        .number({ error: "Le taux de commission est requis." })
-        .min(0, { error: "Le taux ne peut pas être négatif." })
-        .max(100, { error: "Le taux ne peut pas dépasser 100%." }),
-    adminNom: z.string().min(1, { error: "Le nom de l'administrateur est requis." }),
-    adminPrenom: z.string().min(1, { error: "Le prénom de l'administrateur est requis." }),
+        .number({ error: V.commissionRateRequired })
+        .min(0, { error: V.rateNonNegative })
+        .max(100, { error: V.rateMax100 }),
+    adminNom: z.string().min(1, { error: V.adminLastNameRequired }),
+    adminPrenom: z.string().min(1, { error: V.adminFirstNameRequired }),
     adminEmail: z
         .string()
-        .min(1, { error: "L'email de l'administrateur est requis." })
-        .email({ error: "Adresse email invalide." }),
+        .min(1, { error: V.adminEmailRequired })
+        .email({ error: V.emailInvalid }),
     adminPassword: z
         .string()
-        .min(8, { error: "Le mot de passe doit contenir au moins 8 caractères." }),
+        .min(8, { error: V.passwordMin }),
 });
 
 export type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;

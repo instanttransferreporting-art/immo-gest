@@ -37,6 +37,7 @@ async function refreshSessionState(token: JWT): Promise<void> {
 
     token.organizationId = state.organizationId;
     token.role = state.role;
+    token.locale = state.locale;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -73,6 +74,7 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: `${user.prenom} ${user.nom}`,
                     role: user.role,
+                    locale: user.locale,
                 };
             },
         }),
@@ -83,6 +85,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
                 token.organizationId = user.organizationId;
                 token.role = user.role;
+                token.locale = user.locale;
                 token.impersonatedOrganizationId = null;
                 token.impersonatedOrganizationNom = null;
             } else {
@@ -110,6 +113,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id;
                 session.user.organizationId = token.organizationId;
                 session.user.role = token.role;
+                session.user.locale = token.locale ?? "fr";
                 session.user.impersonatedOrganizationId = token.impersonatedOrganizationId ?? null;
                 session.user.impersonatedOrganizationNom = token.impersonatedOrganizationNom ?? null;
             }

@@ -2,20 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import { logoFileSchema, logoKindSchema, organizationSchema } from "@/features/organizations/schemas/organization.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function updateOrganization(input: unknown): Promise<ActionResponse<OrganizationDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("ORGANIZATION_MANAGE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -26,7 +32,7 @@ export async function updateOrganization(input: unknown): Promise<ActionResponse
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -38,25 +44,29 @@ export async function updateOrganization(input: unknown): Promise<ActionResponse
 
         return {
             success: true,
-            message: "Paramètres de l'agence mis à jour avec succès.",
+            message: t.admin.settings.updated,
             data: organization,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour des paramètres.",
+            message: t.admin.settings.updateFailed,
         };
     }
 }
 
 export async function uploadOrganizationLogo(formData: FormData): Promise<ActionResponse<OrganizationDTO>> {
+    const { t, tv } = await getI18n();
+
     let organizationId: string;
 
     try {
         organizationId = effectiveOrganizationId(await checkPermission("ORGANIZATION_MANAGE"));
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -66,11 +76,11 @@ export async function uploadOrganizationLogo(formData: FormData): Promise<Action
     const parsedKind = logoKindSchema.safeParse(formData.get("kind"));
 
     if (!parsed.success) {
-        return { success: false, message: parsed.error.issues[0]?.message ?? "Fichier invalide." };
+        return { success: false, message: tv(parsed.error.issues[0]?.message) ?? t.common.invalidInput };
     }
 
     if (!parsedKind.success) {
-        return { success: false, message: "Type de logo invalide." };
+        return { success: false, message: t.admin.settings.logo.invalidKind };
     }
 
     try {
@@ -79,22 +89,26 @@ export async function uploadOrganizationLogo(formData: FormData): Promise<Action
         // Le logo apparaît dans la barre latérale de toutes les pages.
         revalidatePath("/", "layout");
 
-        return { success: true, message: "Logo mis à jour avec succès.", data: organization };
+        return { success: true, message: t.admin.settings.logo.updated, data: organization };
     } catch (error) {
         console.error("[logo] Échec du téléversement", error);
 
-        return { success: false, message: "Une erreur est survenue lors du téléversement du logo." };
+        return { success: false, message: t.admin.settings.logo.uploadFailed };
     }
 }
 
 export async function removeOrganizationLogo(kind: unknown): Promise<ActionResponse<OrganizationDTO>> {
+    const { t } = await getI18n();
+
     let organizationId: string;
 
     try {
         organizationId = effectiveOrganizationId(await checkPermission("ORGANIZATION_MANAGE"));
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -103,7 +117,7 @@ export async function removeOrganizationLogo(kind: unknown): Promise<ActionRespo
     const parsedKind = logoKindSchema.safeParse(kind);
 
     if (!parsedKind.success) {
-        return { success: false, message: "Type de logo invalide." };
+        return { success: false, message: t.admin.settings.logo.invalidKind };
     }
 
     try {
@@ -111,8 +125,8 @@ export async function removeOrganizationLogo(kind: unknown): Promise<ActionRespo
 
         revalidatePath("/", "layout");
 
-        return { success: true, message: "Logo retiré.", data: organization };
+        return { success: true, message: t.admin.settings.logo.removed, data: organization };
     } catch {
-        return { success: false, message: "Une erreur est survenue lors de la suppression du logo." };
+        return { success: false, message: t.admin.settings.logo.removeFailed };
     }
 }

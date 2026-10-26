@@ -10,8 +10,9 @@ import {
 } from "@/features/leases/constants/document-contrat.constants";
 import type { DocumentContratDTO } from "@/features/leases/types/document-contrat.types";
 
+/** Fichier refusé ; `code` sert à traduire le message dans l'interface. */
 export class DocumentContratInvalideError extends Error {
-    constructor(message: string) {
+    constructor(readonly code: "format" | "tooLarge", message: string) {
         super(message);
         this.name = "DocumentContratInvalideError";
     }
@@ -37,12 +38,13 @@ export class DocumentContratService {
 
         if (!(DOCUMENT_CONTRAT_ALLOWED_EXTENSIONS as readonly string[]).includes(extension)) {
             throw new DocumentContratInvalideError(
+                "format",
                 `Format non accepté. Formats autorisés : ${DOCUMENT_CONTRAT_ALLOWED_EXTENSIONS.join(", ")}.`
             );
         }
 
         if (file.size > DOCUMENT_CONTRAT_MAX_SIZE_BYTES) {
-            throw new DocumentContratInvalideError("Le fichier dépasse la taille maximale de 10 Mo.");
+            throw new DocumentContratInvalideError("tooLarge", "Le fichier dépasse la taille maximale de 10 Mo.");
         }
 
         const path = `contrats/${organizationId}/${contratId}/${type}-${Date.now()}.${extension}`;

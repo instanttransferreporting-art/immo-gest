@@ -1,6 +1,7 @@
 "use client";
 
 import { useBranding } from "@/components/layout/BrandingContext";
+import { useI18n } from "@/i18n/client";
 
 /**
  * En-tête des documents imprimés depuis le navigateur (quittance, compte rendu…) :
@@ -9,6 +10,7 @@ import { useBranding } from "@/components/layout/BrandingContext";
  */
 export function PrintLetterhead() {
     const { organizationNom, logo, logoDocument, organizationAdresse, organizationContact } = useBranding();
+    const { t } = useI18n();
     const logoUrl = logoDocument ?? logo;
 
     if (!organizationNom) {
@@ -21,7 +23,7 @@ export function PrintLetterhead() {
                 // eslint-disable-next-line @next/next/no-img-element -- URL Supabase publique, aucun intérêt à l'optimiser
                 <img
                     src={logoUrl}
-                    alt={`Logo ${organizationNom}`}
+                    alt={t.admin.settings.logo.alt(organizationNom)}
                     className="h-16 max-w-[240px] object-contain object-left"
                 />
             )}

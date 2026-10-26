@@ -2,22 +2,27 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { checkPermission } from "@/lib/permissions";
 import { DocumentService } from "@/features/tenants/services/document.service";
 import { TYPE_DOCUMENT, type TypeDocument } from "@/features/tenants/constants/tenant.constants";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { DocumentLocataireDTO } from "@/features/tenants/types/tenant.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 const VALID_DOCUMENT_TYPES = Object.values(TYPE_DOCUMENT);
 
 export async function uploadLocataireDocument(formData: FormData): Promise<ActionResponse<DocumentLocataireDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("DOCUMENT_UPLOAD");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -28,15 +33,15 @@ export async function uploadLocataireDocument(formData: FormData): Promise<Actio
     const file = formData.get("file");
 
     if (typeof locataireId !== "string" || !locataireId) {
-        return { success: false, message: "Le locataire est requis." };
+        return { success: false, message: t.tenants.documents.tenantRequired };
     }
 
     if (typeof typeDocument !== "string" || !VALID_DOCUMENT_TYPES.includes(typeDocument as TypeDocument)) {
-        return { success: false, message: "Le type de document est invalide." };
+        return { success: false, message: t.tenants.documents.invalidType };
     }
 
     if (!(file instanceof File) || file.size === 0) {
-        return { success: false, message: "Veuillez sélectionner un fichier." };
+        return { success: false, message: t.tenants.documents.fileRequired };
     }
 
     try {
@@ -46,13 +51,15 @@ export async function uploadLocataireDocument(formData: FormData): Promise<Actio
 
         return {
             success: true,
-            message: "Document téléversé avec succès.",
+            message: t.tenants.documents.uploaded,
             data: document,
         };
     } catch (error) {
+        console.error("[documents] Échec de l'envoi", error);
+
         return {
             success: false,
-            message: error instanceof Error ? error.message : "Une erreur est survenue lors de l'upload.",
+            message: t.tenants.documents.uploadFailed,
         };
     }
 }

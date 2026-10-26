@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { checkPermission } from "@/lib/permissions";
 import { IncidentService } from "@/features/incidents/services/incident.service";
 import {
     assignPrestataireSchema,
@@ -13,13 +12,19 @@ import {
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { IncidentDTO } from "@/features/incidents/types/incident.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createIncident(input: unknown): Promise<ActionResponse<IncidentDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("INCIDENT_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -30,7 +35,7 @@ export async function createIncident(input: unknown): Promise<ActionResponse<Inc
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -42,23 +47,27 @@ export async function createIncident(input: unknown): Promise<ActionResponse<Inc
 
         return {
             success: true,
-            message: "Incident signalé avec succès.",
+            message: t.operations.incidents.created,
             data: incident,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création de l'incident.",
+            message: t.operations.incidents.createFailed,
         };
     }
 }
 
 export async function updateStatutIncident(input: unknown): Promise<ActionResponse<IncidentDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("INCIDENT_UPDATE_STATUT");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -67,7 +76,7 @@ export async function updateStatutIncident(input: unknown): Promise<ActionRespon
     const parsed = updateStatutIncidentSchema.safeParse(input);
 
     if (!parsed.success) {
-        return { success: false, message: "Les informations saisies sont invalides." };
+        return { success: false, message: t.common.invalidInput };
     }
 
     try {
@@ -77,23 +86,27 @@ export async function updateStatutIncident(input: unknown): Promise<ActionRespon
 
         return {
             success: true,
-            message: "Statut de l'incident mis à jour.",
+            message: t.operations.incidents.statusUpdated,
             data: incident,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour du statut.",
+            message: t.operations.incidents.statusFailed,
         };
     }
 }
 
 export async function assignPrestataire(input: unknown): Promise<ActionResponse<IncidentDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("INCIDENT_ASSIGN_PRESTATAIRE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -104,7 +117,7 @@ export async function assignPrestataire(input: unknown): Promise<ActionResponse<
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -116,13 +129,13 @@ export async function assignPrestataire(input: unknown): Promise<ActionResponse<
 
         return {
             success: true,
-            message: "Prestataire assigné avec succès.",
+            message: t.operations.incidents.providerAssigned,
             data: incident,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de l'assignation du prestataire.",
+            message: t.operations.incidents.providerFailed,
         };
     }
 }

@@ -5,12 +5,17 @@ import { IncidentsPanel } from "@/features/incidents/components/IncidentsPanel";
 import { IncidentService } from "@/features/incidents/services/incident.service";
 import { UniteService } from "@/features/units/services/unite.service";
 import { ImmeubleService } from "@/features/properties/services/immeuble.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Incidents | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.operations.incidents.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function IncidentsPage() {
+    const { t } = await getI18n();
+
     const [incidents, uniteOptions, immeubleOptions] = await Promise.all([
         IncidentService.listAll(),
         UniteService.listAllOptions(),
@@ -20,8 +25,8 @@ export default async function IncidentsPage() {
     return (
         <Container>
             <PageTitle
-                title="Incidents"
-                description="Suivez les pannes, réparations et interventions signalées."
+                title={t.operations.incidents.pageTitle}
+                description={t.operations.incidents.description}
             />
 
             <div className="mt-6">

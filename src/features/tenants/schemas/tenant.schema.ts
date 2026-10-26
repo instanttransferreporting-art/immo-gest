@@ -1,40 +1,41 @@
 import { z } from "zod";
 
 import { TypeLocataire } from "@/generated/prisma/enums";
+import { V } from "@/i18n/validation-keys";
 
 const PHONE_REGEX = /^\+[1-9]\d{6,14}$/;
 
 const baseLocataireSchema = z.object({
-    nom: z.string().min(2, { error: "Le nom doit contenir au moins 2 caractères." }),
-    prenom: z.string().min(1, { error: "Le prénom est requis." }),
+    nom: z.string().min(2, { error: V.nameMin2 }),
+    prenom: z.string().min(1, { error: V.firstNameRequired }),
     telephone: z
         .string()
-        .min(1, { error: "Le téléphone est requis." })
-        .regex(PHONE_REGEX, { error: "Format invalide. Utilisez l'indicatif pays, ex: +237690000000." }),
-    email: z.string().min(1, { error: "L'email est requis." }).email({ error: "Adresse email invalide." }),
-    adresse: z.string().min(1, { error: "L'adresse est requise." }),
-    pieceIdentite: z.string().min(1, { error: "Le numéro de pièce d'identité est requis." }),
+        .min(1, { error: V.phoneRequired })
+        .regex(PHONE_REGEX, { error: V.invalidPhone }),
+    email: z.string().min(1, { error: V.emailRequired }).email({ error: V.emailInvalid }),
+    adresse: z.string().min(1, { error: V.addressRequired }),
+    pieceIdentite: z.string().min(1, { error: V.idNumberRequired }),
 });
 
 export const locatairePhysiqueSchema = baseLocataireSchema.extend({
     type: z.literal(TypeLocataire.PHYSIQUE),
-    dateNaissance: z.coerce.date({ error: "Date de naissance invalide." }).optional(),
+    dateNaissance: z.coerce.date({ error: V.birthDateInvalid }).optional(),
     profession: z.string().optional(),
     revenuMensuelMoyen: z
-        .number({ error: "Le revenu mensuel moyen est obligatoire pour une personne physique." })
-        .positive({ error: "Le revenu doit être positif." }),
+        .number({ error: V.monthlyIncomeRequired })
+        .positive({ error: V.incomePositive }),
 });
 
 export const locataireMoraleSchema = baseLocataireSchema.extend({
     type: z.literal(TypeLocataire.MORALE),
-    raisonSociale: z.string().min(2, { error: "La raison sociale est requise." }),
-    rccm: z.string().min(1, { error: "Le RCCM est requis." }),
-    niu: z.string().min(1, { error: "Le NIU est requis." }),
+    raisonSociale: z.string().min(2, { error: V.companyLegalNameRequired }),
+    rccm: z.string().min(1, { error: V.rccmRequired }),
+    niu: z.string().min(1, { error: V.niuRequired }),
     telephoneMoral: z
         .string()
-        .min(1, { error: "Le téléphone de l'entreprise est requis." })
-        .regex(PHONE_REGEX, { error: "Format invalide. Utilisez l'indicatif pays, ex: +237690000000." }),
-    emailMoral: z.string().min(1, { error: "L'email de l'entreprise est requis." }).email({ error: "Adresse email invalide." }),
+        .min(1, { error: V.companyPhoneRequired })
+        .regex(PHONE_REGEX, { error: V.invalidPhone }),
+    emailMoral: z.string().min(1, { error: V.companyEmailRequired }).email({ error: V.emailInvalid }),
 });
 
 export const locataireSchema = z.discriminatedUnion("type", [

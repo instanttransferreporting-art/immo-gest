@@ -4,7 +4,7 @@ import { prismaDateRange, prismaOverlapWhere, type ReportPeriod } from "@/featur
 
 /**
  * Chaque rapport filtre la période sur la date qui a un sens métier pour lui
- * (cf. `periodBasis` dans REPORT_DEFINITIONS) — les exports Excel appliquent
+ * (cf. `t.reports.definitions[type].periodBasis`) — les exports Excel appliquent
  * exactement les mêmes règles dans report-export.service.ts.
  */
 export class ReportRepository {

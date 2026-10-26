@@ -7,6 +7,7 @@ import { MobileSidebar } from "./MobileSidebar";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { Logo } from "./Logo";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Header() {
 
@@ -40,6 +41,8 @@ export function Header() {
                 <SearchBar />
 
                 <NotificationButton count={3} />
+
+                <LanguageSwitcher className="hidden sm:flex" />
 
                 <ThemeToggle />
 

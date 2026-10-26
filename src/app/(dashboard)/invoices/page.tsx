@@ -3,19 +3,24 @@ import type { Metadata } from "next";
 import { Container, PageTitle } from "@/components/layout";
 import { FacturesPanel } from "@/features/invoices/components/FacturesPanel";
 import { FactureService } from "@/features/invoices/services/facture.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Factures | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.invoices.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function InvoicesPage() {
+    const { t } = await getI18n();
+
     const factures = await FactureService.listAll();
 
     return (
         <Container>
             <PageTitle
-                title="Facturation"
-                description="Générez et suivez les factures des contrats actifs."
+                title={t.invoices.title}
+                description={t.invoices.description}
             />
 
             <div className="mt-6">

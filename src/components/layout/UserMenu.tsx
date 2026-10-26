@@ -13,8 +13,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ROLE_LABELS, type RoleType } from "@/constants/roles";
+import type { RoleType } from "@/constants/roles";
 import { ROUTES } from "@/constants/routes";
+import { useI18n } from "@/i18n/client";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 function getInitials(name: string): string {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -32,10 +34,11 @@ function getInitials(name: string): string {
 
 export function UserMenu() {
     const { data: session } = useSession();
+    const { t } = useI18n();
 
-    const displayName = session?.user?.name ?? "Utilisateur";
+    const displayName = session?.user?.name ?? t.layout.userMenu.fallbackName;
     const displayEmail = session?.user?.email ?? "";
-    const roleLabel = session?.user?.role ? ROLE_LABELS[session.user.role as RoleType] : "";
+    const roleLabel = session?.user?.role ? t.enums.role[session.user.role as RoleType] : "";
 
     return (
         <DropdownMenu>
@@ -75,12 +78,17 @@ export function UserMenu() {
                     </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+                {/* Sur mobile, le sélecteur de langue de l'en-tête est masqué : on le propose ici. */}
+                <div className="px-1.5 py-1 sm:hidden">
+                    <LanguageSwitcher className="w-fit" />
+                </div>
+                <DropdownMenuSeparator className="sm:hidden" />
                 <DropdownMenuItem
                     variant="destructive"
                     onClick={() => signOut({ callbackUrl: ROUTES.LOGIN })}
                 >
                     <LogOut className="h-4 w-4" />
-                    Se déconnecter
+                    {t.layout.userMenu.signOut}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

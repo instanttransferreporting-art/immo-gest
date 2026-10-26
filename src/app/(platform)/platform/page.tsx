@@ -4,12 +4,17 @@ import { Container, PageTitle } from "@/components/layout";
 import { PlatformStatsCards } from "@/features/platform/components/PlatformStatsCards";
 import { OrganizationsPanel } from "@/features/platform/components/OrganizationsPanel";
 import { PlatformService } from "@/features/platform/services/platform.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Plateforme | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.admin.platform.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function PlatformPage() {
+    const { t } = await getI18n();
+
     const [stats, organizations] = await Promise.all([
         PlatformService.getStats(),
         PlatformService.listOrganizations(),
@@ -17,7 +22,7 @@ export default async function PlatformPage() {
 
     return (
         <Container>
-            <PageTitle title="Plateforme" description="Vue d'ensemble et gestion des entreprises." />
+            <PageTitle title={t.admin.platform.pageTitle} description={t.admin.platform.description} />
 
             <div className="mt-6 space-y-6">
                 <PlatformStatsCards stats={stats} />

@@ -16,19 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { validerReversement } from "@/features/payouts/actions/reversement.actions";
-import { STATUT_REVERSEMENT_LABELS } from "@/features/payouts/constants/payout.constants";
-import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import type { ReversementDTO, StatutReversement } from "@/features/payouts/types/payout.types";
+import { useI18n } from "@/i18n/client";
 
 type ReversementsTableProps = {
     reversements: readonly ReversementDTO[];
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const STATUT_BADGE_VARIANT: Record<StatutReversement, "default" | "outline"> = {
     BROUILLON: "outline",
@@ -36,6 +29,8 @@ const STATUT_BADGE_VARIANT: Record<StatutReversement, "default" | "outline"> = {
 };
 
 export function ReversementsTable({ reversements }: ReversementsTableProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [pendingId, setPendingId] = useState<string | null>(null);
 
@@ -54,8 +49,8 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <FileBarChart className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun reversement généré</p>
-                <p className="text-sm text-muted-foreground">Générez le bilan du mois pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.operations.payouts.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.operations.payouts.emptyHint}</p>
             </div>
         );
     }
@@ -65,11 +60,11 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Période</TableHead>
-                        <TableHead>Total encaissé</TableHead>
-                        <TableHead>Commission</TableHead>
-                        <TableHead>Net à payer</TableHead>
-                        <TableHead>Statut</TableHead>
+                        <TableHead>{t.operations.payouts.period}</TableHead>
+                        <TableHead>{t.operations.payouts.totalCollected}</TableHead>
+                        <TableHead>{t.operations.payouts.commissionColumn}</TableHead>
+                        <TableHead>{t.operations.payouts.netToPay}</TableHead>
+                        <TableHead>{t.common.status}</TableHead>
                         <TableHead />
                     </TableRow>
                 </TableHeader>
@@ -78,20 +73,20 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
                     {reversements.map((reversement) => (
                         <TableRow key={reversement.id}>
                             <TableCell className="text-muted-foreground">
-                                {MOIS_LABELS[reversement.mois - 1]} {reversement.annee}
+                                {f.monthYear(reversement.mois, reversement.annee)}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {currencyFormatter.format(reversement.totalEncaisse)}
+                                {f.currency(reversement.totalEncaisse)}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {currencyFormatter.format(reversement.commission)} ({reversement.tauxCommission}%)
+                                {f.currency(reversement.commission)} ({reversement.tauxCommission}%)
                             </TableCell>
                             <TableCell className="font-medium text-foreground">
-                                {currencyFormatter.format(reversement.netAPayer)}
+                                {f.currency(reversement.netAPayer)}
                             </TableCell>
                             <TableCell>
                                 <Badge variant={STATUT_BADGE_VARIANT[reversement.statut]} className="rounded-lg">
-                                    {STATUT_REVERSEMENT_LABELS[reversement.statut]}
+                                    {t.enums.statutReversement[reversement.statut]}
                                 </Badge>
                             </TableCell>
                             <TableCell>
@@ -109,7 +104,7 @@ export function ReversementsTable({ reversements }: ReversementsTableProps) {
                                         ) : (
                                             <CheckCircle2 className="h-4 w-4" />
                                         )}
-                                        Valider
+                                        {t.operations.payouts.approve}
                                     </Button>
                                 )}
                             </TableCell>

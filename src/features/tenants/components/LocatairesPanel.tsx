@@ -17,12 +17,15 @@ import { LocataireForm } from "@/features/tenants/components/LocataireForm";
 import { LocatairesTable } from "@/features/tenants/components/LocatairesTable";
 import { DocumentUploadForm } from "@/features/tenants/components/DocumentUploadForm";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocatairesPanelProps = {
     locataires: readonly LocataireDTO[];
 };
 
 export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [createdLocataire, setCreatedLocataire] = useState<LocataireDTO | null>(null);
@@ -44,7 +47,7 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Locataires</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.tenants.pageTitle}</CardTitle>
 
                 <Dialog open={open} onOpenChange={handleOpenChange}>
                     <DialogTrigger
@@ -56,13 +59,13 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-xl rounded-2xl">
                         <DialogHeader>
                             <DialogTitle>
-                                {createdLocataire ? "Documents du locataire" : "Nouveau locataire"}
+                                {createdLocataire ? t.tenants.documentsTitle : t.tenants.new}
                             </DialogTitle>
                         </DialogHeader>
 
@@ -74,7 +77,7 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
                                     onClick={handleFinish}
                                     className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                                 >
-                                    Terminer
+                                    {t.tenants.finish}
                                 </Button>
                             </div>
                         ) : (

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ImmeubleService } from "@/features/properties/services/immeuble.service";
 import { UniteService } from "@/features/units/services/unite.service";
 import { UnitesPanel } from "@/features/units/components/UnitesPanel";
+import { getI18n } from "@/i18n/server";
 
 type PageProps = {
     params: Promise<{ id: string }>;
@@ -13,14 +14,16 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
-    const immeuble = await ImmeubleService.getById(id);
+    const [immeuble, { t }] = await Promise.all([ImmeubleService.getById(id), getI18n()]);
 
     return {
-        title: immeuble ? `${immeuble.nom} | Immo Gest` : "Immeuble | Immo Gest",
+        title: `${immeuble?.nom ?? t.properties.buildingFallbackTitle} | ${t.common.appName}`,
     };
 }
 
 export default async function ImmeubleDetailPage({ params }: PageProps) {
+    const { t } = await getI18n();
+
     const { id } = await params;
     const immeuble = await ImmeubleService.getById(id);
 
@@ -42,17 +45,17 @@ export default async function ImmeubleDetailPage({ params }: PageProps) {
                     <CardContent className="space-y-3 px-6 py-2">
                         <dl className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Propriétaire</dt>
+                                <dt className="text-muted-foreground">{t.properties.buildings.owner}</dt>
                                 <dd className="font-medium text-foreground">
                                     {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
                                 </dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Niveaux</dt>
+                                <dt className="text-muted-foreground">{t.properties.buildings.levels}</dt>
                                 <dd className="font-medium text-foreground">{immeuble.nombreNiveaux}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Unités enregistrées</dt>
+                                <dt className="text-muted-foreground">{t.properties.buildings.registeredUnits}</dt>
                                 <dd className="font-medium text-foreground">{unites.length}</dd>
                             </div>
                         </dl>

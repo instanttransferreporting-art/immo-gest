@@ -1,4 +1,4 @@
-import type { RoleType } from "@/generated/prisma/enums";
+import type { Locale, RoleType } from "@/generated/prisma/enums";
 
 export type UserDTO = Readonly<{
     id: string;
@@ -8,6 +8,7 @@ export type UserDTO = Readonly<{
     prenom: string;
     role: RoleType;
     isActive: boolean;
+    locale: Locale;
 }>;
 
 export type LoginCredentials = Readonly<{

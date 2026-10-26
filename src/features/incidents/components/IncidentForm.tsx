@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { createIncident } from "@/features/incidents/actions/incident.actions";
 import { incidentSchema, type IncidentFormValues } from "@/features/incidents/schemas/incident.schema";
-import { PRIORITE_INCIDENT_LABELS } from "@/features/incidents/constants/incident.constants";
 import { PrioriteIncident } from "@/generated/prisma/enums";
 import type { IncidentDTO, UniteOptionDTO } from "@/features/incidents/types/incident.types";
 import type { ImmeubleOptionDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type IncidentFormProps = {
     uniteOptions: readonly UniteOptionDTO[];
@@ -31,6 +31,8 @@ const DEFAULT_VALUES: IncidentFormValues = {
 };
 
 export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: IncidentFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -58,20 +60,20 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
                 <label htmlFor="titre" className="text-sm font-medium text-foreground">
-                    Titre
+                    {t.operations.incidents.title}
                 </label>
                 <Input
                     id="titre"
-                    placeholder="Fuite d'eau salle de bain"
+                    placeholder={t.operations.incidents.titlePlaceholder}
                     className={cn("h-10 rounded-xl", errors.titre && "border-red-500")}
                     {...register("titre")}
                 />
-                {errors.titre && <p className="animate-pulse text-sm text-red-500">{errors.titre.message}</p>}
+                {errors.titre && <p className="animate-pulse text-sm text-red-500">{tv(errors.titre.message)}</p>}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="description" className="text-sm font-medium text-foreground">
-                    Description
+                    {t.common.description}
                 </label>
                 <textarea
                     id="description"
@@ -83,20 +85,20 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
                     {...register("description")}
                 />
                 {errors.description && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.description.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.description.message)}</p>
                 )}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="priorite" className="text-sm font-medium text-foreground">
-                    Priorité
+                    {t.operations.incidents.priority}
                 </label>
                 <select
                     id="priorite"
                     className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     {...register("priorite")}
                 >
-                    {Object.entries(PRIORITE_INCIDENT_LABELS).map(([value, label]) => (
+                    {Object.entries(t.enums.prioriteIncident).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>
@@ -107,7 +109,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="uniteId" className="text-sm font-medium text-foreground">
-                        Unité concernée (optionnel)
+                        {t.operations.incidents.unitOptional}
                     </label>
                     <select
                         id="uniteId"
@@ -117,7 +119,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
                         )}
                         {...register("uniteId")}
                     >
-                        <option value="">Aucune</option>
+                        <option value="">{t.common.noneFeminine}</option>
                         {uniteOptions.map((option) => (
                             <option key={option.id} value={option.id}>
                                 {option.immeuble.nom} — {option.numero}
@@ -128,14 +130,14 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
 
                 <div className="space-y-1.5">
                     <label htmlFor="immeubleId" className="text-sm font-medium text-foreground">
-                        Immeuble concerné (optionnel)
+                        {t.operations.incidents.buildingOptional}
                     </label>
                     <select
                         id="immeubleId"
                         className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                         {...register("immeubleId")}
                     >
-                        <option value="">Aucun</option>
+                        <option value="">{t.common.none}</option>
                         {immeubleOptions.map((option) => (
                             <option key={option.id} value={option.id}>
                                 {option.nom}
@@ -145,11 +147,11 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
                 </div>
             </div>
 
-            {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{errors.uniteId.message}</p>}
+            {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{tv(errors.uniteId.message)}</p>}
 
             <div className="space-y-1.5">
                 <label htmlFor="prestataire" className="text-sm font-medium text-foreground">
-                    Prestataire assigné (optionnel)
+                    {t.operations.incidents.providerOptional}
                 </label>
                 <Input id="prestataire" className="h-10 rounded-xl" {...register("prestataire")} />
             </div>
@@ -159,7 +161,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Signaler l'incident"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.operations.incidents.submit}
             </Button>
         </form>
     );

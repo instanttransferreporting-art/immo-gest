@@ -41,8 +41,8 @@ export type RentabiliteGlobaleDTO = {
 };
 
 export type PerformanceSummaryDTO = {
-    /** Base du calcul de rendement affichée à l'écran (12 derniers mois ou période annualisée). */
-    rendementBasisLabel: string;
+    /** Base du calcul de rendement : période choisie annualisée, ou 12 derniers mois glissants. */
+    rendementBasis: "period" | "rolling12";
     occupationParImmeuble: OccupationImmeubleDTO[];
     rendementParImmeuble: RendementImmeubleDTO[];
     rentabiliteGlobale: RentabiliteGlobaleDTO;

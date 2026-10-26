@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import {
     DuplicateReversementError,
@@ -14,15 +14,21 @@ import {
 import { genererReversementSchema, validerReversementSchema } from "@/features/payouts/schemas/payout.schema";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function genererReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("REVERSEMENT_GENERER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -33,7 +39,7 @@ export async function genererReversement(input: unknown): Promise<ActionResponse
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -56,29 +62,37 @@ export async function genererReversement(input: unknown): Promise<ActionResponse
 
         return {
             success: true,
-            message: "Reversement généré avec succès.",
+            message: t.operations.payouts.generated,
             data: reversement,
         };
     } catch (error) {
-        if (error instanceof DuplicateReversementError || error instanceof ProprietaireNotFoundError) {
-            return { success: false, message: error.message };
+        if (error instanceof DuplicateReversementError) {
+            return { success: false, message: t.operations.payouts.errors.duplicate };
+        }
+
+        if (error instanceof ProprietaireNotFoundError) {
+            return { success: false, message: t.operations.payouts.errors.ownerNotFound };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la génération du reversement.",
+            message: t.operations.payouts.generateFailed,
         };
     }
 }
 
 export async function validerReversement(input: unknown): Promise<ActionResponse<ReversementDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("REVERSEMENT_VALIDER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -89,7 +103,7 @@ export async function validerReversement(input: unknown): Promise<ActionResponse
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
         };
     }
 
@@ -107,17 +121,17 @@ export async function validerReversement(input: unknown): Promise<ActionResponse
 
         return {
             success: true,
-            message: "Reversement validé avec succès.",
+            message: t.operations.payouts.approved,
             data: reversement,
         };
     } catch (error) {
         if (error instanceof ReversementNotFoundError) {
-            return { success: false, message: error.message };
+            return { success: false, message: t.operations.payouts.errors.notFound };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la validation du reversement.",
+            message: t.operations.payouts.approveFailed,
         };
     }
 }

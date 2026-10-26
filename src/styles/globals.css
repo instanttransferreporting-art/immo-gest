@@ -67,6 +67,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #F3F8FC;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -102,6 +103,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -179,5 +181,146 @@
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: var(--border);
     border-radius: 9999px;
+  }
+}
+
+/*
+ * Listes déroulantes natives (<select>), stylées globalement : aucun composant à
+ * modifier, les formulaires (react-hook-form `register`) restent intacts.
+ * Volontairement hors @layer : les styles non « layerés » priment sur les
+ * utilitaires Tailwind (ex. le `px-2.5` des selects, qui écraserait la place du chevron).
+ */
+select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms,
+    background-color 150ms;
+}
+
+select:hover:not(:disabled) {
+  border-color: var(--color-brand-400);
+}
+
+select:focus-visible {
+  border-color: var(--color-brand-500);
+}
+
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Repli (Firefox, Safari) : panneau natif, mais aux couleurs du thème. */
+select option {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+}
+
+/*
+ * Chrome / Edge 135+ : listes entièrement personnalisables (appearance: base-select).
+ * Panneau arrondi, ombre, survol, coche sur l'option choisie, chevron animé.
+ */
+@supports (appearance: base-select) {
+  select,
+  ::picker(select) {
+    appearance: base-select;
+  }
+
+  select {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.75rem;
+    background-image: none;
+  }
+
+  /*
+   * Une liste base-select prend la largeur de l'option choisie (et non plus de la plus
+   * longue) : sans largeur explicite (filtres), on fixe un minimum pour éviter qu'elle
+   * « saute » à chaque changement de valeur.
+   */
+  select:not([class*="w-"]) {
+    min-width: 11rem;
+  }
+
+  select::picker-icon {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    margin-left: auto;
+    background-color: currentColor;
+    color: var(--muted-foreground);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: rotate 200ms ease;
+  }
+
+  select:open::picker-icon {
+    rotate: 180deg;
+  }
+
+  select:open {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px rgb(3 169 244 / 0.15);
+  }
+
+  ::picker(select) {
+    margin-block: 0.375rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 0.875rem;
+    background-color: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow:
+      0 10px 30px -10px rgb(15 23 42 / 0.25),
+      0 4px 10px -6px rgb(15 23 42 / 0.15);
+    max-height: 18rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 120ms;
+  }
+
+  select option:hover,
+  select option:focus-visible {
+    background-color: var(--accent);
+    outline: none;
+  }
+
+  select option:checked {
+    font-weight: 600;
+    color: var(--color-brand-700);
+  }
+
+  .dark select option:checked {
+    color: var(--color-brand-300);
+  }
+
+  select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    content: "✓";
+    color: var(--color-brand-500);
+  }
+
+  select option:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }

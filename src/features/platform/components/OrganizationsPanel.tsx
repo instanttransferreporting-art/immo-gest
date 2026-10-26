@@ -16,12 +16,15 @@ import {
 import { CreateOrganizationForm } from "@/features/platform/components/CreateOrganizationForm";
 import { OrganizationsTable } from "@/features/platform/components/OrganizationsTable";
 import type { OrganizationSummaryDTO } from "@/features/platform/types/platform.types";
+import { useI18n } from "@/i18n/client";
 
 type OrganizationsPanelProps = {
     organizations: readonly OrganizationSummaryDTO[];
 };
 
 export function OrganizationsPanel({ organizations }: OrganizationsPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -33,7 +36,7 @@ export function OrganizationsPanel({ organizations }: OrganizationsPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Entreprises</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.admin.platform.companies}</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -42,12 +45,12 @@ export function OrganizationsPanel({ organizations }: OrganizationsPanelProps) {
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouvelle entreprise</DialogTitle>
+                            <DialogTitle>{t.admin.platform.newCompany}</DialogTitle>
                         </DialogHeader>
 
                         <CreateOrganizationForm onSuccess={handleSuccess} />

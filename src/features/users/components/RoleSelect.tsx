@@ -1,7 +1,9 @@
+"use client";
+
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
-import { ROLE_LABELS } from "@/constants/roles";
+import { useI18n } from "@/i18n/client";
 import { ASSIGNABLE_ROLES } from "@/features/users/constants/user.constants";
 
 type RoleSelectProps = ComponentProps<"select"> & {
@@ -9,6 +11,8 @@ type RoleSelectProps = ComponentProps<"select"> & {
 };
 
 export function RoleSelect({ invalid, className, ...props }: RoleSelectProps) {
+    const { t } = useI18n();
+
     return (
         <select
             className={cn(
@@ -20,7 +24,7 @@ export function RoleSelect({ invalid, className, ...props }: RoleSelectProps) {
         >
             {ASSIGNABLE_ROLES.map((role) => (
                 <option key={role} value={role}>
-                    {ROLE_LABELS[role]}
+                    {t.enums.role[role]}
                 </option>
             ))}
         </select>

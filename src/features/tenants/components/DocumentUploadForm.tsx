@@ -6,7 +6,8 @@ import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { uploadLocataireDocument } from "@/features/tenants/actions/document.actions";
-import { TYPE_DOCUMENT, TYPE_DOCUMENT_LABELS } from "@/features/tenants/constants/tenant.constants";
+import { TYPE_DOCUMENT } from "@/features/tenants/constants/tenant.constants";
+import { useI18n } from "@/i18n/client";
 
 type DocumentUploadFormProps = {
     locataireId: string;
@@ -15,6 +16,8 @@ type DocumentUploadFormProps = {
 const UPLOADABLE_TYPES = [TYPE_DOCUMENT.CNI, TYPE_DOCUMENT.PHOTO] as const;
 
 export function DocumentUploadForm({ locataireId }: DocumentUploadFormProps) {
+    const { t } = useI18n();
+
     const [pendingType, setPendingType] = useState<string | null>(null);
     const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -43,11 +46,11 @@ export function DocumentUploadForm({ locataireId }: DocumentUploadFormProps) {
 
     return (
         <div className="space-y-3 rounded-xl border border-dashed border-border p-4">
-            <p className="text-sm font-medium text-foreground">Pièces jointes (optionnel)</p>
+            <p className="text-sm font-medium text-foreground">{t.tenants.documents.attachments}</p>
 
             {UPLOADABLE_TYPES.map((typeDocument) => (
                 <div key={typeDocument} className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">{TYPE_DOCUMENT_LABELS[typeDocument]}</span>
+                    <span className="text-sm text-muted-foreground">{t.enums.typeDocumentLocataire[typeDocument]}</span>
 
                     <Button
                         type="button"
@@ -58,7 +61,7 @@ export function DocumentUploadForm({ locataireId }: DocumentUploadFormProps) {
                         onClick={() => fileInputRefs.current[typeDocument]?.click()}
                     >
                         <UploadCloud className="h-4 w-4" />
-                        {pendingType === typeDocument ? "Envoi..." : "Téléverser"}
+                        {pendingType === typeDocument ? t.tenants.documents.uploading : t.tenants.documents.upload}
                     </Button>
 
                     <input

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 import { ThemeToggle, UserMenu } from "@/components/layout";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { getI18n } from "@/i18n/server";
 import { getCurrentSession } from "@/lib/auth";
 import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
@@ -25,6 +27,8 @@ export default async function PlatformLayout({
         redirect(ROUTES.DASHBOARD);
     }
 
+    const { t } = await getI18n();
+
     return (
         <div className="min-h-screen bg-background">
             <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-6 py-4">
@@ -33,12 +37,13 @@ export default async function PlatformLayout({
                         <Building2 className="h-5 w-5" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-foreground">Immo Gest</p>
-                        <p className="text-xs text-muted-foreground">Espace Plateforme</p>
+                        <p className="text-sm font-semibold text-foreground">{t.common.appName}</p>
+                        <p className="text-xs text-muted-foreground">{t.layout.platformHeader.subtitle}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <LanguageSwitcher className="hidden sm:flex" />
                     <ThemeToggle />
                     <UserMenu />
                 </div>

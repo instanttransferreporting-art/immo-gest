@@ -7,12 +7,14 @@ import { getDashboardMetrics } from "@/features/dashboard/actions/dashboard.acti
 import { KpiCards } from "@/features/dashboard/components/KpiCards";
 import { AlertesSection } from "@/features/dashboard/components/AlertesSection";
 import { DGDashboard } from "@/features/dashboard/components/DGDashboard";
+import { useI18n } from "@/i18n/client";
 
 type DashboardContentProps = {
     isDirecteurGeneral: boolean;
 };
 
 export function DashboardContent({ isDirecteurGeneral }: DashboardContentProps) {
+    const { t } = useI18n();
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["dashboard-metrics"],
         queryFn: async () => {
@@ -37,7 +39,7 @@ export function DashboardContent({ isDirecteurGeneral }: DashboardContentProps) 
     if (isError || !data) {
         return (
             <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {error instanceof Error ? error.message : "Impossible de charger le tableau de bord."}
+                {error instanceof Error ? error.message : t.dashboard.loadError}
             </p>
         );
     }

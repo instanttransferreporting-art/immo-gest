@@ -14,9 +14,9 @@ import {
     locataireMoraleSchema,
     locatairePhysiqueSchema,
 } from "@/features/tenants/schemas/tenant.schema";
-import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
 import { TypeLocataire } from "@/generated/prisma/enums";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocataireFormInput = {
     type: TypeLocataire;
@@ -51,6 +51,8 @@ type LocataireFormProps = {
 };
 
 export function LocataireForm({ onSuccess }: LocataireFormProps) {
+    const { t, tv } = useI18n();
+
     const [type, setType] = useState<TypeLocataire>(TypeLocataire.PHYSIQUE);
 
     const {
@@ -100,7 +102,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                     >
-                        {TYPE_LOCATAIRE_LABELS[option]}
+                        {t.enums.typeLocataire[option]}
                     </button>
                 ))}
             </div>
@@ -108,33 +110,33 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                        {isPhysique ? "Nom" : "Nom du représentant légal"}
+                        {isPhysique ? t.tenants.lastName : t.tenants.repLastName}
                     </label>
                     <Input
                         id="nom"
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="prenom" className="text-sm font-medium text-foreground">
-                        {isPhysique ? "Prénom" : "Prénom du représentant légal"}
+                        {isPhysique ? t.tenants.firstName : t.tenants.repFirstName}
                     </label>
                     <Input
                         id="prenom"
                         className={cn("h-10 rounded-xl", errors.prenom && "border-red-500")}
                         {...register("prenom")}
                     />
-                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{errors.prenom.message}</p>}
+                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{tv(errors.prenom.message)}</p>}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="telephone" className="text-sm font-medium text-foreground">
-                        Téléphone
+                        {t.common.phone}
                     </label>
                     <Input
                         id="telephone"
@@ -143,13 +145,13 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         {...register("telephone")}
                     />
                     {errors.telephone && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.telephone.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.telephone.message)}</p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="email" className="text-sm font-medium text-foreground">
-                        Email
+                        {t.common.email}
                     </label>
                     <Input
                         id="email"
@@ -157,25 +159,25 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         className={cn("h-10 rounded-xl", errors.email && "border-red-500")}
                         {...register("email")}
                     />
-                    {errors.email && <p className="animate-pulse text-sm text-red-500">{errors.email.message}</p>}
+                    {errors.email && <p className="animate-pulse text-sm text-red-500">{tv(errors.email.message)}</p>}
                 </div>
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="adresse" className="text-sm font-medium text-foreground">
-                    Adresse
+                    {t.common.address}
                 </label>
                 <Input
                     id="adresse"
                     className={cn("h-10 rounded-xl", errors.adresse && "border-red-500")}
                     {...register("adresse")}
                 />
-                {errors.adresse && <p className="animate-pulse text-sm text-red-500">{errors.adresse.message}</p>}
+                {errors.adresse && <p className="animate-pulse text-sm text-red-500">{tv(errors.adresse.message)}</p>}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="pieceIdentite" className="text-sm font-medium text-foreground">
-                    N° pièce d&apos;identité (CNI / Passeport)
+                    {t.tenants.idDocumentLong}
                 </label>
                 <Input
                     id="pieceIdentite"
@@ -183,7 +185,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                     {...register("pieceIdentite")}
                 />
                 {errors.pieceIdentite && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.pieceIdentite.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.pieceIdentite.message)}</p>
                 )}
             </div>
 
@@ -191,14 +193,14 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <label htmlFor="profession" className="text-sm font-medium text-foreground">
-                            Profession
+                            {t.tenants.profession}
                         </label>
                         <Input id="profession" className="h-10 rounded-xl" {...register("profession")} />
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="revenuMensuelMoyen" className="text-sm font-medium text-foreground">
-                            Revenu mensuel moyen
+                            {t.tenants.averageMonthlyIncome}
                         </label>
                         <Input
                             id="revenuMensuelMoyen"
@@ -208,7 +210,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                             {...register("revenuMensuelMoyen", { valueAsNumber: true })}
                         />
                         {errors.revenuMensuelMoyen && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.revenuMensuelMoyen.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.revenuMensuelMoyen.message)}</p>
                         )}
                     </div>
                 </div>
@@ -216,7 +218,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                 <>
                     <div className="space-y-1.5">
                         <label htmlFor="raisonSociale" className="text-sm font-medium text-foreground">
-                            Raison sociale
+                            {t.tenants.companyName}
                         </label>
                         <Input
                             id="raisonSociale"
@@ -224,40 +226,40 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                             {...register("raisonSociale")}
                         />
                         {errors.raisonSociale && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.raisonSociale.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.raisonSociale.message)}</p>
                         )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="rccm" className="text-sm font-medium text-foreground">
-                                RCCM
+                                {t.tenants.rccm}
                             </label>
                             <Input
                                 id="rccm"
                                 className={cn("h-10 rounded-xl", errors.rccm && "border-red-500")}
                                 {...register("rccm")}
                             />
-                            {errors.rccm && <p className="animate-pulse text-sm text-red-500">{errors.rccm.message}</p>}
+                            {errors.rccm && <p className="animate-pulse text-sm text-red-500">{tv(errors.rccm.message)}</p>}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="niu" className="text-sm font-medium text-foreground">
-                                NIU
+                                {t.tenants.niu}
                             </label>
                             <Input
                                 id="niu"
                                 className={cn("h-10 rounded-xl", errors.niu && "border-red-500")}
                                 {...register("niu")}
                             />
-                            {errors.niu && <p className="animate-pulse text-sm text-red-500">{errors.niu.message}</p>}
+                            {errors.niu && <p className="animate-pulse text-sm text-red-500">{tv(errors.niu.message)}</p>}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="telephoneMoral" className="text-sm font-medium text-foreground">
-                                Téléphone de l&apos;entreprise
+                                {t.tenants.companyPhone}
                             </label>
                             <Input
                                 id="telephoneMoral"
@@ -266,13 +268,13 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                                 {...register("telephoneMoral")}
                             />
                             {errors.telephoneMoral && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.telephoneMoral.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.telephoneMoral.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="emailMoral" className="text-sm font-medium text-foreground">
-                                Email de l&apos;entreprise
+                                {t.tenants.companyEmail}
                             </label>
                             <Input
                                 id="emailMoral"
@@ -281,7 +283,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                                 {...register("emailMoral")}
                             />
                             {errors.emailMoral && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.emailMoral.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.emailMoral.message)}</p>
                             )}
                         </div>
                     </div>
@@ -293,7 +295,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer le locataire"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.tenants.submit}
             </Button>
         </form>
     );

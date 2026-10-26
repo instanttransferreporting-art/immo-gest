@@ -5,12 +5,17 @@ import { ProprietairesPanel } from "@/features/properties/components/Proprietair
 import { ImmeublesPanel } from "@/features/properties/components/ImmeublesPanel";
 import { ProprietaireService } from "@/features/properties/services/proprietaire.service";
 import { ImmeubleService } from "@/features/properties/services/immeuble.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Patrimoine | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.properties.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function PropertiesPage() {
+    const { t } = await getI18n();
+
     const [proprietaires, immeubles] = await Promise.all([
         ProprietaireService.listAll(),
         ImmeubleService.listAll(),
@@ -25,8 +30,8 @@ export default async function PropertiesPage() {
     return (
         <Container>
             <PageTitle
-                title="Patrimoine Immobilier"
-                description="Gérez les propriétaires et les immeubles de votre parc."
+                title={t.properties.title}
+                description={t.properties.description}
             />
 
             <div className="mt-6 space-y-6">

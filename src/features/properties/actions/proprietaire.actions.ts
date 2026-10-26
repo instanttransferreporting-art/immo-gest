@@ -2,20 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentSession, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { getCurrentSession } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { ProprietaireService } from "@/features/properties/services/proprietaire.service";
 import { proprietaireSchema } from "@/features/properties/schemas/property.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { ProprietaireDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createProprietaire(input: unknown): Promise<ActionResponse<ProprietaireDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("PROPRIETAIRE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -26,7 +32,7 @@ export async function createProprietaire(input: unknown): Promise<ActionResponse
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -38,29 +44,31 @@ export async function createProprietaire(input: unknown): Promise<ActionResponse
 
         return {
             success: true,
-            message: "Propriétaire créé avec succès.",
+            message: t.properties.owners.created,
             data: proprietaire,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création du propriétaire.",
+            message: t.properties.owners.createFailed,
         };
     }
 }
 
 export async function getProprietaireOptions(): Promise<ActionResponse<ProprietaireOptionDTO[]>> {
+    const { t } = await getI18n();
+
     const session = await getCurrentSession();
 
     if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        return { success: false, message: t.common.errors.unauthenticated };
     }
 
     const options = await ProprietaireService.listOptions();
 
     return {
         success: true,
-        message: "Liste des propriétaires récupérée avec succès.",
+        message: "OK",
         data: options,
     };
 }

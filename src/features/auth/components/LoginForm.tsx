@@ -12,12 +12,12 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login.schema";
-
-const INVALID_CREDENTIALS_MESSAGE = "Identifiants incorrects. Veuillez réessayer.";
+import { useI18n } from "@/i18n/client";
 
 export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { t, tv } = useI18n();
     const [serverError, setServerError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -40,7 +40,7 @@ export function LoginForm() {
         });
 
         if (!result || result.error) {
-            setServerError(INVALID_CREDENTIALS_MESSAGE);
+            setServerError(t.layout.auth.invalidCredentials);
             return;
         }
 
@@ -53,14 +53,14 @@ export function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium text-foreground">
-                    Email
+                    {t.common.email}
                 </label>
 
                 <Input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="vous@societe.com"
+                    placeholder={t.layout.auth.emailPlaceholder}
                     aria-invalid={!!errors.email}
                     className={cn(
                         "h-10 rounded-xl",
@@ -70,13 +70,13 @@ export function LoginForm() {
                 />
 
                 {errors.email && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.email.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.email.message)}</p>
                 )}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="password" className="text-sm font-medium text-foreground">
-                    Mot de passe
+                    {t.common.password}
                 </label>
 
                 <div className="relative">
@@ -97,7 +97,7 @@ export function LoginForm() {
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
                         tabIndex={-1}
-                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                        aria-label={showPassword ? t.layout.auth.hidePassword : t.layout.auth.showPassword}
                         className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-muted-foreground"
                     >
                         {showPassword ? (
@@ -109,7 +109,7 @@ export function LoginForm() {
                 </div>
 
                 {errors.password && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.password.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.password.message)}</p>
                 )}
             </div>
 
@@ -127,7 +127,7 @@ export function LoginForm() {
                 {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                    "Se connecter"
+                    t.layout.auth.signIn
                 )}
             </Button>
         </form>

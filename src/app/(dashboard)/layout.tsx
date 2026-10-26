@@ -6,6 +6,7 @@ import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import { formatOrganizationAdresse, formatOrganizationContact } from "@/lib/organization-format";
+import { getI18n } from "@/i18n/server";
 
 export default async function DashboardLayout({
                                             children,
@@ -22,7 +23,7 @@ export default async function DashboardLayout({
         redirect(ROUTES.PLATFORM);
     }
 
-    const organization = await OrganizationService.getCurrent();
+    const [organization, { t }] = await Promise.all([OrganizationService.getCurrent(), getI18n()]);
 
     return (
         <AppShell
@@ -31,7 +32,7 @@ export default async function DashboardLayout({
                 logo: organization.logo,
                 logoDocument: organization.logoDocument,
                 organizationAdresse: formatOrganizationAdresse(organization),
-                organizationContact: formatOrganizationContact(organization),
+                organizationContact: formatOrganizationContact(organization, t.common.phoneShort),
             }}
         >
             {children}

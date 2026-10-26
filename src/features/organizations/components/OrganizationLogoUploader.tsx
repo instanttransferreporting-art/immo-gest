@@ -14,6 +14,7 @@ import {
 } from "@/features/organizations/schemas/organization.schema";
 import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
 import type { ActionResponse } from "@/types/action-response.types";
+import { useI18n } from "@/i18n/client";
 
 type OrganizationLogoUploaderProps = {
     kind: LogoKind;
@@ -24,17 +25,9 @@ type OrganizationLogoUploaderProps = {
     onRemove: (kind: LogoKind) => Promise<ActionResponse<OrganizationDTO>>;
 };
 
-const KIND_CONTENT: Record<LogoKind, { field: "logo" | "logoDocument"; preview: string; hint: string }> = {
-    sidebar: {
-        field: "logo",
-        preview: "h-24 w-24",
-        hint: "Format carré conseillé (icône seule). Affiché dans la barre latérale et les emails envoyés aux locataires.",
-    },
-    document: {
-        field: "logoDocument",
-        preview: "h-24 w-full sm:w-72",
-        hint: "Format long conseillé (logo + nom, ex. 1200 × 400 px). Affiché en en-tête des factures, quittances, contrats et documents imprimés.",
-    },
+const KIND_CONTENT: Record<LogoKind, { field: "logo" | "logoDocument"; preview: string; hint: "sidebarHint" | "documentHint" }> = {
+    sidebar: { field: "logo", preview: "h-24 w-24", hint: "sidebarHint" },
+    document: { field: "logoDocument", preview: "h-24 w-full sm:w-72", hint: "documentHint" },
 };
 
 export function OrganizationLogoUploader({
@@ -45,6 +38,8 @@ export function OrganizationLogoUploader({
     onUpload,
     onRemove,
 }: OrganizationLogoUploaderProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
     const [logo, setLogo] = useState(initialLogo);
@@ -61,12 +56,12 @@ export function OrganizationLogoUploader({
 
         // Contrôle immédiat côté client ; le serveur revalide de toute façon.
         if (!(LOGO_ACCEPTED_TYPES as readonly string[]).includes(file.type)) {
-            toast.add({ title: "Format non supporté : utilisez PNG, JPEG ou WebP.", type: "error" });
+            toast.add({ title: t.validation.logoFormat, type: "error" });
             return;
         }
 
         if (file.size > LOGO_MAX_SIZE_BYTES) {
-            toast.add({ title: "Le logo ne doit pas dépasser 2 Mo.", type: "error" });
+            toast.add({ title: t.validation.logoTooLarge, type: "error" });
             return;
         }
 
@@ -135,7 +130,7 @@ export function OrganizationLogoUploader({
                             ) : (
                                 <ImagePlus className="h-4 w-4" />
                             )}
-                            {logo ? "Changer le logo" : "Ajouter un logo"}
+                            {logo ? t.admin.settings.logo.change : t.admin.settings.logo.add}
                         </Button>
 
                         {logo && (
@@ -152,14 +147,14 @@ export function OrganizationLogoUploader({
                                 ) : (
                                     <Trash2 className="h-4 w-4" />
                                 )}
-                                Retirer
+                                {t.common.remove}
                             </Button>
                         )}
                     </div>
                 )}
 
-                <p className="text-xs text-muted-foreground">{content.hint}</p>
-                <p className="text-xs text-muted-foreground">PNG, JPEG ou WebP, 2 Mo maximum.</p>
+                <p className="text-xs text-muted-foreground">{t.admin.settings.logo[content.hint]}</p>
+                <p className="text-xs text-muted-foreground">{t.admin.settings.logo.formats}</p>
             </div>
         </div>
     );

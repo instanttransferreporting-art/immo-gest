@@ -9,21 +9,14 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { STATUT_FACTURE_LABELS } from "@/features/invoices/constants/invoice.constants";
-import { NIVEAU_RELANCE_LABELS } from "@/features/collections/constants/collection.constants";
 import { RelanceActions } from "@/features/collections/components/RelanceActions";
 import type { ImpayeDTO } from "@/features/collections/types/collection.types";
 import type { StatutFacture } from "@/features/invoices/types/invoice.types";
+import { useI18n } from "@/i18n/client";
 
 type ImpayesTableProps = {
     impayes: readonly ImpayeDTO[];
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "outline"> = {
     EN_ATTENTE: "outline",
@@ -32,12 +25,14 @@ const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "out
 };
 
 export function ImpayesTable({ impayes }: ImpayesTableProps) {
+    const { t, f } = useI18n();
+
     if (impayes.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <AlertTriangle className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun impayé</p>
-                <p className="text-sm text-muted-foreground">Toutes les factures échues sont réglées.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.operations.collections.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.operations.collections.emptyHint}</p>
             </div>
         );
     }
@@ -47,14 +42,14 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>N° Facture</TableHead>
-                        <TableHead>Locataire</TableHead>
-                        <TableHead>Unité</TableHead>
-                        <TableHead>Jours de retard</TableHead>
-                        <TableHead>Solde restant</TableHead>
-                        <TableHead>Statut</TableHead>
-                        <TableHead>Dernier niveau</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t.invoices.number}</TableHead>
+                        <TableHead>{t.invoices.tenant}</TableHead>
+                        <TableHead>{t.invoices.receipt.unit}</TableHead>
+                        <TableHead>{t.operations.collections.daysLate}</TableHead>
+                        <TableHead>{t.operations.collections.balance}</TableHead>
+                        <TableHead>{t.common.status}</TableHead>
+                        <TableHead>{t.operations.collections.lastLevel}</TableHead>
+                        <TableHead className="text-right">{t.common.actions}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -81,20 +76,20 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
                                             : "rounded-lg bg-amber-50 text-amber-700"
                                     }
                                 >
-                                    {impaye.joursRetard} j
+                                    {t.operations.collections.daysShort(impaye.joursRetard)}
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {currencyFormatter.format(impaye.soldeRestant)}
+                                {f.currency(impaye.soldeRestant)}
                             </TableCell>
                             <TableCell>
                                 <Badge variant={STATUT_BADGE_VARIANT[impaye.statut]} className="rounded-lg">
-                                    {STATUT_FACTURE_LABELS[impaye.statut]}
+                                    {t.enums.statutFacture[impaye.statut]}
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                                 {impaye.dernierNiveauRelance
-                                    ? NIVEAU_RELANCE_LABELS[impaye.dernierNiveauRelance]
+                                    ? t.enums.niveauRelance[impaye.dernierNiveauRelance]
                                     : "—"}
                             </TableCell>
                             <TableCell className="text-right">

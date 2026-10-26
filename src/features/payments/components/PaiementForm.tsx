@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { createPaiement } from "@/features/payments/actions/paiement.actions";
 import { paiementSchema, type PaiementFormValues } from "@/features/payments/schemas/payment.schema";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import { ModePaiement } from "@/generated/prisma/enums";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type PaiementFormProps = {
     factureId: string;
@@ -20,13 +20,9 @@ type PaiementFormProps = {
     onSuccess?: (paiement: PaiementDTO) => void;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
 export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFormProps) {
+    const { t, tv, f } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -58,19 +54,19 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
             <input type="hidden" {...register("factureId")} />
 
             <p className="rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
-                Reste à payer : <span className="font-semibold text-foreground">{currencyFormatter.format(soldeRestant)}</span>
+                {t.payments.balanceDueColon} <span className="font-semibold text-foreground">{f.currency(soldeRestant)}</span>
             </p>
 
             <div className="space-y-1.5">
                 <label htmlFor="mode" className="text-sm font-medium text-foreground">
-                    Mode de paiement
+                    {t.payments.paymentMode}
                 </label>
                 <select
                     id="mode"
                     className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     {...register("mode")}
                 >
-                    {Object.entries(MODE_PAIEMENT_LABELS).map(([value, label]) => (
+                    {Object.entries(t.enums.modePaiement).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>
@@ -80,7 +76,7 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
 
             <div className="space-y-1.5">
                 <label htmlFor="montant" className="text-sm font-medium text-foreground">
-                    Montant reçu
+                    {t.payments.amountReceived}
                 </label>
                 <Input
                     id="montant"
@@ -90,12 +86,12 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
                     className={cn("h-10 rounded-xl", errors.montant && "border-red-500")}
                     {...register("montant", { valueAsNumber: true })}
                 />
-                {errors.montant && <p className="animate-pulse text-sm text-red-500">{errors.montant.message}</p>}
+                {errors.montant && <p className="animate-pulse text-sm text-red-500">{tv(errors.montant.message)}</p>}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="reference" className="text-sm font-medium text-foreground">
-                    Référence (transaction, reçu...)
+                    {t.payments.referenceLong}
                 </label>
                 <Input id="reference" className="h-10 rounded-xl" {...register("reference")} />
             </div>
@@ -105,7 +101,7 @@ export function PaiementForm({ factureId, soldeRestant, onSuccess }: PaiementFor
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer le paiement"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.payments.submit}
             </Button>
         </form>
     );

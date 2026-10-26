@@ -1,11 +1,14 @@
 // Coordonnées d'entreprise formatées pour les en-têtes imprimés (PDF et HTML).
 
-/** « Tél. … · email » à partir des coordonnées facultatives de l'entreprise. */
-export function formatOrganizationContact(organization: {
-    telephone: string | null;
-    email: string | null;
-}): string | null {
-    const parts = [organization.telephone && `Tél. ${organization.telephone}`, organization.email].filter(Boolean);
+/**
+ * « Tél. … · email » à partir des coordonnées facultatives de l'entreprise.
+ * `phoneLabel` : « Tél. » par défaut (documents en français), traduit pour l'interface.
+ */
+export function formatOrganizationContact(
+    organization: { telephone: string | null; email: string | null },
+    phoneLabel = "Tél."
+): string | null {
+    const parts = [organization.telephone && `${phoneLabel} ${organization.telephone}`, organization.email].filter(Boolean);
     return parts.length > 0 ? parts.join(" · ") : null;
 }
 

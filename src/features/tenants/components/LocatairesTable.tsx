@@ -12,26 +12,28 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
 import { LocataireContratsList } from "@/features/tenants/components/LocataireContratsList";
 import { LocataireDetailModal } from "@/features/tenants/components/LocataireDetailModal";
 import { LocataireEditModal } from "@/features/tenants/components/LocataireEditModal";
 import { TypeLocataire } from "@/generated/prisma/enums";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocatairesTableProps = {
     locataires: readonly LocataireDTO[];
 };
 
 export function LocatairesTable({ locataires }: LocatairesTableProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
 
     if (locataires.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Users className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun locataire enregistré</p>
-                <p className="text-sm text-muted-foreground">Ajoutez votre premier locataire pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.tenants.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.tenants.emptyHint}</p>
             </div>
         );
     }
@@ -41,13 +43,13 @@ export function LocatairesTable({ locataires }: LocatairesTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Nom</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Téléphone</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Pièce d&apos;identité</TableHead>
-                        <TableHead>Contrat(s)</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t.common.name}</TableHead>
+                        <TableHead>{t.common.type}</TableHead>
+                        <TableHead>{t.common.phone}</TableHead>
+                        <TableHead>{t.common.email}</TableHead>
+                        <TableHead>{t.tenants.idDocument}</TableHead>
+                        <TableHead>{t.tenants.leases}</TableHead>
+                        <TableHead className="text-right">{t.common.actions}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -64,13 +66,13 @@ export function LocatairesTable({ locataires }: LocatairesTableProps) {
                                     {displayName}
                                     {!isPhysique && (
                                         <p className="text-xs font-normal text-muted-foreground">
-                                            Représentant : {locataire.nom} {locataire.prenom}
+                                            {t.tenants.representative(`${locataire.nom} ${locataire.prenom}`)}
                                         </p>
                                     )}
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={isPhysique ? "outline" : "secondary"} className="rounded-lg">
-                                        {TYPE_LOCATAIRE_LABELS[locataire.type]}
+                                        {t.enums.typeLocataire[locataire.type]}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">

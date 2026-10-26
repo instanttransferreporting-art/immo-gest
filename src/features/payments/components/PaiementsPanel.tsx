@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PaiementsTable } from "@/features/payments/components/PaiementsTable";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import type { PaiementListItemDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type PaiementsPanelProps = {
     paiements: readonly PaiementListItemDTO[];
@@ -16,6 +16,8 @@ const STATUT_PAYE = "PAYE";
 const STATUT_ANNULE = "ANNULE";
 
 export function PaiementsPanel({ paiements }: PaiementsPanelProps) {
+    const { t } = useI18n();
+
     const [modeFilter, setModeFilter] = useState<string>(ALL_VALUE);
     const [statutFilter, setStatutFilter] = useState<string>(ALL_VALUE);
 
@@ -33,7 +35,7 @@ export function PaiementsPanel({ paiements }: PaiementsPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Paiements</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.payments.listTitle}</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-4 px-6">
@@ -43,9 +45,9 @@ export function PaiementsPanel({ paiements }: PaiementsPanelProps) {
                         onChange={(event) => setStatutFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Tous les statuts</option>
-                        <option value={STATUT_PAYE}>Payé</option>
-                        <option value={STATUT_ANNULE}>Annulé</option>
+                        <option value={ALL_VALUE}>{t.payments.allStatuses}</option>
+                        <option value={STATUT_PAYE}>{t.payments.paid}</option>
+                        <option value={STATUT_ANNULE}>{t.payments.cancelled}</option>
                     </select>
 
                     <select
@@ -53,8 +55,8 @@ export function PaiementsPanel({ paiements }: PaiementsPanelProps) {
                         onChange={(event) => setModeFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Tous les modes</option>
-                        {Object.entries(MODE_PAIEMENT_LABELS).map(([value, label]) => (
+                        <option value={ALL_VALUE}>{t.payments.allModes}</option>
+                        {Object.entries(t.enums.modePaiement).map(([value, label]) => (
                             <option key={value} value={value}>
                                 {label}
                             </option>

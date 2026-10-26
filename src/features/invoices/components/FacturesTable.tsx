@@ -11,20 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
-import { MOIS_LABELS, STATUT_FACTURE_LABELS } from "@/features/invoices/constants/invoice.constants";
 import type { FactureDTO, StatutFacture } from "@/features/invoices/types/invoice.types";
+import { useI18n } from "@/i18n/client";
 
 type FacturesTableProps = {
     factures: readonly FactureDTO[];
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
 
 const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "outline"> = {
     EN_ATTENTE: "outline",
@@ -33,12 +25,14 @@ const STATUT_BADGE_VARIANT: Record<StatutFacture, "default" | "secondary" | "out
 };
 
 export function FacturesTable({ factures }: FacturesTableProps) {
+    const { t, f } = useI18n();
+
     if (factures.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Receipt className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucune facture</p>
-                <p className="text-sm text-muted-foreground">Générez les factures du mois pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.invoices.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.invoices.emptyHint}</p>
             </div>
         );
     }
@@ -48,13 +42,13 @@ export function FacturesTable({ factures }: FacturesTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>N° Facture</TableHead>
-                        <TableHead>Contrat</TableHead>
-                        <TableHead>Locataire</TableHead>
-                        <TableHead>Période</TableHead>
-                        <TableHead>Montant total</TableHead>
-                        <TableHead>Statut</TableHead>
-                        <TableHead>Email</TableHead>
+                        <TableHead>{t.invoices.number}</TableHead>
+                        <TableHead>{t.invoices.lease}</TableHead>
+                        <TableHead>{t.invoices.tenant}</TableHead>
+                        <TableHead>{t.invoices.period}</TableHead>
+                        <TableHead>{t.invoices.totalAmount}</TableHead>
+                        <TableHead>{t.common.status}</TableHead>
+                        <TableHead>{t.invoices.email}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -79,29 +73,29 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                                     `${facture.contrat.locataire.nom} ${facture.contrat.locataire.prenom}`}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {MOIS_LABELS[facture.mois - 1]} {facture.annee}
+                                {f.monthYear(facture.mois, facture.annee)}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                                {currencyFormatter.format(facture.totalDu)}
+                                {f.currency(facture.totalDu)}
                             </TableCell>
                             <TableCell>
                                 <Badge variant={STATUT_BADGE_VARIANT[facture.statut]} className="rounded-lg">
-                                    {STATUT_FACTURE_LABELS[facture.statut]}
+                                    {t.enums.statutFacture[facture.statut]}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 {facture.avisEnvoye ? (
                                     <Badge
                                         className="rounded-lg bg-brand-50 text-brand-700"
-                                        title={facture.avisEnvoyeAt ? dateFormatter.format(facture.avisEnvoyeAt) : undefined}
+                                        title={facture.avisEnvoyeAt ? f.date(facture.avisEnvoyeAt) : undefined}
                                     >
                                         <MailCheck className="h-3.5 w-3.5" />
-                                        Avis envoyé
+                                        {t.invoices.noticeSent}
                                     </Badge>
                                 ) : (
                                     <Badge variant="outline" className="rounded-lg text-muted-foreground">
                                         <Mail className="h-3.5 w-3.5" />
-                                        Non envoyé
+                                        {t.invoices.noticeNotSent}
                                     </Badge>
                                 )}
                             </TableCell>

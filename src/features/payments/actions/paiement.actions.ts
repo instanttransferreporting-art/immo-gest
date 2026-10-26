@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import type { Session } from "next-auth";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import {
     InsufficientBalanceError,
@@ -18,15 +18,21 @@ import { annulerPaiementSchema, paiementSchema } from "@/features/payments/schem
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createPaiement(input: unknown): Promise<ActionResponse<PaiementDTO>> {
+    const { t } = await getI18n();
+
     let user: Session["user"];
 
     try {
         user = await checkPermission("PAIEMENT_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -37,7 +43,7 @@ export async function createPaiement(input: unknown): Promise<ActionResponse<Pai
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -58,37 +64,41 @@ export async function createPaiement(input: unknown): Promise<ActionResponse<Pai
 
         return {
             success: true,
-            message: "Paiement enregistré avec succès.",
+            message: t.payments.messages.recorded,
             data: paiement,
         };
     } catch (error) {
         if (error instanceof InsufficientBalanceError) {
             return {
                 success: false,
-                message: error.message,
-                errors: { montant: [error.message] },
+                message: t.payments.errors.exceedsBalance,
+                errors: { montant: [t.payments.errors.exceedsBalance] },
             };
         }
 
         if (error instanceof FactureNotFoundError) {
-            return { success: false, message: error.message };
+            return { success: false, message: t.invoices.errors.notFound };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de l'enregistrement du paiement.",
+            message: t.payments.messages.recordFailed,
         };
     }
 }
 
 export async function annulerPaiement(input: unknown): Promise<ActionResponse<PaiementDTO>> {
+    const { t } = await getI18n();
+
     let user: Session["user"];
 
     try {
         user = await checkPermission("PAIEMENT_ANNULER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -99,7 +109,7 @@ export async function annulerPaiement(input: unknown): Promise<ActionResponse<Pa
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -120,17 +130,21 @@ export async function annulerPaiement(input: unknown): Promise<ActionResponse<Pa
 
         return {
             success: true,
-            message: "Paiement annulé avec succès.",
+            message: t.payments.messages.cancelled,
             data: paiement,
         };
     } catch (error) {
-        if (error instanceof PaiementNotFoundError || error instanceof PaiementDejaAnnuleError) {
-            return { success: false, message: error.message };
+        if (error instanceof PaiementNotFoundError) {
+            return { success: false, message: t.payments.errors.notFound };
+        }
+
+        if (error instanceof PaiementDejaAnnuleError) {
+            return { success: false, message: t.payments.errors.alreadyCancelled };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de l'annulation du paiement.",
+            message: t.payments.messages.cancelFailed,
         };
     }
 }

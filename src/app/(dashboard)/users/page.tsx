@@ -7,12 +7,17 @@ import { UserManagementService } from "@/features/users/services/user-management
 import { effectiveOrganizationId, getCurrentSession } from "@/lib/auth";
 import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Utilisateurs | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.admin.users.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function UsersPage() {
+    const { t } = await getI18n();
+
     const session = await getCurrentSession();
     const isAdmin = session?.user.role === RoleType.ADMIN || !!session?.user.impersonatedOrganizationId;
 
@@ -25,8 +30,8 @@ export default async function UsersPage() {
     return (
         <Container>
             <PageTitle
-                title="Utilisateurs"
-                description="Gérez les membres de votre équipe et leurs rôles."
+                title={t.admin.users.pageTitle}
+                description={t.admin.users.description}
             />
 
             <div className="mt-6">

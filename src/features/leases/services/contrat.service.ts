@@ -34,9 +34,18 @@ export class ContratNotActifError extends Error {
     }
 }
 
+/** Transition de statut refusée ; `code` sert à traduire le message dans l'interface. */
+export type ContratStatutErrorCode = "suspendRequiresActive" | "reactivateRequiresSuspended" | "renewRequiresActive";
+
+const CONTRAT_STATUT_MESSAGES: Readonly<Record<ContratStatutErrorCode, string>> = {
+    suspendRequiresActive: "Seul un contrat actif peut être suspendu.",
+    reactivateRequiresSuspended: "Seul un contrat suspendu peut être réactivé.",
+    renewRequiresActive: "Seul un contrat actif peut être renouvelé.",
+};
+
 export class ContratStatutInvalideError extends Error {
-    constructor(message: string) {
-        super(message);
+    constructor(readonly code: ContratStatutErrorCode) {
+        super(CONTRAT_STATUT_MESSAGES[code]);
         this.name = "ContratStatutInvalideError";
     }
 }
@@ -178,7 +187,7 @@ export class ContratService {
         }
 
         if (contrat.statut !== StatutBail.ACTIF) {
-            throw new ContratStatutInvalideError("Seul un contrat actif peut être suspendu.");
+            throw new ContratStatutInvalideError("suspendRequiresActive");
         }
 
         const updated = await ContratRepository.updateStatut(
@@ -204,7 +213,7 @@ export class ContratService {
         }
 
         if (contrat.statut !== StatutBail.SUSPENDU) {
-            throw new ContratStatutInvalideError("Seul un contrat suspendu peut être réactivé.");
+            throw new ContratStatutInvalideError("reactivateRequiresSuspended");
         }
 
         const updated = await ContratRepository.updateStatut(
@@ -240,7 +249,7 @@ export class ContratService {
                         }
 
                         if (contrat.statut !== StatutBail.ACTIF) {
-                            throw new ContratStatutInvalideError("Seul un contrat actif peut être renouvelé.");
+                            throw new ContratStatutInvalideError("renewRequiresActive");
                         }
 
                         const dateDebut = new Date(contrat.dateFin);

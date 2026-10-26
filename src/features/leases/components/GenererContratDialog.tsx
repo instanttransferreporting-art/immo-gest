@@ -12,11 +12,11 @@ import { cn } from "@/lib/utils";
 import {
     CIVILITES,
     PERIODICITES_BAIL,
-    PERIODICITE_BAIL_LABELS,
     contratDocumentSchema,
     type ContratDocumentValues,
 } from "@/features/leases/schemas/contrat-document.schema";
 import type { ContratDocumentDefaults } from "@/features/leases/services/contrat-document.service";
+import { useI18n } from "@/i18n/client";
 
 type GenererContratDialogProps = {
     contratId: string;
@@ -28,7 +28,6 @@ type Format = "docx" | "pdf";
 const SELECT_CLASS =
     "h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
 
 function Field({
     label,
@@ -65,6 +64,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function GenererContratDialog({ contratId, defaults }: GenererContratDialogProps) {
+    const { t, tv, f } = useI18n();
+
     const [open, setOpen] = useState(false);
     const [generated, setGenerated] = useState<ContratDocumentValues | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
@@ -76,7 +77,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
         formState: { errors },
     } = useForm<ContratDocumentDefaults>({ defaultValues: defaults });
 
-    const error = (name: keyof ContratDocumentDefaults) => errors[name]?.message as string | undefined;
+    const error = (name: keyof ContratDocumentDefaults) => tv(errors[name]?.message as string | undefined);
     const inputClass = (name: keyof ContratDocumentDefaults) => cn("h-10 rounded-xl", errors[name] && "border-red-500");
 
     function onSubmit(values: ContratDocumentDefaults) {
@@ -109,7 +110,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
 
             if (!response.ok) {
                 const body = (await response.json().catch(() => null)) as { error?: string } | null;
-                toast.add({ title: body?.error ?? "Impossible de générer le contrat.", type: "error" });
+                toast.add({ title: body?.error ?? t.leases.generate.failed, type: "error" });
                 return;
             }
 
@@ -135,6 +136,9 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
         }
     }
 
+    const utcDateFormatter = new Intl.DateTimeFormat(f.intl, { dateStyle: "long", timeZone: "UTC" });
+    const formatUtc = (date: Date) => utcDateFormatter.format(date);
+
     const periods = generated
         ? [
               {
@@ -158,20 +162,20 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger render={<Button variant="outline" className="rounded-lg" />}>
                 <FileText className="h-4 w-4" />
-                Générer le bail (Word / PDF)
+                {t.leases.generate.trigger}
             </DialogTrigger>
 
             <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Générer le contrat de bail</DialogTitle>
+                    <DialogTitle>{t.leases.generate.title}</DialogTitle>
                 </DialogHeader>
 
                 {generated ? (
                     <div className="space-y-4">
                         <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
                             {periods.length === 2
-                                ? "Deux contrats sont générés : le bail de l'année en cours puis celui de l'année suivante."
-                                : "Un seul contrat est généré."}
+                                ? t.leases.generate.twoContracts
+                                : t.leases.generate.oneContract}
                         </p>
 
                         {periods.map((period) => (
@@ -181,10 +185,10 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             >
                                 <div>
                                     <p className="text-sm font-semibold text-foreground">
-                                        Contrat {period.index} — {period.debut.getUTCFullYear()}
+                                        {t.leases.generate.contractYear(period.index, period.debut.getUTCFullYear())}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Du {dateFormatter.format(period.debut)} au {dateFormatter.format(period.fin)}
+                                        {t.leases.generate.fromTo(formatUtc(period.debut), formatUtc(period.fin))}
                                     </p>
                                 </div>
 
@@ -214,51 +218,51 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             className="rounded-lg"
                             onClick={() => setGenerated(null)}
                         >
-                            Modifier les informations
+                            {t.leases.generate.editInfo}
                         </Button>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-                        <Section title="Preneur">
-                            <Field label="Civilité" error={error("civilite")}>
+                        <Section title={t.leases.generate.sections.tenant}>
+                            <Field label={t.leases.generate.fields.civilite} error={error("civilite")}>
                                 <select className={SELECT_CLASS} {...register("civilite")}>
                                     {CIVILITES.map((civilite) => (
                                         <option key={civilite} value={civilite}>
-                                            {civilite === "Monsieur" ? "Monsieur" : "Madame"}
+                                            {t.enums.civilite[civilite]}
                                         </option>
                                     ))}
                                 </select>
                             </Field>
-                            <Field label="Nom complet" error={error("locataireNom")}>
+                            <Field label={t.leases.generate.fields.fullName} error={error("locataireNom")}>
                                 <Input className={inputClass("locataireNom")} {...register("locataireNom")} />
                             </Field>
-                            <Field label="Nationalité" error={error("nationalite")}>
+                            <Field label={t.leases.generate.fields.nationality} error={error("nationalite")}>
                                 <Input className={inputClass("nationalite")} {...register("nationalite")} />
                             </Field>
-                            <Field label="Téléphone" error={error("telephone")}>
+                            <Field label={t.leases.generate.fields.phone} error={error("telephone")}>
                                 <Input className={inputClass("telephone")} {...register("telephone")} />
                             </Field>
-                            <Field label="N° de CNI" error={error("pieceIdentite")}>
+                            <Field label={t.leases.generate.fields.cniNumber} error={error("pieceIdentite")}>
                                 <Input className={inputClass("pieceIdentite")} {...register("pieceIdentite")} />
                             </Field>
-                            <Field label="CNI délivrée le" hint="Ex : 12/03/2019" error={error("pieceDelivreeLe")}>
+                            <Field label={t.leases.generate.fields.cniIssuedOn} hint={t.leases.generate.fields.cniIssuedOnHint} error={error("pieceDelivreeLe")}>
                                 <Input className={inputClass("pieceDelivreeLe")} {...register("pieceDelivreeLe")} />
                             </Field>
-                            <Field label="CNI délivrée à" hint="Ex : Yaoundé" error={error("pieceDelivreeA")}>
+                            <Field label={t.leases.generate.fields.cniIssuedAt} hint={t.leases.generate.fields.cniIssuedAtHint} error={error("pieceDelivreeA")}>
                                 <Input className={inputClass("pieceDelivreeA")} {...register("pieceDelivreeA")} />
                             </Field>
                         </Section>
 
-                        <Section title="Local loué">
+                        <Section title={t.leases.generate.sections.premises}>
                             <Field
-                                label="Localisation"
-                                hint="Complète « les locaux situés au … » (ex : 2ème étage, porte B12)"
+                                label={t.leases.generate.fields.location}
+                                hint={t.leases.generate.fields.locationHint}
                                 error={error("localisation")}
                                 className="sm:col-span-2"
                             >
                                 <Input className={inputClass("localisation")} {...register("localisation")} />
                             </Field>
-                            <Field label="Surface (m²)" error={error("surface")}>
+                            <Field label={t.leases.generate.fields.surface} error={error("surface")}>
                                 <Input
                                     type="number"
                                     step="any"
@@ -266,16 +270,16 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("surface", { valueAsNumber: true })}
                                 />
                             </Field>
-                            <Field label="Composition" hint="Ex : un salon, deux chambres, une cuisine" error={error("composition")}>
+                            <Field label={t.leases.generate.fields.composition} hint={t.leases.generate.fields.compositionHint} error={error("composition")}>
                                 <Input className={inputClass("composition")} {...register("composition")} />
                             </Field>
                         </Section>
 
-                        <Section title="Durée">
-                            <Field label="Date de prise d'effet" error={error("dateDebut")}>
+                        <Section title={t.leases.generate.sections.duration}>
+                            <Field label={t.leases.generate.fields.effectiveDate} error={error("dateDebut")}>
                                 <Input type="date" className={inputClass("dateDebut")} {...register("dateDebut")} />
                             </Field>
-                            <Field label="Date de signature" error={error("dateSignature")}>
+                            <Field label={t.leases.generate.fields.signatureDate} error={error("dateSignature")}>
                                 <Input type="date" className={inputClass("dateSignature")} {...register("dateSignature")} />
                             </Field>
                             <label className="flex items-start gap-3 rounded-xl border border-border px-4 py-3 text-sm">
@@ -285,9 +289,9 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("reconductionAuto")}
                                 />
                                 <span>
-                                    <span className="font-medium text-foreground">Reconduction automatique</span>
+                                    <span className="font-medium text-foreground">{t.leases.generate.fields.autoRenewal}</span>
                                     <span className="block text-xs text-muted-foreground">
-                                        Sinon, le bail prend fin à son terme.
+                                        {t.leases.generate.fields.autoRenewalHint}
                                     </span>
                                 </span>
                             </label>
@@ -298,32 +302,32 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("genererContratSuivant")}
                                 />
                                 <span>
-                                    <span className="font-medium text-foreground">Générer aussi le bail de l&apos;année suivante</span>
+                                    <span className="font-medium text-foreground">{t.leases.generate.fields.nextYear}</span>
                                     <span className="block text-xs text-muted-foreground">
-                                        Du 1er janvier au 31 décembre (entrée en cours d&apos;année).
+                                        {t.leases.generate.fields.nextYearHint}
                                     </span>
                                 </span>
                             </label>
                         </Section>
 
-                        <Section title="Loyer et paiement">
-                            <Field label="Loyer mensuel (FCFA, hors taxes)" error={error("loyer")}>
+                        <Section title={t.leases.generate.sections.rent}>
+                            <Field label={t.leases.generate.fields.monthlyRent} error={error("loyer")}>
                                 <Input
                                     type="number"
                                     className={inputClass("loyer")}
                                     {...register("loyer", { valueAsNumber: true })}
                                 />
                             </Field>
-                            <Field label="Périodicité de paiement" error={error("periodicite")}>
+                            <Field label={t.leases.generate.fields.periodicity} error={error("periodicite")}>
                                 <select className={SELECT_CLASS} {...register("periodicite")}>
                                     {PERIODICITES_BAIL.map((periodicite) => (
                                         <option key={periodicite} value={periodicite}>
-                                            {PERIODICITE_BAIL_LABELS[periodicite]}
+                                            {t.enums.periodiciteBail[periodicite]}
                                         </option>
                                     ))}
                                 </select>
                             </Field>
-                            <Field label="Loyers payés d'avance (mois)" error={error("moisAvance")}>
+                            <Field label={t.leases.generate.fields.advanceMonths} error={error("moisAvance")}>
                                 <Input
                                     type="number"
                                     min={1}
@@ -333,8 +337,8 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             </Field>
                         </Section>
 
-                        <Section title="Dépôt de garantie">
-                            <Field label="Nombre de mois de loyer" error={error("depotMois")}>
+                        <Section title={t.leases.generate.sections.deposit}>
+                            <Field label={t.leases.generate.fields.depositMonths} error={error("depotMois")}>
                                 <Input
                                     type="number"
                                     min={1}
@@ -342,7 +346,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("depotMois", { valueAsNumber: true })}
                                 />
                             </Field>
-                            <Field label="Montant (FCFA)" error={error("depotMontant")}>
+                            <Field label={t.leases.generate.fields.depositAmount} error={error("depotMontant")}>
                                 <Input
                                     type="number"
                                     className={inputClass("depotMontant")}
@@ -351,10 +355,10 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             </Field>
                         </Section>
 
-                        <Section title="Charges communes">
+                        <Section title={t.leases.generate.sections.charges}>
                             <Field
-                                label="Montant mensuel (FCFA, hors taxes)"
-                                hint="Le pourcentage du loyer est calculé automatiquement."
+                                label={t.leases.generate.fields.chargesAmount}
+                                hint={t.leases.generate.fields.chargesAmountHint}
                                 error={error("chargesMontant")}
                             >
                                 <Input
@@ -364,16 +368,16 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                 />
                             </Field>
                             <Field
-                                label="Nature des charges (facultatif)"
-                                hint="Ex : eau, électricité des parties communes, gardiennage"
+                                label={t.leases.generate.fields.chargesNature}
+                                hint={t.leases.generate.fields.chargesNatureHint}
                                 error={error("natureCharges")}
                             >
                                 <Input className={inputClass("natureCharges")} {...register("natureCharges")} />
                             </Field>
                         </Section>
 
-                        <Section title="Pénalités de retard">
-                            <Field label="Taux par mois (%)" error={error("tauxPenalite")}>
+                        <Section title={t.leases.generate.sections.penalties}>
+                            <Field label={t.leases.generate.fields.penaltyRate} error={error("tauxPenalite")}>
                                 <Input
                                     type="number"
                                     step="any"
@@ -381,7 +385,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("tauxPenalite", { valueAsNumber: true })}
                                 />
                             </Field>
-                            <Field label="Applicable après (jours)" error={error("delaiPenaliteJours")}>
+                            <Field label={t.leases.generate.fields.penaltyDelay} error={error("delaiPenaliteJours")}>
                                 <Input
                                     type="number"
                                     min={1}
@@ -395,7 +399,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             type="submit"
                             className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                         >
-                            Générer le contrat
+                            {t.leases.generate.submit}
                         </Button>
                     </form>
                 )}

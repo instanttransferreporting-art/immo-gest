@@ -3,54 +3,52 @@ import ExcelJS from "exceljs";
 import { getCurrentOrganizationId } from "@/lib/auth";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import { ContratRepository } from "@/features/leases/repositories/contrat.repository";
-import { FREQUENCE_LABELS } from "@/features/leases/constants/lease.constants";
-import { TYPE_UNITE_LABELS } from "@/features/units/constants/unit.constants";
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short" });
+import { getI18n } from "@/i18n/server";
 
 export class ParcExportService {
     static async generate(): Promise<{ buffer: Buffer; filename: string }> {
         const organizationId = await getCurrentOrganizationId();
 
-        const [organization, contrats] = await Promise.all([
+        const [organization, contrats, { t, f }] = await Promise.all([
             OrganizationService.getCurrent(),
             ContratRepository.findAllActiveForExport(organizationId),
+            getI18n(),
         ]);
 
         const workbook = new ExcelJS.Workbook();
         workbook.creator = organization.nom;
         workbook.created = new Date();
 
-        const sheet = workbook.addWorksheet("Baux actifs");
+        const sheet = workbook.addWorksheet(t.reports.excel.parcSheet);
 
         sheet.mergeCells("A1:M1");
-        sheet.getCell("A1").value = `${organization.nom} — Parc locatif (baux actifs)`;
+        sheet.getCell("A1").value = `${organization.nom} — ${t.reports.excel.parcTitle}`;
         sheet.getCell("A1").font = { bold: true, size: 14 };
 
         sheet.mergeCells("A2:M2");
-        sheet.getCell("A2").value = `Exporté le ${dateFormatter.format(new Date())} — ${contrats.length} bail(aux) actif(s)`;
+        sheet.getCell("A2").value = t.reports.excel.parcSubtitle(f.dateShort(new Date()), contrats.length);
         sheet.getCell("A2").font = { size: 10, color: { argb: "FF64748B" } };
 
         sheet.addRow([]);
 
         const columns = [
-            { header: "N° Contrat", key: "numeroContrat", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Adresse", key: "adresse", width: 28 },
-            { header: "Ville", key: "ville", width: 16 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Type", key: "type", width: 14 },
-            { header: "Propriétaire", key: "proprietaire", width: 24 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Téléphone", key: "telephone", width: 16 },
-            { header: "Email", key: "email", width: 26 },
-            { header: "Pièce d'identité", key: "pieceIdentite", width: 20 },
-            { header: "Loyer mensuel", key: "loyer", width: 16 },
-            { header: "Charges", key: "charges", width: 14 },
-            { header: "Dépôt garantie", key: "depotGarantie", width: 16 },
-            { header: "Fréquence", key: "frequence", width: 14 },
-            { header: "Date début", key: "dateDebut", width: 14 },
-            { header: "Date fin", key: "dateFin", width: 14 },
+            { header: t.reports.excel.columns.leaseNumber, key: "numeroContrat", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.address, key: "adresse", width: 28 },
+            { header: t.reports.excel.columns.city, key: "ville", width: 16 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.type, key: "type", width: 14 },
+            { header: t.reports.excel.columns.owner, key: "proprietaire", width: 24 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.phone, key: "telephone", width: 16 },
+            { header: t.reports.excel.columns.email, key: "email", width: 26 },
+            { header: t.reports.excel.columns.idDocument, key: "pieceIdentite", width: 20 },
+            { header: t.reports.excel.columns.monthlyRent, key: "loyer", width: 16 },
+            { header: t.reports.excel.columns.charges, key: "charges", width: 14 },
+            { header: t.reports.excel.columns.securityDeposit, key: "depotGarantie", width: 16 },
+            { header: t.reports.excel.columns.frequency, key: "frequence", width: 14 },
+            { header: t.reports.excel.columns.startDate, key: "dateDebut", width: 14 },
+            { header: t.reports.excel.columns.endDate, key: "dateFin", width: 14 },
         ];
 
         const headerRowIndex = 4;
@@ -74,7 +72,7 @@ export class ParcExportService {
                 adresse: contrat.unite.immeuble.adresse,
                 ville: contrat.unite.immeuble.ville,
                 unite: contrat.unite.numero,
-                type: TYPE_UNITE_LABELS[contrat.unite.type],
+                type: t.enums.typeUnite[contrat.unite.type],
                 proprietaire: proprietaireNom,
                 locataire: locataireNom,
                 telephone: contrat.locataire.telephone,
@@ -83,7 +81,7 @@ export class ParcExportService {
                 loyer: contrat.loyerBase,
                 charges: contrat.charges,
                 depotGarantie: contrat.depotGarantie,
-                frequence: FREQUENCE_LABELS[contrat.frequence],
+                frequence: t.enums.frequenceEcheance[contrat.frequence],
                 dateDebut: contrat.dateDebut,
                 dateFin: contrat.dateFin,
             });
@@ -97,7 +95,7 @@ export class ParcExportService {
 
         const buffer = await workbook.xlsx.writeBuffer();
         const dateSegment = new Date().toISOString().slice(0, 10).replace(/-/g, "_");
-        const filename = `Parc_Locatif_${dateSegment}.xlsx`;
+        const filename = `${t.reports.excel.parcFilename}_${dateSegment}.xlsx`;
 
         return { buffer: Buffer.from(buffer), filename };
     }

@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { renouvelerContrat } from "@/features/leases/actions/contrat.actions";
 import { renouvellementSchema, type RenouvellementFormValues } from "@/features/leases/schemas/lease.schema";
+import { useI18n } from "@/i18n/client";
 
 type RenouvelerContratButtonProps = {
     contratId: string;
@@ -33,6 +34,8 @@ export function RenouvelerContratButton({
     chargesActuelles,
     depotGarantieActuel,
 }: RenouvelerContratButtonProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -67,26 +70,25 @@ export function RenouvelerContratButton({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger render={<Button variant="outline" className="rounded-lg" />}>
                 <RefreshCw className="h-4 w-4" />
-                Renouveler
+                {t.leases.renewal.trigger}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Renouveler le contrat</DialogTitle>
+                    <DialogTitle>{t.leases.renewal.title}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                     <input type="hidden" {...register("contratId")} />
 
                     <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
-                        Un nouveau contrat sera créé pour la période fiscale suivante, avec les mêmes conditions
-                        (ajustables ci-dessous). L&apos;ancien contrat passera au statut Expiré.
+                        {t.leases.renewal.explanation}
                     </p>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">
                             <label htmlFor="loyerBase" className="text-sm font-medium text-foreground">
-                                Loyer de base
+                                {t.leases.baseRent}
                             </label>
                             <Input
                                 id="loyerBase"
@@ -99,7 +101,7 @@ export function RenouvelerContratButton({
 
                         <div className="space-y-1.5">
                             <label htmlFor="charges" className="text-sm font-medium text-foreground">
-                                Charges
+                                {t.leases.charges}
                             </label>
                             <Input
                                 id="charges"
@@ -112,7 +114,7 @@ export function RenouvelerContratButton({
 
                         <div className="space-y-1.5">
                             <label htmlFor="depotGarantie" className="text-sm font-medium text-foreground">
-                                Caution
+                                {t.leases.deposit}
                             </label>
                             <Input
                                 id="depotGarantie"
@@ -129,7 +131,7 @@ export function RenouvelerContratButton({
                         disabled={isSubmitting}
                         className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer le renouvellement"}
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.leases.renewal.confirm}
                     </Button>
                 </form>
             </DialogContent>

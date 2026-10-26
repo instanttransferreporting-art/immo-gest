@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import {
     ContratNotActifError,
@@ -21,15 +21,21 @@ import {
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { ContratDTO } from "@/features/leases/types/lease.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createContrat(input: unknown): Promise<ActionResponse<ContratDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CONTRAT_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -40,7 +46,7 @@ export async function createContrat(input: unknown): Promise<ActionResponse<Cont
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -60,33 +66,37 @@ export async function createContrat(input: unknown): Promise<ActionResponse<Cont
 
         return {
             success: true,
-            message: "Contrat créé avec succès.",
+            message: t.leases.messages.created,
             data: contrat,
         };
     } catch (error) {
         if (error instanceof UniteNotAvailableError) {
             return {
                 success: false,
-                message: error.message,
-                errors: { uniteId: [error.message] },
+                message: t.leases.errors.unitNotAvailable,
+                errors: { uniteId: [t.leases.errors.unitNotAvailable] },
             };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création du contrat.",
+            message: t.leases.messages.createFailed,
         };
     }
 }
 
 export async function resilierContrat(input: unknown): Promise<ActionResponse<ContratDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CONTRAT_RESILIER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -97,7 +107,7 @@ export async function resilierContrat(input: unknown): Promise<ActionResponse<Co
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -118,29 +128,37 @@ export async function resilierContrat(input: unknown): Promise<ActionResponse<Co
 
         return {
             success: true,
-            message: "Contrat résilié avec succès. L'unité est de nouveau disponible.",
+            message: t.leases.messages.terminated,
             data: contrat,
         };
     } catch (error) {
-        if (error instanceof ContratNotFoundError || error instanceof ContratNotActifError) {
-            return { success: false, message: error.message };
+        if (error instanceof ContratNotFoundError) {
+            return { success: false, message: t.leases.errors.notFound };
+        }
+
+        if (error instanceof ContratNotActifError) {
+            return { success: false, message: t.leases.errors.notActive };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la résiliation du contrat.",
+            message: t.leases.messages.terminateFailed,
         };
     }
 }
 
 export async function suspendreContrat(input: unknown): Promise<ActionResponse<ContratDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CONTRAT_RESILIER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -149,7 +167,7 @@ export async function suspendreContrat(input: unknown): Promise<ActionResponse<C
     const parsed = suspensionSchema.safeParse(input);
 
     if (!parsed.success) {
-        return { success: false, message: "Les informations saisies sont invalides." };
+        return { success: false, message: t.common.invalidInput };
     }
 
     try {
@@ -165,24 +183,32 @@ export async function suspendreContrat(input: unknown): Promise<ActionResponse<C
         revalidatePath(`${ROUTES.LEASES}/${parsed.data.contratId}`);
         revalidatePath(ROUTES.LEASES);
 
-        return { success: true, message: "Contrat suspendu avec succès.", data: contrat };
+        return { success: true, message: t.leases.messages.suspended, data: contrat };
     } catch (error) {
-        if (error instanceof ContratNotFoundError || error instanceof ContratStatutInvalideError) {
-            return { success: false, message: error.message };
+        if (error instanceof ContratNotFoundError) {
+            return { success: false, message: t.leases.errors.notFound };
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la suspension du contrat." };
+        if (error instanceof ContratStatutInvalideError) {
+            return { success: false, message: t.leases.errors[error.code] };
+        }
+
+        return { success: false, message: t.leases.messages.suspendFailed };
     }
 }
 
 export async function reactiverContrat(input: unknown): Promise<ActionResponse<ContratDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CONTRAT_RESILIER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -191,7 +217,7 @@ export async function reactiverContrat(input: unknown): Promise<ActionResponse<C
     const parsed = suspensionSchema.safeParse(input);
 
     if (!parsed.success) {
-        return { success: false, message: "Les informations saisies sont invalides." };
+        return { success: false, message: t.common.invalidInput };
     }
 
     try {
@@ -207,24 +233,32 @@ export async function reactiverContrat(input: unknown): Promise<ActionResponse<C
         revalidatePath(`${ROUTES.LEASES}/${parsed.data.contratId}`);
         revalidatePath(ROUTES.LEASES);
 
-        return { success: true, message: "Contrat réactivé avec succès.", data: contrat };
+        return { success: true, message: t.leases.messages.reactivated, data: contrat };
     } catch (error) {
-        if (error instanceof ContratNotFoundError || error instanceof ContratStatutInvalideError) {
-            return { success: false, message: error.message };
+        if (error instanceof ContratNotFoundError) {
+            return { success: false, message: t.leases.errors.notFound };
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la réactivation du contrat." };
+        if (error instanceof ContratStatutInvalideError) {
+            return { success: false, message: t.leases.errors[error.code] };
+        }
+
+        return { success: false, message: t.leases.messages.reactivateFailed };
     }
 }
 
 export async function renouvelerContrat(input: unknown): Promise<ActionResponse<ContratDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CONTRAT_RESILIER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -235,7 +269,7 @@ export async function renouvelerContrat(input: unknown): Promise<ActionResponse<
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -260,14 +294,18 @@ export async function renouvelerContrat(input: unknown): Promise<ActionResponse<
 
         return {
             success: true,
-            message: `Contrat renouvelé avec succès (nouveau contrat ${contrat.numeroContrat}).`,
+            message: t.leases.messages.renewed(contrat.numeroContrat),
             data: contrat,
         };
     } catch (error) {
-        if (error instanceof ContratNotFoundError || error instanceof ContratStatutInvalideError) {
-            return { success: false, message: error.message };
+        if (error instanceof ContratNotFoundError) {
+            return { success: false, message: t.leases.errors.notFound };
         }
 
-        return { success: false, message: "Une erreur est survenue lors du renouvellement du contrat." };
+        if (error instanceof ContratStatutInvalideError) {
+            return { success: false, message: t.leases.errors[error.code] };
+        }
+
+        return { success: false, message: t.leases.messages.renewFailed };
     }
 }

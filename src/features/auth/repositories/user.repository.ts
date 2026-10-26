@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
-import type { RoleType } from "@/generated/prisma/enums";
+import type { Locale, RoleType } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
 const USER_SELECT = {
@@ -10,6 +10,7 @@ const USER_SELECT = {
     prenom: true,
     role: true,
     isActive: true,
+    locale: true,
 } as const;
 
 export class UserRepository {
@@ -31,9 +32,14 @@ export class UserRepository {
                 organizationId: true,
                 role: true,
                 isActive: true,
+                locale: true,
                 organization: { select: { isActive: true } },
             },
         });
+    }
+
+    static async updateLocale(id: string, locale: Locale) {
+        return prisma.user.update({ where: { id }, data: { locale }, select: { id: true } });
     }
 
     static async create(

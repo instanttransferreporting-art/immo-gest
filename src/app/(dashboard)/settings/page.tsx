@@ -8,29 +8,34 @@ import { OrganizationForm } from "@/features/organizations/components/Organizati
 import { OrganizationLogoUploader } from "@/features/organizations/components/OrganizationLogoUploader";
 import { removeOrganizationLogo, uploadOrganizationLogo } from "@/features/organizations/actions/organization.actions";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Paramètres | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.admin.settings.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function SettingsPage() {
+    const { t } = await getI18n();
+
     const [session, organization] = await Promise.all([getCurrentSession(), OrganizationService.getCurrent()]);
 
     const canEdit = session?.user.role === RoleType.ADMIN || !!session?.user.impersonatedOrganizationId;
 
     return (
         <Container>
-            <PageTitle title="Paramètres" description="Gérez les informations de votre agence." />
+            <PageTitle title={t.admin.settings.pageTitle} description={t.admin.settings.description} />
 
             <div className="mt-6 space-y-6">
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardHeader className="px-6">
-                        <CardTitle className="text-base font-semibold text-foreground">Logos de l&apos;agence</CardTitle>
+                        <CardTitle className="text-base font-semibold text-foreground">{t.admin.settings.logosTitle}</CardTitle>
                     </CardHeader>
 
                     <CardContent className="space-y-6 px-6">
                         <div className="space-y-3">
-                            <p className="text-sm font-medium text-foreground">Logo de l&apos;application</p>
+                            <p className="text-sm font-medium text-foreground">{t.admin.settings.appLogo}</p>
                             <OrganizationLogoUploader
                                 kind="sidebar"
                                 logo={organization.logo}
@@ -42,7 +47,7 @@ export default async function SettingsPage() {
                         </div>
 
                         <div className="space-y-3 border-t border-border pt-6">
-                            <p className="text-sm font-medium text-foreground">Logo des documents imprimés</p>
+                            <p className="text-sm font-medium text-foreground">{t.admin.settings.documentLogo}</p>
                             <OrganizationLogoUploader
                                 kind="document"
                                 logo={organization.logoDocument}
@@ -58,7 +63,7 @@ export default async function SettingsPage() {
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardHeader className="px-6">
                         <CardTitle className="text-base font-semibold text-foreground">
-                            Paramètres de l&apos;agence
+                            {t.admin.settings.agencyTitle}
                         </CardTitle>
                     </CardHeader>
 

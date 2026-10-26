@@ -18,13 +18,9 @@ import {
 } from "@/components/ui/dialog";
 import { updateUnite } from "@/features/units/actions/unite.actions";
 import { uniteUpdateSchema, type UniteUpdateFormValues } from "@/features/units/schemas/unit.schema";
-import {
-    FREQUENCE_PAIEMENT_LABELS,
-    TYPE_CHARGES_LABELS,
-    TYPE_UNITE_LABELS,
-} from "@/features/units/constants/unit.constants";
 import { FrequencePaiement, TypeCharges } from "@/generated/prisma/enums";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { useI18n } from "@/i18n/client";
 
 type UniteEditModalProps = {
     unite: UniteDTO;
@@ -32,6 +28,8 @@ type UniteEditModalProps = {
 };
 
 export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
+    const { t, tv } = useI18n();
+
     const [open, setOpen] = useState(false);
 
     const defaultValues: UniteUpdateFormValues = {
@@ -95,19 +93,19 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                 }
             >
                 <Pencil className="h-4 w-4" />
-                Modifier
+                {t.common.edit}
             </DialogTrigger>
 
             <DialogContent className="max-w-lg rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Modifier l&apos;unité {unite.numero}</DialogTitle>
+                    <DialogTitle>{t.units.edit(unite.numero)}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-numero" className="text-sm font-medium text-foreground">
-                                Numéro
+                                {t.units.number}
                             </label>
                             <Input
                                 id="edit-numero"
@@ -115,20 +113,20 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                                 {...register("numero")}
                             />
                             {errors.numero && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.numero.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.numero.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-type" className="text-sm font-medium text-foreground">
-                                Type
+                                {t.common.type}
                             </label>
                             <select
                                 id="edit-type"
                                 className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                                 {...register("type")}
                             >
-                                {Object.entries(TYPE_UNITE_LABELS).map(([value, label]) => (
+                                {Object.entries(t.enums.typeUnite).map(([value, label]) => (
                                     <option key={value} value={value}>
                                         {label}
                                     </option>
@@ -140,7 +138,7 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-surface" className="text-sm font-medium text-foreground">
-                                Surface (m²)
+                                {t.units.surfaceM2}
                             </label>
                             <Input
                                 id="edit-surface"
@@ -151,13 +149,13 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                                 {...register("surface", { valueAsNumber: true })}
                             />
                             {errors.surface && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.surface.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.surface.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-nombrePieces" className="text-sm font-medium text-foreground">
-                                Nombre de pièces
+                                {t.units.roomsCount}
                             </label>
                             <Input
                                 id="edit-nombrePieces"
@@ -167,14 +165,14 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                                 {...register("nombrePieces", { valueAsNumber: true })}
                             />
                             {errors.nombrePieces && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.nombrePieces.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.nombrePieces.message)}</p>
                             )}
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-loyerMensuel" className="text-sm font-medium text-foreground">
-                            Loyer de base
+                            {t.units.baseRent}
                         </label>
                         <Input
                             id="edit-loyerMensuel"
@@ -184,21 +182,21 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                             {...register("loyerMensuel", { valueAsNumber: true })}
                         />
                         {errors.loyerMensuel && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.loyerMensuel.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.loyerMensuel.message)}</p>
                         )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-typeCharges" className="text-sm font-medium text-foreground">
-                                Type de charges
+                                {t.units.chargesType}
                             </label>
                             <select
                                 id="edit-typeCharges"
                                 className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                                 {...register("typeCharges")}
                             >
-                                {Object.entries(TYPE_CHARGES_LABELS).map(([value, label]) => (
+                                {Object.entries(t.enums.typeCharges).map(([value, label]) => (
                                     <option key={value} value={value}>
                                         {label}
                                     </option>
@@ -208,7 +206,7 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-valeurCharges" className="text-sm font-medium text-foreground">
-                                {typeCharges === TypeCharges.POURCENTAGE ? "Charges (% loyer)" : "Charges (montant)"}
+                                {typeCharges === TypeCharges.POURCENTAGE ? t.units.chargesPercent : t.units.chargesFixed}
                             </label>
                             <Input
                                 id="edit-valeurCharges"
@@ -219,14 +217,14 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                                 {...register("valeurCharges", { valueAsNumber: true })}
                             />
                             {errors.valeurCharges && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.valeurCharges.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.valeurCharges.message)}</p>
                             )}
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-caution" className="text-sm font-medium text-foreground">
-                            Caution (dépôt de garantie)
+                            {t.units.depositLong}
                         </label>
                         <Input
                             id="edit-caution"
@@ -236,7 +234,7 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                             {...register("caution", { valueAsNumber: true })}
                         />
                         {errors.caution && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.caution.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.caution.message)}</p>
                         )}
                     </div>
 
@@ -250,15 +248,15 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                         />
                         <div>
                             <label htmlFor="edit-isMeuble" className="text-sm font-medium text-foreground cursor-pointer">
-                                Unité meublée
+                                {t.units.furnishedUnit}
                             </label>
                             <p className="text-xs text-muted-foreground">
-                                Cochez si cette unité est louée meublée (meubles inclus).
+                                {t.units.furnishedHint}
                             </p>
                         </div>
                         {isMeuble && (
                             <span className="ml-auto rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                                Meublé
+                                {t.units.furnished}
                             </span>
                         )}
                     </div>
@@ -266,14 +264,14 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                     {/* Fréquence de paiement */}
                     <div className="space-y-1.5">
                         <label htmlFor="edit-frequencePaiement" className="text-sm font-medium text-foreground">
-                            Fréquence de paiement
+                            {t.units.paymentFrequency}
                         </label>
                         <select
                             id="edit-frequencePaiement"
                             className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                             {...register("frequencePaiement")}
                         >
-                            {Object.entries(FREQUENCE_PAIEMENT_LABELS).map(([value, label]) => (
+                            {Object.entries(t.enums.frequencePaiement).map(([value, label]) => (
                                 <option key={value} value={value}>
                                     {label}
                                 </option>
@@ -284,17 +282,17 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                     {frequencePaiement === FrequencePaiement.AUTRE && (
                         <div className="space-y-1.5">
                             <label htmlFor="edit-frequenceAutreTexte" className="text-sm font-medium text-foreground">
-                                Précisez la fréquence
+                                {t.units.customFrequency}
                             </label>
                             <Input
                                 id="edit-frequenceAutreTexte"
-                                placeholder="Ex: Bimestriel, quinzaine…"
+                                placeholder={t.units.customFrequencyPlaceholder}
                                 className={cn("h-10 rounded-xl", errors.frequenceAutreTexte && "border-red-500")}
                                 {...register("frequenceAutreTexte")}
                             />
                             {errors.frequenceAutreTexte && (
                                 <p className="animate-pulse text-sm text-red-500">
-                                    {errors.frequenceAutreTexte.message}
+                                    {tv(errors.frequenceAutreTexte.message)}
                                 </p>
                             )}
                         </div>
@@ -305,7 +303,7 @@ export function UniteEditModal({ unite, onSuccess }: UniteEditModalProps) {
                         disabled={isSubmitting}
                         className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer les modifications"}
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.units.saveChanges}
                     </Button>
                 </form>
             </DialogContent>

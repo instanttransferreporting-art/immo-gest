@@ -6,9 +6,11 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "./Logo";
 import { Navigation } from "./Navigation";
+import { useI18n } from "@/i18n/client";
 
 export function MobileSidebar() {
     const [open, setOpen] = useState(false);
+    const { t } = useI18n();
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
@@ -16,7 +18,7 @@ export function MobileSidebar() {
                 render={
                     <button
                         type="button"
-                        aria-label="Ouvrir le menu"
+                        aria-label={t.layout.nav.openMenu}
                         className="
                             flex
                             h-10
@@ -47,7 +49,7 @@ export function MobileSidebar() {
 
                 <div className="border-t border-border p-4">
                     <p className="text-center text-xs text-muted-foreground">
-                        © {new Date().getFullYear()} ImmoGest
+                        {t.layout.nav.footer(new Date().getFullYear())}
                     </p>
                 </div>
             </SheetContent>

@@ -12,12 +12,15 @@ import { createUser } from "@/features/users/actions/user.actions";
 import { RoleSelect } from "@/features/users/components/RoleSelect";
 import { createUserSchema, type CreateUserFormValues } from "@/features/users/schemas/user.schema";
 import { RoleType } from "@/generated/prisma/enums";
+import { useI18n } from "@/i18n/client";
 
 type CreateUserFormProps = {
     onSuccess?: () => void;
 };
 
 export function CreateUserForm({ onSuccess }: CreateUserFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -52,31 +55,31 @@ export function CreateUserForm({ onSuccess }: CreateUserFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="prenom" className="text-sm font-medium text-foreground">
-                        Prénom
+                        {t.common.firstName}
                     </label>
                     <Input
                         id="prenom"
                         className={cn("h-10 rounded-xl", errors.prenom && "border-red-500")}
                         {...register("prenom")}
                     />
-                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{errors.prenom.message}</p>}
+                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{tv(errors.prenom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                        Nom
+                        {t.common.lastName}
                     </label>
                     <Input
                         id="nom"
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="email" className="text-sm font-medium text-foreground">
-                        Email
+                        {t.common.email}
                     </label>
                     <Input
                         id="email"
@@ -84,20 +87,20 @@ export function CreateUserForm({ onSuccess }: CreateUserFormProps) {
                         className={cn("h-10 rounded-xl", errors.email && "border-red-500")}
                         {...register("email")}
                     />
-                    {errors.email && <p className="animate-pulse text-sm text-red-500">{errors.email.message}</p>}
+                    {errors.email && <p className="animate-pulse text-sm text-red-500">{tv(errors.email.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="role" className="text-sm font-medium text-foreground">
-                        Rôle
+                        {t.common.role}
                     </label>
                     <RoleSelect id="role" invalid={!!errors.role} {...register("role")} />
-                    {errors.role && <p className="animate-pulse text-sm text-red-500">{errors.role.message}</p>}
+                    {errors.role && <p className="animate-pulse text-sm text-red-500">{tv(errors.role.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="password" className="text-sm font-medium text-foreground">
-                        Mot de passe initial
+                        {t.admin.users.initialPassword}
                     </label>
                     <Input
                         id="password"
@@ -107,10 +110,10 @@ export function CreateUserForm({ onSuccess }: CreateUserFormProps) {
                         {...register("password")}
                     />
                     {errors.password && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.password.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.password.message)}</p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                        Communiquez-le à l&apos;utilisateur ; vous pourrez le réinitialiser plus tard.
+                        {t.admin.users.initialPasswordHint}
                     </p>
                 </div>
             </div>
@@ -120,7 +123,7 @@ export function CreateUserForm({ onSuccess }: CreateUserFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer l'utilisateur"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.admin.users.submit}
             </Button>
         </form>
     );

@@ -9,9 +9,10 @@ import { DashboardContent } from "@/features/dashboard/components/DashboardConte
 import { getCurrentSession } from "@/lib/auth";
 import { PERMISSIONS } from "@/constants/permissions";
 import { RoleType } from "@/generated/prisma/enums";
+import { getI18n } from "@/i18n/server";
 
 export default async function DashboardPage() {
-    const session = await getCurrentSession();
+    const [session, { t }] = await Promise.all([getCurrentSession(), getI18n()]);
     const parcExportRoles: readonly RoleType[] = PERMISSIONS.PARC_EXPORT;
     const canExportParc =
         !!session && (!!session.user.impersonatedOrganizationId || parcExportRoles.includes(session.user.role));
@@ -24,8 +25,8 @@ export default async function DashboardPage() {
 
             <div className="flex items-start justify-between gap-4">
                 <PageTitle
-                    title="Dashboard"
-                    description="Vue d'ensemble de votre activité."
+                    title={t.dashboard.title}
+                    description={t.dashboard.description}
                 />
 
                 {canExportParc && !isDirecteurGeneral && (
@@ -37,7 +38,7 @@ export default async function DashboardPage() {
                         nativeButton={false}
                     >
                         <Download className="h-4 w-4" />
-                        Exporter le parc (Excel)
+                        {t.dashboard.exportParc}
                     </Button>
                 )}
             </div>

@@ -10,10 +10,13 @@ import { getCurrentSession } from "@/lib/auth";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 import type { RoleType } from "@/generated/prisma/enums";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Rapports | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.reports.pageTitle} | ${t.common.appName}` };
+}
 
 type ReportsPageProps = {
     searchParams: Promise<{ du?: string | string[]; au?: string | string[] }>;
@@ -24,6 +27,8 @@ function firstValue(value: string | string[] | undefined): string | null {
 }
 
 export default async function ReportsPage({ searchParams }: ReportsPageProps) {
+    const { t, f } = await getI18n();
+
     const session = await getCurrentSession();
     const allowedRoles: readonly RoleType[] = PERMISSIONS.RAPPORTS_VIEW;
     const canView =
@@ -43,10 +48,10 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
     return (
         <Container>
-            <PageTitle title="Rapports" description="Rapports locatifs, financiers et de performance, exportables en Excel." />
+            <PageTitle title={t.reports.pageTitle} description={t.reports.description} />
 
             <div className="mt-6 space-y-6">
-                <ReportPeriodFilter du={period.du} au={period.au} periodLabel={formatPeriodLabel(period)} />
+                <ReportPeriodFilter du={period.du} au={period.au} periodLabel={formatPeriodLabel(period, t.reports.period, f.dateLong)} />
 
                 <RapportsPanel
                     summaries={summaries}

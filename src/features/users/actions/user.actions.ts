@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import type { Session } from "next-auth";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
+import { effectiveOrganizationId } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { checkPermission } from "@/lib/permissions";
 import { EmailAlreadyUsedError } from "@/features/auth/services/auth.service";
 import {
     createUserSchema,
@@ -22,6 +22,9 @@ import type { TeamMemberDTO } from "@/features/users/types/user.types";
 import { ROLE_LABELS } from "@/constants/roles";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
+import type { Messages } from "@/i18n/messages";
 
 type GuardResult = { ok: true; user: Session["user"] } | { ok: false; response: ActionResponse<never> };
 
@@ -29,17 +32,27 @@ async function guard(): Promise<GuardResult> {
     try {
         return { ok: true, user: await checkPermission("USER_MANAGE") };
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { ok: false, response: { success: false, message: error.message } };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { ok: false, response: { success: false, message: authMessage } };
         }
 
         throw error;
     }
 }
 
-function businessErrorResponse(error: unknown): ActionResponse<never> | null {
-    if (error instanceof UserNotFoundError || error instanceof SelfModificationError || error instanceof LastAdminError) {
-        return { success: false, message: error.message };
+function businessErrorResponse(error: unknown, t: Messages): ActionResponse<never> | null {
+    if (error instanceof UserNotFoundError) {
+        return { success: false, message: t.admin.users.errors.notFound };
+    }
+
+    if (error instanceof SelfModificationError) {
+        return { success: false, message: t.admin.users.errors.selfModification };
+    }
+
+    if (error instanceof LastAdminError) {
+        return { success: false, message: t.admin.users.errors.lastAdmin };
     }
 
     return null;
@@ -50,6 +63,8 @@ function fullName(member: TeamMemberDTO): string {
 }
 
 export async function createUser(input: unknown): Promise<ActionResponse<TeamMemberDTO>> {
+    const { t } = await getI18n();
+
     const auth = await guard();
 
     if (!auth.ok) {
@@ -61,7 +76,7 @@ export async function createUser(input: unknown): Promise<ActionResponse<TeamMem
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -80,17 +95,23 @@ export async function createUser(input: unknown): Promise<ActionResponse<TeamMem
 
         revalidatePath(ROUTES.USERS);
 
-        return { success: true, message: "Utilisateur créé avec succès.", data: member };
+        return { success: true, message: t.admin.users.created, data: member };
     } catch (error) {
         if (error instanceof EmailAlreadyUsedError) {
-            return { success: false, message: error.message, errors: { email: [error.message] } };
+            return {
+                success: false,
+                message: t.admin.users.errors.emailTaken,
+                errors: { email: [t.admin.users.errors.emailTaken] },
+            };
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la création de l'utilisateur." };
+        return { success: false, message: t.admin.users.createFailed };
     }
 }
 
 export async function updateUser(userId: string, input: unknown): Promise<ActionResponse<TeamMemberDTO>> {
+    const { t } = await getI18n();
+
     const auth = await guard();
 
     if (!auth.ok) {
@@ -102,7 +123,7 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -121,19 +142,21 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
 
         revalidatePath(ROUTES.USERS);
 
-        return { success: true, message: "Utilisateur mis à jour avec succès.", data: member };
+        return { success: true, message: t.admin.users.updated, data: member };
     } catch (error) {
-        const response = businessErrorResponse(error);
+        const response = businessErrorResponse(error, t);
 
         if (response) {
             return response;
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la mise à jour de l'utilisateur." };
+        return { success: false, message: t.admin.users.updateFailed };
     }
 }
 
 export async function setUserActive(userId: string, isActive: boolean): Promise<ActionResponse<TeamMemberDTO>> {
+    const { t } = await getI18n();
+
     const auth = await guard();
 
     if (!auth.ok) {
@@ -156,21 +179,23 @@ export async function setUserActive(userId: string, isActive: boolean): Promise<
 
         return {
             success: true,
-            message: isActive ? "Utilisateur réactivé avec succès." : "Utilisateur désactivé avec succès.",
+            message: isActive ? t.admin.users.reactivated : t.admin.users.deactivated,
             data: member,
         };
     } catch (error) {
-        const response = businessErrorResponse(error);
+        const response = businessErrorResponse(error, t);
 
         if (response) {
             return response;
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la mise à jour du statut." };
+        return { success: false, message: t.admin.users.statusFailed };
     }
 }
 
 export async function resetUserPassword(userId: string, input: unknown): Promise<ActionResponse<TeamMemberDTO>> {
+    const { t } = await getI18n();
+
     const auth = await guard();
 
     if (!auth.ok) {
@@ -182,7 +207,7 @@ export async function resetUserPassword(userId: string, input: unknown): Promise
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -199,14 +224,14 @@ export async function resetUserPassword(userId: string, input: unknown): Promise
             details: `Mot de passe réinitialisé pour ${fullName(member)}.`,
         });
 
-        return { success: true, message: "Mot de passe réinitialisé avec succès.", data: member };
+        return { success: true, message: t.admin.users.passwordReset, data: member };
     } catch (error) {
-        const response = businessErrorResponse(error);
+        const response = businessErrorResponse(error, t);
 
         if (response) {
             return response;
         }
 
-        return { success: false, message: "Une erreur est survenue lors de la réinitialisation du mot de passe." };
+        return { success: false, message: t.admin.users.passwordResetFailed };
     }
 }

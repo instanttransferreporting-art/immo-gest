@@ -16,6 +16,7 @@ import {
 import { ContratForm } from "@/features/leases/components/ContratForm";
 import { ContratsTable } from "@/features/leases/components/ContratsTable";
 import type { ContratDTO, LocataireOptionDTO, UniteLibreOptionDTO } from "@/features/leases/types/lease.types";
+import { useI18n } from "@/i18n/client";
 
 type LeasesPanelProps = {
     contrats: readonly ContratDTO[];
@@ -24,6 +25,8 @@ type LeasesPanelProps = {
 };
 
 export function LeasesPanel({ contrats, uniteOptions, locataireOptions }: LeasesPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -37,7 +40,7 @@ export function LeasesPanel({ contrats, uniteOptions, locataireOptions }: Leases
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Contrats</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.leases.listTitle}</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -50,12 +53,12 @@ export function LeasesPanel({ contrats, uniteOptions, locataireOptions }: Leases
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouveau contrat de bail</DialogTitle>
+                            <DialogTitle>{t.leases.new}</DialogTitle>
                         </DialogHeader>
 
                         <ContratForm
@@ -71,8 +74,8 @@ export function LeasesPanel({ contrats, uniteOptions, locataireOptions }: Leases
                 {!canCreate && (
                     <p className="mb-3 text-sm text-amber-600">
                         {uniteOptions.length === 0
-                            ? "Aucune unité libre disponible. Libérez ou ajoutez une unité pour créer un contrat."
-                            : "Ajoutez d'abord un locataire pour pouvoir créer un contrat."}
+                            ? t.leases.noFreeUnit
+                            : t.leases.needTenantFirst}
                     </p>
                 )}
 

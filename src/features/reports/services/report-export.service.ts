@@ -9,12 +9,6 @@ import { ContratRepository } from "@/features/leases/repositories/contrat.reposi
 import { FactureRepository } from "@/features/invoices/repositories/facture.repository";
 import { PaiementRepository } from "@/features/payments/repositories/paiement.repository";
 import { CautionRepository } from "@/features/leases/repositories/caution.repository";
-import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
-import { TYPE_UNITE_LABELS, ETAT_UNITE_LABELS } from "@/features/units/constants/unit.constants";
-import { FREQUENCE_LABELS, STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
-import { STATUT_CAUTION_LABELS } from "@/features/leases/constants/caution.constants";
-import { REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
 import type { ReportType } from "@/features/reports/types/report.types";
 import {
     formatPeriodLabel,
@@ -24,6 +18,8 @@ import {
     overlapsPeriod,
     type ReportPeriod,
 } from "@/features/reports/period";
+import { getI18n } from "@/i18n/server";
+import type { Messages } from "@/i18n/messages";
 
 const EXPIRED_STATUTS: StatutBail[] = [StatutBail.RESILIE, StatutBail.EXPIRE];
 
@@ -37,7 +33,7 @@ async function buildWorkbook(
     numericKeys: string[] = [],
     dateKeys: string[] = []
 ): Promise<ExcelJS.Workbook> {
-    const organization = await OrganizationService.getCurrent();
+    const [organization, { t, f }] = await Promise.all([OrganizationService.getCurrent(), getI18n()]);
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = organization.nom;
@@ -50,9 +46,12 @@ async function buildWorkbook(
     sheet.getCell("A1").value = `${organization.nom} — ${title}`;
     sheet.getCell("A1").font = { bold: true, size: 14 };
 
-    const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
     sheet.mergeCells(`A2:${lastColumnLetter}2`);
-    sheet.getCell("A2").value = `Période : ${formatPeriodLabel(period)} — exporté le ${dateFormatter.format(new Date())} — ${rows.length} ligne(s)`;
+    sheet.getCell("A2").value = t.reports.excel.subtitle(
+        formatPeriodLabel(period, t.reports.period, f.dateLong),
+        f.dateLong(new Date()),
+        rows.length
+    );
     sheet.getCell("A2").font = { size: 10, color: { argb: "FF64748B" } };
 
     sheet.addRow([]);
@@ -86,23 +85,25 @@ function locataireNom(locataire: { nom: string; prenom: string; raisonSociale: s
 }
 
 async function buildLocataires(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const locataires = (await LocataireRepository.findAll(organizationId)).filter((locataire) =>
         isInPeriod(locataire.createdAt, period)
     );
 
     return buildWorkbook(
         period,
-        "Locataires",
+        t.reports.definitions["locataires"].label,
         [
-            { header: "Type", key: "type", width: 14 },
-            { header: "Nom", key: "nom", width: 24 },
-            { header: "Téléphone", key: "telephone", width: 16 },
-            { header: "Email", key: "email", width: 26 },
-            { header: "Pièce d'identité", key: "pieceIdentite", width: 20 },
-            { header: "Adresse", key: "adresse", width: 30 },
+            { header: t.reports.excel.columns.type, key: "type", width: 14 },
+            { header: t.reports.excel.columns.name, key: "nom", width: 24 },
+            { header: t.reports.excel.columns.phone, key: "telephone", width: 16 },
+            { header: t.reports.excel.columns.email, key: "email", width: 26 },
+            { header: t.reports.excel.columns.idDocument, key: "pieceIdentite", width: 20 },
+            { header: t.reports.excel.columns.address, key: "adresse", width: 30 },
         ],
         locataires.map((locataire) => ({
-            type: TYPE_LOCATAIRE_LABELS[locataire.type],
+            type: t.enums.typeLocataire[locataire.type],
             nom: locataireNom(locataire),
             telephone: locataire.telephone,
             email: locataire.email,
@@ -114,32 +115,34 @@ async function buildLocataires(organizationId: string, period: ReportPeriod) {
 
 /** Instantané du parc : la période n'est qu'indiquée dans l'en-tête, pas filtrée. */
 async function buildBiens(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const unites = await UniteRepository.findAllForExport(organizationId);
 
     return buildWorkbook(
         period,
-        "Biens",
+        t.reports.definitions["biens"].label,
         [
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Ville", key: "ville", width: 16 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Type", key: "type", width: 14 },
-            { header: "Surface (m²)", key: "surface", width: 14 },
-            { header: "Pièces", key: "pieces", width: 10 },
-            { header: "Loyer mensuel", key: "loyer", width: 16 },
-            { header: "Caution", key: "caution", width: 16 },
-            { header: "État", key: "etat", width: 14 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.city, key: "ville", width: 16 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.type, key: "type", width: 14 },
+            { header: t.reports.excel.columns.surface, key: "surface", width: 14 },
+            { header: t.reports.excel.columns.rooms, key: "pieces", width: 10 },
+            { header: t.reports.excel.columns.monthlyRent, key: "loyer", width: 16 },
+            { header: t.reports.excel.columns.deposit, key: "caution", width: 16 },
+            { header: t.reports.excel.columns.state, key: "etat", width: 14 },
         ],
         unites.map((unite) => ({
             immeuble: unite.immeuble.nom,
             ville: unite.immeuble.ville,
             unite: unite.numero,
-            type: TYPE_UNITE_LABELS[unite.type],
+            type: t.enums.typeUnite[unite.type],
             surface: unite.surface,
             pieces: unite.nombrePieces,
             loyer: unite.loyerMensuel,
             caution: unite.caution,
-            etat: ETAT_UNITE_LABELS[unite.etat],
+            etat: t.enums.etatUnite[unite.etat],
         })),
         ["loyer", "caution"]
     );
@@ -152,6 +155,8 @@ async function buildContrats(
     period: ReportPeriod,
     basis: "overlap" | "dateFin"
 ) {
+    const { t } = await getI18n();
+
     const contrats = (await ContratRepository.findByStatutsForExport(organizationId, statuts)).filter((contrat) =>
         basis === "overlap"
             ? overlapsPeriod(contrat.dateDebut, contrat.dateFin, period)
@@ -162,15 +167,15 @@ async function buildContrats(
         period,
         title,
         [
-            { header: "N° Contrat", key: "numeroContrat", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Loyer", key: "loyer", width: 14 },
-            { header: "Fréquence", key: "frequence", width: 14 },
-            { header: "Date début", key: "dateDebut", width: 14 },
-            { header: "Date fin", key: "dateFin", width: 14 },
-            { header: "Statut", key: "statut", width: 14 },
+            { header: t.reports.excel.columns.leaseNumber, key: "numeroContrat", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.rent, key: "loyer", width: 14 },
+            { header: t.reports.excel.columns.frequency, key: "frequence", width: 14 },
+            { header: t.reports.excel.columns.startDate, key: "dateDebut", width: 14 },
+            { header: t.reports.excel.columns.endDate, key: "dateFin", width: 14 },
+            { header: t.reports.excel.columns.status, key: "statut", width: 14 },
         ],
         contrats.map((contrat) => ({
             numeroContrat: contrat.numeroContrat,
@@ -178,10 +183,10 @@ async function buildContrats(
             unite: contrat.unite.numero,
             locataire: locataireNom(contrat.locataire),
             loyer: contrat.loyerBase,
-            frequence: FREQUENCE_LABELS[contrat.frequence],
+            frequence: t.enums.frequenceEcheance[contrat.frequence],
             dateDebut: contrat.dateDebut,
             dateFin: contrat.dateFin,
-            statut: STATUT_BAIL_LABELS[contrat.statut],
+            statut: t.enums.statutBail[contrat.statut],
         })),
         ["loyer"],
         ["dateDebut", "dateFin"]
@@ -189,23 +194,25 @@ async function buildContrats(
 }
 
 async function buildLoyersFactures(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const factures = (await FactureRepository.findAll(organizationId)).filter((facture) =>
         isInPeriod(facture.echeance.dateEcheance, period)
     );
 
     return buildWorkbook(
         period,
-        "Loyers facturés",
+        t.reports.definitions["loyers-factures"].label,
         [
-            { header: "N° Facture", key: "numero", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Échéance", key: "echeance", width: 14 },
-            { header: "Montant", key: "montant", width: 16 },
-            { header: "Pénalités", key: "penalites", width: 14 },
-            { header: "Total dû", key: "totalDu", width: 16 },
-            { header: "Soldée", key: "soldee", width: 12 },
+            { header: t.reports.excel.columns.invoiceNumber, key: "numero", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.dueDate, key: "echeance", width: 14 },
+            { header: t.reports.excel.columns.amount, key: "montant", width: 16 },
+            { header: t.reports.excel.columns.penalties, key: "penalites", width: 14 },
+            { header: t.reports.excel.columns.totalDue, key: "totalDu", width: 16 },
+            { header: t.reports.excel.columns.settled, key: "soldee", width: 12 },
         ],
         factures.map((facture) => ({
             numero: facture.numero,
@@ -216,7 +223,7 @@ async function buildLoyersFactures(organizationId: string, period: ReportPeriod)
             montant: facture.montant,
             penalites: facture.penalites,
             totalDu: facture.totalDu,
-            soldee: facture.estSoldee ? "Oui" : "Non",
+            soldee: facture.estSoldee ? t.reports.excel.yes : t.reports.excel.no,
         })),
         ["montant", "penalites", "totalDu"],
         ["echeance"]
@@ -224,23 +231,25 @@ async function buildLoyersFactures(organizationId: string, period: ReportPeriod)
 }
 
 async function buildLoyersEncaisses(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const paiements = (await PaiementRepository.findAllForExport(organizationId)).filter((paiement) =>
         isInPeriod(paiement.datePaiement, period)
     );
 
     return buildWorkbook(
         period,
-        "Loyers encaissés",
+        t.reports.definitions["loyers-encaisses"].label,
         [
-            { header: "Date", key: "date", width: 14 },
-            { header: "N° Facture", key: "facture", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Mode", key: "mode", width: 18 },
-            { header: "Référence", key: "reference", width: 20 },
-            { header: "Montant", key: "montant", width: 16 },
-            { header: "Enregistré par", key: "enregistrePar", width: 22 },
+            { header: t.reports.excel.columns.date, key: "date", width: 14 },
+            { header: t.reports.excel.columns.invoiceNumber, key: "facture", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.mode, key: "mode", width: 18 },
+            { header: t.reports.excel.columns.reference, key: "reference", width: 20 },
+            { header: t.reports.excel.columns.amount, key: "montant", width: 16 },
+            { header: t.reports.excel.columns.recordedBy, key: "enregistrePar", width: 22 },
         ],
         paiements.map((paiement) => ({
             date: paiement.datePaiement,
@@ -248,7 +257,7 @@ async function buildLoyersEncaisses(organizationId: string, period: ReportPeriod
             immeuble: paiement.echeance.contrat.unite.immeuble.nom,
             unite: paiement.echeance.contrat.unite.numero,
             locataire: locataireNom(paiement.echeance.contrat.locataire),
-            mode: MODE_PAIEMENT_LABELS[paiement.mode],
+            mode: t.enums.modePaiement[paiement.mode],
             reference: paiement.reference ?? "—",
             montant: paiement.montant,
             enregistrePar: `${paiement.enregistrePar.nom} ${paiement.enregistrePar.prenom}`,
@@ -259,20 +268,22 @@ async function buildLoyersEncaisses(organizationId: string, period: ReportPeriod
 }
 
 async function buildImpayes(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const factures = (await FactureRepository.findImpayes(organizationId)).filter((facture) =>
         isInPeriod(facture.echeance.dateEcheance, period)
     );
 
     return buildWorkbook(
         period,
-        "Impayés",
+        t.reports.definitions["impayes"].label,
         [
-            { header: "N° Facture", key: "numero", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Échéance", key: "echeance", width: 14 },
-            { header: "Total dû", key: "totalDu", width: 16 },
+            { header: t.reports.excel.columns.invoiceNumber, key: "numero", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.dueDate, key: "echeance", width: 14 },
+            { header: t.reports.excel.columns.totalDue, key: "totalDu", width: 16 },
         ],
         factures.map((facture) => ({
             numero: facture.numero,
@@ -288,22 +299,24 @@ async function buildImpayes(organizationId: string, period: ReportPeriod) {
 }
 
 async function buildCautions(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const cautions = (await CautionRepository.findAllForExport(organizationId)).filter((caution) =>
         isInPeriod(caution.createdAt, period)
     );
 
     return buildWorkbook(
         period,
-        "Cautions",
+        t.reports.definitions["cautions"].label,
         [
-            { header: "N° Contrat", key: "numeroContrat", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Montant initial", key: "montantInitial", width: 16 },
-            { header: "Montant retenu", key: "montantRetenu", width: 16 },
-            { header: "Montant rendu", key: "montantRendu", width: 16 },
-            { header: "Statut", key: "statut", width: 20 },
+            { header: t.reports.excel.columns.leaseNumber, key: "numeroContrat", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.initialAmount, key: "montantInitial", width: 16 },
+            { header: t.reports.excel.columns.retainedAmount, key: "montantRetenu", width: 16 },
+            { header: t.reports.excel.columns.returnedAmount, key: "montantRendu", width: 16 },
+            { header: t.reports.excel.columns.status, key: "statut", width: 20 },
         ],
         cautions.map((caution) => ({
             numeroContrat: caution.contrat.numeroContrat,
@@ -313,26 +326,28 @@ async function buildCautions(organizationId: string, period: ReportPeriod) {
             montantInitial: caution.montantInitial,
             montantRetenu: caution.montantRetenu,
             montantRendu: caution.montantRendu,
-            statut: STATUT_CAUTION_LABELS[caution.statut],
+            statut: t.enums.statutCaution[caution.statut],
         })),
         ["montantInitial", "montantRetenu", "montantRendu"]
     );
 }
 
 async function buildCharges(organizationId: string, period: ReportPeriod) {
+    const { t } = await getI18n();
+
     const contrats = (await ContratRepository.findByStatutsForExport(organizationId, [StatutBail.ACTIF])).filter(
         (contrat) => overlapsPeriod(contrat.dateDebut, contrat.dateFin, period)
     );
 
     return buildWorkbook(
         period,
-        "Charges locatives",
+        t.reports.definitions["charges"].label,
         [
-            { header: "N° Contrat", key: "numeroContrat", width: 20 },
-            { header: "Immeuble", key: "immeuble", width: 24 },
-            { header: "Unité", key: "unite", width: 12 },
-            { header: "Locataire", key: "locataire", width: 28 },
-            { header: "Charges mensuelles", key: "charges", width: 18 },
+            { header: t.reports.excel.columns.leaseNumber, key: "numeroContrat", width: 20 },
+            { header: t.reports.excel.columns.building, key: "immeuble", width: 24 },
+            { header: t.reports.excel.columns.unit, key: "unite", width: 12 },
+            { header: t.reports.excel.columns.tenant, key: "locataire", width: 28 },
+            { header: t.reports.excel.columns.monthlyCharges, key: "charges", width: 18 },
         ],
         contrats.map((contrat) => ({
             numeroContrat: contrat.numeroContrat,
@@ -345,11 +360,11 @@ async function buildCharges(organizationId: string, period: ReportPeriod) {
     );
 }
 
-function filenameFor(type: ReportType, period: ReportPeriod): string {
-    const definition = REPORT_DEFINITIONS.find((item) => item.type === type);
-    const slug = (definition?.label ?? type).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
+function filenameFor(type: ReportType, period: ReportPeriod, t: Messages): string {
+    const slug = t.reports.definitions[type].label.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
+    const excel = t.reports.excel;
     const dateSegment = hasPeriod(period)
-        ? `${period.du ?? "debut"}_au_${period.au ?? "aujourdhui"}`
+        ? `${period.du ?? excel.filenameFrom}_${excel.filenameTo}_${period.au ?? excel.filenameToday}`
         : new Date().toISOString().slice(0, 10);
     return `${slug}_${dateSegment.replace(/-/g, "_")}.xlsx`;
 }
@@ -359,7 +374,7 @@ export class ReportExportService {
         type: ReportType,
         period: ReportPeriod = NO_PERIOD
     ): Promise<{ buffer: Buffer; filename: string }> {
-        const organizationId = await getCurrentOrganizationId();
+        const [organizationId, { t }] = await Promise.all([getCurrentOrganizationId(), getI18n()]);
 
         const workbook = await (async () => {
             switch (type) {
@@ -368,9 +383,9 @@ export class ReportExportService {
                 case "biens":
                     return buildBiens(organizationId, period);
                 case "contrats-actifs":
-                    return buildContrats(organizationId, [StatutBail.ACTIF], "Contrats actifs", period, "overlap");
+                    return buildContrats(organizationId, [StatutBail.ACTIF], t.reports.definitions["contrats-actifs"].label, period, "overlap");
                 case "contrats-expires":
-                    return buildContrats(organizationId, EXPIRED_STATUTS, "Contrats expirés", period, "dateFin");
+                    return buildContrats(organizationId, EXPIRED_STATUTS, t.reports.definitions["contrats-expires"].label, period, "dateFin");
                 case "loyers-factures":
                     return buildLoyersFactures(organizationId, period);
                 case "loyers-encaisses":
@@ -385,6 +400,6 @@ export class ReportExportService {
         })();
 
         const buffer = await workbook.xlsx.writeBuffer();
-        return { buffer: Buffer.from(buffer), filename: filenameFor(type, period) };
+        return { buffer: Buffer.from(buffer), filename: filenameFor(type, period, t) };
     }
 }

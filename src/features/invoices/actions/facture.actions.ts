@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { checkPermission } from "@/lib/permissions";
 import {
     ContratNotFoundError,
     DuplicateInvoiceError,
@@ -13,13 +12,19 @@ import { genererFactureSchema, genererFacturesDuMoisSchema } from "@/features/in
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function genererFactureUnique(input: unknown): Promise<ActionResponse<FactureDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("FACTURE_GENERER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -30,7 +35,7 @@ export async function genererFactureUnique(input: unknown): Promise<ActionRespon
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -46,27 +51,35 @@ export async function genererFactureUnique(input: unknown): Promise<ActionRespon
 
         return {
             success: true,
-            message: "Facture générée avec succès.",
+            message: t.invoices.generated,
             data: facture,
         };
     } catch (error) {
-        if (error instanceof DuplicateInvoiceError || error instanceof ContratNotFoundError) {
-            return { success: false, message: error.message };
+        if (error instanceof DuplicateInvoiceError) {
+            return { success: false, message: t.invoices.errors.duplicate };
+        }
+
+        if (error instanceof ContratNotFoundError) {
+            return { success: false, message: t.invoices.errors.leaseNotFound };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la génération de la facture.",
+            message: t.invoices.generateFailed,
         };
     }
 }
 
 export async function genererFacturesDuMois(input: unknown): Promise<ActionResponse<{ crees: number; ignorees: number }>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("FACTURE_GENERER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -77,7 +90,7 @@ export async function genererFacturesDuMois(input: unknown): Promise<ActionRespo
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -89,13 +102,13 @@ export async function genererFacturesDuMois(input: unknown): Promise<ActionRespo
 
         return {
             success: true,
-            message: `${result.crees} facture(s) créée(s), ${result.ignorees} déjà existante(s) ignorée(s).`,
+            message: t.invoices.generatedMonth(result.crees, result.ignorees),
             data: result,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la génération des factures.",
+            message: t.invoices.generateMonthFailed,
         };
     }
 }

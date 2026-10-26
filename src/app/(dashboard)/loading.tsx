@@ -1,12 +1,3 @@
-import { Loader2 } from "lucide-react";
+import { PageLoader } from "@/components/layout/PageLoader";
 
-export default function DashboardLoading() {
-    return (
-        <div className="flex min-h-[60vh] w-full items-center justify-center">
-            <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
-                <p className="text-sm font-medium text-muted-foreground">Chargement...</p>
-            </div>
-        </div>
-    );
-}
+export default PageLoader;

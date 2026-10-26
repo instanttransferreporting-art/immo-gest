@@ -3,25 +3,31 @@
 import { revalidatePath } from "next/cache";
 
 import { Prisma } from "@/generated/prisma/client";
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import { LocataireService } from "@/features/tenants/services/locataire.service";
 import { locataireSchema } from "@/features/tenants/schemas/tenant.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "P2002";
 
 export async function createLocataire(input: unknown): Promise<ActionResponse<LocataireDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("LOCATAIRE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -32,7 +38,7 @@ export async function createLocataire(input: unknown): Promise<ActionResponse<Lo
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -51,33 +57,37 @@ export async function createLocataire(input: unknown): Promise<ActionResponse<Lo
 
         return {
             success: true,
-            message: "Locataire créé avec succès.",
+            message: t.tenants.created,
             data: locataire,
         };
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
             return {
                 success: false,
-                message: "Cet email est déjà utilisé par un autre locataire.",
-                errors: { email: ["Cet email est déjà utilisé."] },
+                message: t.tenants.emailTaken,
+                errors: { email: [t.tenants.emailTakenShort] },
             };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création du locataire.",
+            message: t.tenants.createFailed,
         };
     }
 }
 
 export async function updateLocataire(id: string, input: unknown): Promise<ActionResponse<LocataireDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("LOCATAIRE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -88,7 +98,7 @@ export async function updateLocataire(id: string, input: unknown): Promise<Actio
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -99,7 +109,7 @@ export async function updateLocataire(id: string, input: unknown): Promise<Actio
         if (!locataire) {
             return {
                 success: false,
-                message: "Le locataire est introuvable.",
+                message: t.tenants.notFound,
             };
         }
 
@@ -114,21 +124,21 @@ export async function updateLocataire(id: string, input: unknown): Promise<Actio
 
         return {
             success: true,
-            message: "Locataire mis à jour avec succès.",
+            message: t.tenants.updated,
             data: locataire,
         };
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
             return {
                 success: false,
-                message: "Cet email est déjà utilisé par un autre locataire.",
-                errors: { email: ["Cet email est déjà utilisé."] },
+                message: t.tenants.emailTaken,
+                errors: { email: [t.tenants.emailTakenShort] },
             };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour du locataire.",
+            message: t.tenants.updateFailed,
         };
     }
 }

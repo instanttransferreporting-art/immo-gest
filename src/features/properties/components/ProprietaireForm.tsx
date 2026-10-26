@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/toast";
 import { createProprietaire } from "@/features/properties/actions/proprietaire.actions";
 import { proprietaireSchema, type ProprietaireFormValues } from "@/features/properties/schemas/property.schema";
 import type { ProprietaireDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type ProprietaireFormProps = {
     onSuccess?: (proprietaire: ProprietaireDTO) => void;
@@ -27,6 +28,8 @@ const DEFAULT_VALUES: ProprietaireFormValues = {
 };
 
 export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         control,
@@ -59,19 +62,19 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                        Nom
+                        {t.common.lastName}
                     </label>
                     <Input
                         id="nom"
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="prenom" className="text-sm font-medium text-foreground">
-                        Prénom
+                        {t.common.firstName}
                     </label>
                     <Input id="prenom" className="h-10 rounded-xl" {...register("prenom")} />
                 </div>
@@ -80,32 +83,32 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="adresse" className="text-sm font-medium text-foreground">
-                        Adresse
+                        {t.common.address}
                     </label>
                     <Input
                         id="adresse"
                         className={cn("h-10 rounded-xl", errors.adresse && "border-red-500")}
                         {...register("adresse")}
                     />
-                    {errors.adresse && <p className="animate-pulse text-sm text-red-500">{errors.adresse.message}</p>}
+                    {errors.adresse && <p className="animate-pulse text-sm text-red-500">{tv(errors.adresse.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="ville" className="text-sm font-medium text-foreground">
-                        Ville
+                        {t.common.city}
                     </label>
                     <Input
                         id="ville"
                         className={cn("h-10 rounded-xl", errors.ville && "border-red-500")}
                         {...register("ville")}
                     />
-                    {errors.ville && <p className="animate-pulse text-sm text-red-500">{errors.ville.message}</p>}
+                    {errors.ville && <p className="animate-pulse text-sm text-red-500">{tv(errors.ville.message)}</p>}
                 </div>
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="tauxCommission" className="text-sm font-medium text-foreground">
-                    Taux de commission (%)
+                    {t.properties.owners.commissionRate}
                 </label>
                 <Input
                     id="tauxCommission"
@@ -117,13 +120,13 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                     {...register("tauxCommission", { valueAsNumber: true })}
                 />
                 {errors.tauxCommission && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.tauxCommission.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.tauxCommission.message)}</p>
                 )}
             </div>
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">Téléphones</label>
+                    <label className="text-sm font-medium text-foreground">{t.properties.owners.phones}</label>
                     <Button
                         type="button"
                         variant="outline"
@@ -132,7 +135,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                         onClick={() => telephones.append({ numero: "", estPrincipal: false })}
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </Button>
                 </div>
 
@@ -149,7 +152,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                             />
                             {errors.telephones?.[index]?.numero && (
                                 <p className="mt-1 animate-pulse text-sm text-red-500">
-                                    {errors.telephones[index]?.numero?.message}
+                                    {tv(errors.telephones[index]?.numero?.message)}
                                 </p>
                             )}
                         </div>
@@ -168,13 +171,13 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                 ))}
 
                 {errors.telephones?.root && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.telephones.root.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.telephones.root.message)}</p>
                 )}
             </div>
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">Emails professionnels</label>
+                    <label className="text-sm font-medium text-foreground">{t.properties.owners.proEmails}</label>
                     <Button
                         type="button"
                         variant="outline"
@@ -183,12 +186,12 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                         onClick={() => emails.append({ email: "", estPrincipal: false })}
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </Button>
                 </div>
 
                 {emails.fields.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Aucun email professionnel ajouté.</p>
+                    <p className="text-sm text-muted-foreground">{t.properties.owners.noProEmail}</p>
                 )}
 
                 {emails.fields.map((field, index) => (
@@ -196,7 +199,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                         <div className="flex-1">
                             <Input
                                 type="email"
-                                placeholder="contact@societe.com"
+                                placeholder={t.properties.owners.emailPlaceholder}
                                 className={cn(
                                     "h-10 rounded-xl",
                                     errors.emails?.[index]?.email && "border-red-500"
@@ -205,7 +208,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                             />
                             {errors.emails?.[index]?.email && (
                                 <p className="mt-1 animate-pulse text-sm text-red-500">
-                                    {errors.emails[index]?.email?.message}
+                                    {tv(errors.emails[index]?.email?.message)}
                                 </p>
                             )}
                         </div>
@@ -228,7 +231,7 @@ export function ProprietaireForm({ onSuccess }: ProprietaireFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer le propriétaire"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.properties.owners.submit}
             </Button>
         </form>
     );

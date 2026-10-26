@@ -11,28 +11,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import type { PaiementListItemDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type PaiementsTableProps = {
     paiements: readonly PaiementListItemDTO[];
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function PaiementsTable({ paiements }: PaiementsTableProps) {
+    const { t, f } = useI18n();
+
     if (paiements.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Receipt className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun paiement enregistré</p>
-                <p className="text-sm text-muted-foreground">Les paiements enregistrés sur les factures apparaîtront ici.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.payments.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.payments.emptyHint}</p>
             </div>
         );
     }
@@ -42,15 +36,15 @@ export function PaiementsTable({ paiements }: PaiementsTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Date</TableHead>
-                        <TableHead>N° Facture</TableHead>
-                        <TableHead>Locataire</TableHead>
-                        <TableHead>Unité</TableHead>
-                        <TableHead>Mode</TableHead>
-                        <TableHead>Référence</TableHead>
-                        <TableHead>Montant</TableHead>
-                        <TableHead>Statut</TableHead>
-                        <TableHead>Enregistré par</TableHead>
+                        <TableHead>{t.common.date}</TableHead>
+                        <TableHead>{t.invoices.number}</TableHead>
+                        <TableHead>{t.invoices.tenant}</TableHead>
+                        <TableHead>{t.invoices.receipt.unit}</TableHead>
+                        <TableHead>{t.payments.mode}</TableHead>
+                        <TableHead>{t.payments.reference}</TableHead>
+                        <TableHead>{t.common.amount}</TableHead>
+                        <TableHead>{t.common.status}</TableHead>
+                        <TableHead>{t.payments.recordedBy}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -58,7 +52,7 @@ export function PaiementsTable({ paiements }: PaiementsTableProps) {
                     {paiements.map((paiement) => (
                         <TableRow key={paiement.id}>
                             <TableCell className="text-muted-foreground">
-                                {dateFormatter.format(paiement.datePaiement)}
+                                {f.date(paiement.datePaiement)}
                             </TableCell>
                             <TableCell>
                                 <Link href={`${ROUTES.INVOICES}/${paiement.factureId}`}>
@@ -73,19 +67,19 @@ export function PaiementsTable({ paiements }: PaiementsTableProps) {
                             <TableCell className="font-medium text-foreground">{paiement.locataireNom}</TableCell>
                             <TableCell className="text-muted-foreground">{paiement.uniteLabel}</TableCell>
                             <TableCell className="text-muted-foreground">
-                                {MODE_PAIEMENT_LABELS[paiement.mode]}
+                                {t.enums.modePaiement[paiement.mode]}
                             </TableCell>
                             <TableCell className="text-muted-foreground">{paiement.reference ?? "—"}</TableCell>
                             <TableCell className="text-muted-foreground">
-                                {currencyFormatter.format(paiement.montant)}
+                                {f.currency(paiement.montant)}
                             </TableCell>
                             <TableCell>
                                 {paiement.estAnnule ? (
                                     <Badge variant="destructive" className="rounded-lg">
-                                        Annulé
+                                        {t.payments.cancelled}
                                     </Badge>
                                 ) : (
-                                    <Badge className="rounded-lg bg-brand-50 text-brand-700">Payé</Badge>
+                                    <Badge className="rounded-lg bg-brand-50 text-brand-700">{t.payments.paid}</Badge>
                                 )}
                             </TableCell>
                             <TableCell className="text-muted-foreground">{paiement.enregistreParNom}</TableCell>

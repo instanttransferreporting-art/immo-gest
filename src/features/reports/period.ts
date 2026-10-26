@@ -1,3 +1,5 @@
+import type { Messages } from "@/i18n/messages";
+
 /**
  * Période d'analyse des rapports, transmise dans l'URL (`?du=AAAA-MM-JJ&au=AAAA-MM-JJ`)
  * pour que l'écran et les exports Excel portent exactement sur les mêmes données.
@@ -85,25 +87,30 @@ export function overlapsPeriod(start: Date, end: Date, period: ReportPeriod): bo
     return (!period.endExclusive || start < period.endExclusive) && (!period.start || end >= period.start);
 }
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
+type PeriodLabels = Messages["reports"]["period"];
 
-export function formatPeriodLabel(period: ReportPeriod): string {
+/** « du 1 septembre 2026 au 30 septembre 2026 », dans la langue de `labels` / `formatDate`. */
+export function formatPeriodLabel(
+    period: ReportPeriod,
+    labels: PeriodLabels,
+    formatDate: (date: Date) => string
+): string {
     const start = parseDateInput(period.du);
     const end = parseDateInput(period.au);
 
     if (start && end) {
-        return `du ${dateFormatter.format(start)} au ${dateFormatter.format(end)}`;
+        return labels.range(formatDate(start), formatDate(end));
     }
 
     if (start) {
-        return `depuis le ${dateFormatter.format(start)}`;
+        return labels.since(formatDate(start));
     }
 
     if (end) {
-        return `jusqu'au ${dateFormatter.format(end)}`;
+        return labels.until(formatDate(end));
     }
 
-    return "toutes périodes confondues";
+    return labels.all;
 }
 
 /** Paramètres d'URL de la période (sans « ? »), à ajouter aux liens d'export. */

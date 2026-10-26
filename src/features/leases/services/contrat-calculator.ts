@@ -32,25 +32,3 @@ export function calculateMontantContrat(params: {
 
     return loyerBase;
 }
-
-/**
- * Retourne la description du mode de facturation selon la fréquence.
- */
-export function getFrequenceDescription(frequence: FrequenceEcheance): string {
-    switch (frequence) {
-        case FrequenceEcheance.QUOTIDIEN:
-            return "Facturation à la nuitée (tarif par nuit × nombre de nuits)";
-        case FrequenceEcheance.MENSUEL:
-            return "Facturation mensuelle";
-        case FrequenceEcheance.BIMENSUEL:
-            return "Facturation toutes les 2 semaines";
-        case FrequenceEcheance.TRIMESTRIEL:
-            return "Facturation trimestrielle (tous les 3 mois)";
-        case FrequenceEcheance.SEMESTRIEL:
-            return "Facturation semestrielle (tous les 6 mois)";
-        case FrequenceEcheance.ANNUEL:
-            return "Facturation annuelle";
-        default:
-            return "";
-    }
-}

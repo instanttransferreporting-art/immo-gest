@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuditLogTable } from "@/features/audit/components/AuditLogTable";
 import type { AuditLogDTO } from "@/features/audit/types/audit.types";
+import { useI18n } from "@/i18n/client";
 
 type AuditLogPanelProps = {
     entries: readonly AuditLogDTO[];
@@ -13,6 +14,8 @@ type AuditLogPanelProps = {
 const ALL_VALUE = "TOUS";
 
 export function AuditLogPanel({ entries }: AuditLogPanelProps) {
+    const { t } = useI18n();
+
     const [userFilter, setUserFilter] = useState<string>(ALL_VALUE);
     const [actionFilter, setActionFilter] = useState<string>(ALL_VALUE);
     const [dateFrom, setDateFrom] = useState<string>("");
@@ -45,7 +48,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Journal d&apos;audit</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.admin.audit.pageTitle}</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-4 px-6">
@@ -55,7 +58,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
                         onChange={(event) => setUserFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Tous les utilisateurs</option>
+                        <option value={ALL_VALUE}>{t.admin.audit.allUsers}</option>
                         {availableUsers.map((user) => (
                             <option key={user} value={user}>
                                 {user}
@@ -68,7 +71,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
                         onChange={(event) => setActionFilter(event.target.value)}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
-                        <option value={ALL_VALUE}>Toutes les actions</option>
+                        <option value={ALL_VALUE}>{t.admin.audit.allActions}</option>
                         {availableActions.map((action) => (
                             <option key={action} value={action}>
                                 {action}
@@ -80,7 +83,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
                         type="date"
                         value={dateFrom}
                         onChange={(event) => setDateFrom(event.target.value)}
-                        aria-label="Depuis le"
+                        aria-label={t.admin.audit.from}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
 
@@ -88,7 +91,7 @@ export function AuditLogPanel({ entries }: AuditLogPanelProps) {
                         type="date"
                         value={dateTo}
                         onChange={(event) => setDateTo(event.target.value)}
-                        aria-label="Jusqu'au"
+                        aria-label={t.admin.audit.to}
                         className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
                 </div>

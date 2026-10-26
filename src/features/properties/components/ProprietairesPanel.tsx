@@ -16,12 +16,15 @@ import {
 } from "@/components/ui/dialog";
 import { ProprietaireForm } from "@/features/properties/components/ProprietaireForm";
 import type { ProprietaireDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type ProprietairesPanelProps = {
     proprietaires: readonly ProprietaireDTO[];
 };
 
 export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -34,7 +37,7 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
                 <CardTitle className="text-base font-semibold text-foreground">
-                    Propriétaires
+                    {t.properties.owners.title}
                 </CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
@@ -47,12 +50,12 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouveau propriétaire</DialogTitle>
+                            <DialogTitle>{t.properties.owners.new}</DialogTitle>
                         </DialogHeader>
 
                         <ProprietaireForm onSuccess={handleSuccess} />
@@ -64,8 +67,8 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                 {proprietaires.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-10 text-center">
                         <User className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-sm font-medium text-muted-foreground">Aucun propriétaire enregistré</p>
-                        <p className="text-sm text-muted-foreground">Ajoutez un propriétaire pour pouvoir créer un immeuble.</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t.properties.owners.empty}</p>
+                        <p className="text-sm text-muted-foreground">{t.properties.owners.emptyHint}</p>
                     </div>
                 ) : (
                     <ul className="divide-y divide-border">
@@ -82,7 +85,7 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                                 </div>
 
                                 <p className="text-xs text-muted-foreground">
-                                    {proprietaire.telephones.length} tél. · {proprietaire.emails.length} email(s)
+                                    {t.properties.owners.contactsSummary(proprietaire.telephones.length, proprietaire.emails.length)}
                                 </p>
                             </li>
                         ))}

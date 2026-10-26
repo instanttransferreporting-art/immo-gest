@@ -21,9 +21,9 @@ import {
     locataireMoraleSchema,
     locatairePhysiqueSchema,
 } from "@/features/tenants/schemas/tenant.schema";
-import { TYPE_LOCATAIRE_LABELS } from "@/features/tenants/constants/tenant.constants";
 import { TypeLocataire } from "@/generated/prisma/enums";
 import type { LocataireDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocataireFormInput = {
     type: TypeLocataire;
@@ -72,6 +72,8 @@ const toDateInputValue = (date?: Date | null) =>
     date ? new Date(date).toISOString().slice(0, 10) : "";
 
 export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalProps) {
+    const { t, tv } = useI18n();
+
     const [open, setOpen] = useState(false);
     const [type, setType] = useState<TypeLocataire>(locataire.type);
 
@@ -127,12 +129,12 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                 }
             >
                 <Pencil className="h-4 w-4" />
-                Modifier
+                {t.common.edit}
             </DialogTrigger>
 
             <DialogContent className="max-w-xl rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Modifier le locataire</DialogTitle>
+                    <DialogTitle>{t.tenants.edit}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -150,7 +152,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                         : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
-                                {TYPE_LOCATAIRE_LABELS[option]}
+                                {t.enums.typeLocataire[option]}
                             </button>
                         ))}
                     </div>
@@ -158,19 +160,19 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-nom" className="text-sm font-medium text-foreground">
-                                {isPhysique ? "Nom" : "Nom du représentant légal"}
+                                {isPhysique ? t.tenants.lastName : t.tenants.repLastName}
                             </label>
                             <Input
                                 id="edit-nom"
                                 className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                                 {...register("nom")}
                             />
-                            {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                            {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-prenom" className="text-sm font-medium text-foreground">
-                                {isPhysique ? "Prénom" : "Prénom du représentant légal"}
+                                {isPhysique ? t.tenants.firstName : t.tenants.repFirstName}
                             </label>
                             <Input
                                 id="edit-prenom"
@@ -178,7 +180,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                 {...register("prenom")}
                             />
                             {errors.prenom && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.prenom.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.prenom.message)}</p>
                             )}
                         </div>
                     </div>
@@ -186,7 +188,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-telephone" className="text-sm font-medium text-foreground">
-                                Téléphone
+                                {t.common.phone}
                             </label>
                             <Input
                                 id="edit-telephone"
@@ -195,13 +197,13 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                 {...register("telephone")}
                             />
                             {errors.telephone && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.telephone.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.telephone.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-email" className="text-sm font-medium text-foreground">
-                                Email
+                                {t.common.email}
                             </label>
                             <Input
                                 id="edit-email"
@@ -210,14 +212,14 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                 {...register("email")}
                             />
                             {errors.email && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.email.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.email.message)}</p>
                             )}
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-adresse" className="text-sm font-medium text-foreground">
-                            Adresse
+                            {t.common.address}
                         </label>
                         <Input
                             id="edit-adresse"
@@ -225,13 +227,13 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                             {...register("adresse")}
                         />
                         {errors.adresse && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.adresse.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.adresse.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-pieceIdentite" className="text-sm font-medium text-foreground">
-                            N° pièce d&apos;identité (CNI / Passeport)
+                            {t.tenants.idDocumentLong}
                         </label>
                         <Input
                             id="edit-pieceIdentite"
@@ -239,7 +241,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                             {...register("pieceIdentite")}
                         />
                         {errors.pieceIdentite && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.pieceIdentite.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.pieceIdentite.message)}</p>
                         )}
                     </div>
 
@@ -247,7 +249,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
                                 <label htmlFor="edit-profession" className="text-sm font-medium text-foreground">
-                                    Profession
+                                    {t.tenants.profession}
                                 </label>
                                 <Input
                                     id="edit-profession"
@@ -258,7 +260,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
 
                             <div className="space-y-1.5">
                                 <label htmlFor="edit-revenuMensuelMoyen" className="text-sm font-medium text-foreground">
-                                    Revenu mensuel moyen
+                                    {t.tenants.averageMonthlyIncome}
                                 </label>
                                 <Input
                                     id="edit-revenuMensuelMoyen"
@@ -269,7 +271,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                 />
                                 {errors.revenuMensuelMoyen && (
                                     <p className="animate-pulse text-sm text-red-500">
-                                        {errors.revenuMensuelMoyen.message}
+                                        {tv(errors.revenuMensuelMoyen.message)}
                                     </p>
                                 )}
                             </div>
@@ -278,7 +280,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                         <>
                             <div className="space-y-1.5">
                                 <label htmlFor="edit-raisonSociale" className="text-sm font-medium text-foreground">
-                                    Raison sociale
+                                    {t.tenants.companyName}
                                 </label>
                                 <Input
                                     id="edit-raisonSociale"
@@ -286,14 +288,14 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                     {...register("raisonSociale")}
                                 />
                                 {errors.raisonSociale && (
-                                    <p className="animate-pulse text-sm text-red-500">{errors.raisonSociale.message}</p>
+                                    <p className="animate-pulse text-sm text-red-500">{tv(errors.raisonSociale.message)}</p>
                                 )}
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <label htmlFor="edit-rccm" className="text-sm font-medium text-foreground">
-                                        RCCM
+                                        {t.tenants.rccm}
                                     </label>
                                     <Input
                                         id="edit-rccm"
@@ -301,13 +303,13 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                         {...register("rccm")}
                                     />
                                     {errors.rccm && (
-                                        <p className="animate-pulse text-sm text-red-500">{errors.rccm.message}</p>
+                                        <p className="animate-pulse text-sm text-red-500">{tv(errors.rccm.message)}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <label htmlFor="edit-niu" className="text-sm font-medium text-foreground">
-                                        NIU
+                                        {t.tenants.niu}
                                     </label>
                                     <Input
                                         id="edit-niu"
@@ -315,7 +317,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                         {...register("niu")}
                                     />
                                     {errors.niu && (
-                                        <p className="animate-pulse text-sm text-red-500">{errors.niu.message}</p>
+                                        <p className="animate-pulse text-sm text-red-500">{tv(errors.niu.message)}</p>
                                     )}
                                 </div>
                             </div>
@@ -323,7 +325,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <label htmlFor="edit-telephoneMoral" className="text-sm font-medium text-foreground">
-                                        Téléphone de l&apos;entreprise
+                                        {t.tenants.companyPhone}
                                     </label>
                                     <Input
                                         id="edit-telephoneMoral"
@@ -333,14 +335,14 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                     />
                                     {errors.telephoneMoral && (
                                         <p className="animate-pulse text-sm text-red-500">
-                                            {errors.telephoneMoral.message}
+                                            {tv(errors.telephoneMoral.message)}
                                         </p>
                                     )}
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <label htmlFor="edit-emailMoral" className="text-sm font-medium text-foreground">
-                                        Email de l&apos;entreprise
+                                        {t.tenants.companyEmail}
                                     </label>
                                     <Input
                                         id="edit-emailMoral"
@@ -350,7 +352,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                     />
                                     {errors.emailMoral && (
                                         <p className="animate-pulse text-sm text-red-500">
-                                            {errors.emailMoral.message}
+                                            {tv(errors.emailMoral.message)}
                                         </p>
                                     )}
                                 </div>
@@ -363,7 +365,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                         disabled={isSubmitting}
                         className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer les modifications"}
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.tenants.saveChanges}
                     </Button>
                 </form>
             </DialogContent>

@@ -14,6 +14,7 @@ import {
     type OrganizationFormValues,
 } from "@/features/organizations/schemas/organization.schema";
 import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
+import { useI18n } from "@/i18n/client";
 
 type OrganizationFormProps = {
     organization: OrganizationDTO;
@@ -21,6 +22,8 @@ type OrganizationFormProps = {
 };
 
 export function OrganizationForm({ organization, canEdit }: OrganizationFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -53,14 +56,14 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             {!canEdit && (
                 <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                    Seul un administrateur peut modifier les paramètres de l&apos;agence.
+                    {t.admin.settings.adminOnly}
                 </p>
             )}
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                        Nom de l&apos;agence
+                        {t.admin.settings.agencyName}
                     </label>
                     <Input
                         id="nom"
@@ -68,13 +71,13 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
 
                 <div className="space-y-1.5">
                     <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-foreground">
-                        Taux de commission par défaut (%)
+                        {t.admin.settings.defaultCommission}
                     </label>
                     <Input
                         id="tauxCommissionDefaut"
@@ -87,13 +90,13 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                         {...register("tauxCommissionDefaut", { valueAsNumber: true })}
                     />
                     {errors.tauxCommissionDefaut && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.tauxCommissionDefaut.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.tauxCommissionDefaut.message)}</p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="tauxPenaliteRetard" className="text-sm font-medium text-foreground">
-                        Taux de pénalité de retard (%)
+                        {t.admin.settings.penaltyRate}
                     </label>
                     <Input
                         id="tauxPenaliteRetard"
@@ -106,16 +109,16 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                         {...register("tauxPenaliteRetard", { valueAsNumber: true })}
                     />
                     {errors.tauxPenaliteRetard && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.tauxPenaliteRetard.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.tauxPenaliteRetard.message)}</p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                        Appliqué automatiquement au 2e rappel de relance (J+15).
+                        {t.admin.settings.penaltyRateHint}
                     </p>
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="email" className="text-sm font-medium text-foreground">
-                        Email
+                        {t.common.email}
                     </label>
                     <Input
                         id="email"
@@ -123,12 +126,12 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                         className={cn("h-10 rounded-xl", errors.email && "border-red-500")}
                         {...register("email")}
                     />
-                    {errors.email && <p className="animate-pulse text-sm text-red-500">{errors.email.message}</p>}
+                    {errors.email && <p className="animate-pulse text-sm text-red-500">{tv(errors.email.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="telephone" className="text-sm font-medium text-foreground">
-                        Téléphone
+                        {t.common.phone}
                     </label>
                     <Input
                         id="telephone"
@@ -140,14 +143,14 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
 
                 <div className="space-y-1.5">
                     <label htmlFor="ville" className="text-sm font-medium text-foreground">
-                        Ville
+                        {t.common.city}
                     </label>
                     <Input id="ville" disabled={!canEdit} className="h-10 rounded-xl" {...register("ville")} />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="adresse" className="text-sm font-medium text-foreground">
-                        Adresse
+                        {t.common.address}
                     </label>
                     <Input id="adresse" disabled={!canEdit} className="h-10 rounded-xl" {...register("adresse")} />
                 </div>
@@ -159,7 +162,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                     disabled={isSubmitting}
                     className="h-10 rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                 >
-                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer"}
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.common.save}
                 </Button>
             )}
         </form>

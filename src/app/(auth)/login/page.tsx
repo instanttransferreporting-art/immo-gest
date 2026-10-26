@@ -7,10 +7,13 @@ import { LoginForm } from "@/features/auth/components/LoginForm";
 import { getCurrentSession } from "@/lib/auth";
 import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Connexion | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.layout.auth.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function LoginPage() {
     const session = await getCurrentSession();
@@ -18,6 +21,8 @@ export default async function LoginPage() {
     if (session) {
         redirect(session.user.role === RoleType.SUPER_ADMIN ? ROUTES.PLATFORM : ROUTES.DASHBOARD);
     }
+
+    const { t } = await getI18n();
 
     return (
         <Card className="w-full max-w-md rounded-2xl border border-border shadow-md">
@@ -28,10 +33,10 @@ export default async function LoginPage() {
 
                 <div>
                     <h1 className="text-xl font-bold tracking-tight text-foreground">
-                        Immo Gest
+                        {t.common.appName}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        Connectez-vous à votre espace de gestion.
+                        {t.layout.auth.subtitle}
                     </p>
                 </div>
             </CardHeader>

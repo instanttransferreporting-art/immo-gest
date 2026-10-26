@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
 import { useBranding } from "@/components/layout/BrandingContext";
+import { useI18n } from "@/i18n/client";
 import { OrganizationLogoImage } from "@/features/organizations/components/OrganizationLogoImage";
 
 type LogoProps = {
@@ -18,6 +19,7 @@ type LogoProps = {
 /** Icône carrée (logo de l'entreprise ou icône par défaut) + nom de l'entreprise à droite. */
 export function Logo({ collapsed = false, responsive = false, iconOnly = false }: LogoProps) {
     const { logo, organizationNom } = useBranding();
+    const { t } = useI18n();
     const nom = organizationNom ?? "ImmoGest";
 
     if (iconOnly) {
@@ -46,7 +48,7 @@ export function Logo({ collapsed = false, responsive = false, iconOnly = false }
                         {nom}
                     </span>
 
-                    <span className="truncate text-xs text-muted-foreground">Gestion immobilière</span>
+                    <span className="truncate text-xs text-muted-foreground">{t.common.tagline}</span>
                 </div>
             )}
         </Link>

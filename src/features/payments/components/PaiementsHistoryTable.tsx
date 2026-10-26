@@ -8,28 +8,22 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.constants";
 import { AnnulerPaiementButton } from "@/features/payments/components/AnnulerPaiementButton";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type PaiementsHistoryTableProps = {
     paiements: readonly PaiementDTO[];
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function PaiementsHistoryTable({ paiements }: PaiementsHistoryTableProps) {
+    const { t, f } = useI18n();
+
     if (paiements.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-8 text-center">
                 <History className="h-6 w-6 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Aucun paiement enregistré pour cette facture.</p>
+                <p className="text-sm text-muted-foreground">{t.payments.emptyForInvoice}</p>
             </div>
         );
     }
@@ -39,12 +33,12 @@ export function PaiementsHistoryTable({ paiements }: PaiementsHistoryTableProps)
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Date</TableHead>
-                        <TableHead>Mode</TableHead>
-                        <TableHead>Référence</TableHead>
-                        <TableHead>Montant</TableHead>
-                        <TableHead>Enregistré par</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t.common.date}</TableHead>
+                        <TableHead>{t.payments.mode}</TableHead>
+                        <TableHead>{t.payments.reference}</TableHead>
+                        <TableHead>{t.common.amount}</TableHead>
+                        <TableHead>{t.payments.recordedBy}</TableHead>
+                        <TableHead className="text-right">{t.common.actions}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -52,12 +46,12 @@ export function PaiementsHistoryTable({ paiements }: PaiementsHistoryTableProps)
                     {paiements.map((paiement) => (
                         <TableRow key={paiement.id}>
                             <TableCell className="text-muted-foreground">
-                                {dateFormatter.format(paiement.datePaiement)}
+                                {f.date(paiement.datePaiement)}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">{MODE_PAIEMENT_LABELS[paiement.mode]}</TableCell>
+                            <TableCell className="text-muted-foreground">{t.enums.modePaiement[paiement.mode]}</TableCell>
                             <TableCell className="text-muted-foreground">{paiement.reference ?? "—"}</TableCell>
                             <TableCell className="font-medium text-foreground">
-                                {currencyFormatter.format(paiement.montant)}
+                                {f.currency(paiement.montant)}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                                 {paiement.enregistrePar.prenom} {paiement.enregistrePar.nom}

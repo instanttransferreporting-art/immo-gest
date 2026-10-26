@@ -7,9 +7,11 @@ import { Loader2, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { genererFacturesDuMois } from "@/features/invoices/actions/facture.actions";
-import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
+import { useI18n } from "@/i18n/client";
 
 export function GenererFacturesButton() {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
 
@@ -44,7 +46,7 @@ export function GenererFacturesButton() {
             ) : (
                 <ReceiptText className="h-4 w-4" />
             )}
-            Générer les factures de {MOIS_LABELS[now.getMonth()]}
+            {t.invoices.generateForMonth(f.monthName(now.getMonth() + 1).toLowerCase())}
         </Button>
     );
 }

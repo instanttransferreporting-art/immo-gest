@@ -50,14 +50,14 @@ export class AuthService {
      */
     static async getActiveSessionState(
         userId: string
-    ): Promise<Pick<UserDTO, "organizationId" | "role"> | null> {
+    ): Promise<Pick<UserDTO, "organizationId" | "role" | "locale"> | null> {
         const user = await UserRepository.findSessionStateById(userId);
 
         if (!user || !user.isActive || (user.organization && !user.organization.isActive)) {
             return null;
         }
 
-        return { organizationId: user.organizationId, role: user.role };
+        return { organizationId: user.organizationId, role: user.role, locale: user.locale };
     }
 
     static async authenticate({ email, password }: LoginCredentials): Promise<UserDTO | null> {
@@ -85,6 +85,7 @@ export class AuthService {
             prenom: user.prenom,
             role: user.role,
             isActive: user.isActive,
+            locale: user.locale,
         };
     }
 }

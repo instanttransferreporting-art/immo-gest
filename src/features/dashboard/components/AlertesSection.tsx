@@ -4,31 +4,26 @@ import { CalendarClock, CheckCircle2, Home, Receipt, Wrench } from "lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
-import { PRIORITE_INCIDENT_LABELS, PRIORITE_INCIDENT_STYLES } from "@/features/incidents/constants/incident.constants";
+import { PRIORITE_INCIDENT_STYLES } from "@/features/incidents/constants/incident.constants";
 import type { DashboardMetricsDTO } from "@/features/dashboard/types/dashboard.types";
+import { useI18n } from "@/i18n/client";
 
 type AlertesSectionProps = {
     metrics: DashboardMetricsDTO;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function AlertesSection({ metrics }: AlertesSectionProps) {
+    const { t, f } = useI18n();
+
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
                     <CardTitle className="text-base font-semibold text-foreground">
-                        Factures impayées urgentes
+                        {t.dashboard.alerts.urgentUnpaid}
                     </CardTitle>
                     <Link href={ROUTES.INVOICES} className="text-sm text-brand-700 hover:underline">
-                        Voir tout
+                        {t.dashboard.seeAll}
                     </Link>
                 </CardHeader>
 
@@ -36,7 +31,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.facturesImpayeesUrgentes.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-brand-500" />
-                            <p className="text-sm text-muted-foreground">Aucune facture impayée en attente.</p>
+                            <p className="text-sm text-muted-foreground">{t.dashboard.alerts.noUnpaid}</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-border">
@@ -53,12 +48,12 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                                     {facture.locataireNom}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {facture.uniteLabel} · échéance {dateFormatter.format(facture.dateEcheance)}
+                                                    {facture.uniteLabel} · {t.dashboard.alerts.dueOn(f.date(facture.dateEcheance))}
                                                 </p>
                                             </div>
                                         </div>
                                         <span className="text-sm font-semibold text-foreground">
-                                            {currencyFormatter.format(facture.totalDu)}
+                                            {f.currency(facture.totalDu)}
                                         </span>
                                     </Link>
                                 </li>
@@ -71,10 +66,10 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
                     <CardTitle className="text-base font-semibold text-foreground">
-                        Incidents non résolus
+                        {t.dashboard.alerts.openIncidents}
                     </CardTitle>
                     <Link href={ROUTES.INCIDENTS} className="text-sm text-brand-700 hover:underline">
-                        Voir tout
+                        {t.dashboard.seeAll}
                     </Link>
                 </CardHeader>
 
@@ -82,7 +77,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.incidentsNonResolus.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-brand-500" />
-                            <p className="text-sm text-muted-foreground">Aucun incident en cours.</p>
+                            <p className="text-sm text-muted-foreground">{t.dashboard.alerts.noIncidents}</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-border">
@@ -93,13 +88,13 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                         <div>
                                             <p className="text-sm font-medium text-foreground">{incident.titre}</p>
                                             <p className="text-xs text-muted-foreground">
-                                                {incident.localisation ?? "Non localisé"} ·{" "}
-                                                {dateFormatter.format(incident.dateSignalement)}
+                                                {incident.localisation ?? t.dashboard.alerts.notLocated} ·{" "}
+                                                {f.date(incident.dateSignalement)}
                                             </p>
                                         </div>
                                     </div>
                                     <Badge className={`rounded-lg ${PRIORITE_INCIDENT_STYLES[incident.priorite]}`}>
-                                        {PRIORITE_INCIDENT_LABELS[incident.priorite]}
+                                        {t.enums.prioriteIncident[incident.priorite]}
                                     </Badge>
                                 </li>
                             ))}
@@ -111,10 +106,10 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
                     <CardTitle className="text-base font-semibold text-foreground">
-                        Contrats arrivant à échéance
+                        {t.dashboard.alerts.expiringLeases}
                     </CardTitle>
                     <Link href={ROUTES.LEASES} className="text-sm text-brand-700 hover:underline">
-                        Voir tout
+                        {t.dashboard.seeAll}
                     </Link>
                 </CardHeader>
 
@@ -122,7 +117,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.contratsArrivantEcheance.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-brand-500" />
-                            <p className="text-sm text-muted-foreground">Aucun contrat n&apos;arrive à échéance.</p>
+                            <p className="text-sm text-muted-foreground">{t.dashboard.alerts.noExpiringLeases}</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-border">
@@ -142,7 +137,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                             </div>
                                         </div>
                                         <span className="text-sm font-semibold text-foreground">
-                                            {dateFormatter.format(contrat.dateFin)}
+                                            {f.date(contrat.dateFin)}
                                         </span>
                                     </Link>
                                 </li>
@@ -154,9 +149,9 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
 
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-foreground">Logements vacants</CardTitle>
+                    <CardTitle className="text-base font-semibold text-foreground">{t.dashboard.alerts.vacantUnits}</CardTitle>
                     <Link href={ROUTES.PROPERTIES} className="text-sm text-brand-700 hover:underline">
-                        Voir tout
+                        {t.dashboard.seeAll}
                     </Link>
                 </CardHeader>
 
@@ -164,7 +159,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     {metrics.logementsVacants.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
                             <CheckCircle2 className="h-6 w-6 text-brand-500" />
-                            <p className="text-sm text-muted-foreground">Aucun logement vacant.</p>
+                            <p className="text-sm text-muted-foreground">{t.dashboard.alerts.noVacantUnits}</p>
                         </div>
                     ) : (
                         <ul className="divide-y divide-border">

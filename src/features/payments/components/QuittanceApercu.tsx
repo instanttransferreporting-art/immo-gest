@@ -5,24 +5,18 @@ import { Download, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PrintLetterhead } from "@/components/layout/PrintLetterhead";
-import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type QuittanceApercuProps = {
     facture: FactureDTO;
     paiements: readonly PaiementDTO[];
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
-
 export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
+    const { t, f } = useI18n();
+
     const totalPaye = paiements.reduce((sum, paiement) => sum + paiement.montant, 0);
     const locataireNom =
         facture.contrat.locataire.raisonSociale ??
@@ -35,8 +29,8 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-foreground">Quittance de Loyer</h2>
-                        <p className="text-sm text-muted-foreground">Facture {facture.numero}</p>
+                        <h2 className="text-lg font-bold text-foreground">{t.invoices.receipt.title}</h2>
+                        <p className="text-sm text-muted-foreground">{t.invoices.receipt.invoiceRef(facture.numero)}</p>
                     </div>
 
                     <div className="flex gap-2 print:hidden">
@@ -47,7 +41,7 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
                             onClick={() => window.print()}
                         >
                             <Printer className="h-4 w-4" />
-                            Imprimer
+                            {t.common.print}
                         </Button>
 
                         <Button
@@ -56,60 +50,60 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
                             nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
-                            Télécharger PDF
+                            {t.common.downloadPdf}
                         </Button>
                     </div>
                 </div>
 
                 <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt className="text-muted-foreground">Locataire</dt>
+                        <dt className="text-muted-foreground">{t.invoices.tenant}</dt>
                         <dd className="font-medium text-foreground">{locataireNom}</dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Unité</dt>
+                        <dt className="text-muted-foreground">{t.invoices.receipt.unit}</dt>
                         <dd className="font-medium text-foreground">
                             {facture.contrat.unite.immeuble.nom} — {facture.contrat.unite.numero}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Période</dt>
+                        <dt className="text-muted-foreground">{t.invoices.period}</dt>
                         <dd className="font-medium text-foreground">
-                            {MOIS_LABELS[facture.mois - 1]} {facture.annee}
+                            {f.monthYear(facture.mois, facture.annee)}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Date d&apos;émission</dt>
-                        <dd className="font-medium text-foreground">{dateFormatter.format(facture.dateEmission)}</dd>
+                        <dt className="text-muted-foreground">{t.invoices.receipt.issueDate}</dt>
+                        <dd className="font-medium text-foreground">{f.dateLong(facture.dateEmission)}</dd>
                     </div>
                 </dl>
 
                 <div className="space-y-2 border-t border-border pt-4 text-sm">
                     <div className="flex justify-between">
-                        <span className="text-muted-foreground">Loyer</span>
-                        <span className="text-foreground">{currencyFormatter.format(facture.montantLoyer)}</span>
+                        <span className="text-muted-foreground">{t.invoices.receipt.rent}</span>
+                        <span className="text-foreground">{f.currency(facture.montantLoyer)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-muted-foreground">Charges</span>
-                        <span className="text-foreground">{currencyFormatter.format(facture.montantCharges)}</span>
+                        <span className="text-muted-foreground">{t.invoices.receipt.charges}</span>
+                        <span className="text-foreground">{f.currency(facture.montantCharges)}</span>
                     </div>
                     {facture.penalites > 0 && (
                         <div className="flex justify-between text-red-600">
-                            <span>Pénalités de retard</span>
-                            <span>{currencyFormatter.format(facture.penalites)}</span>
+                            <span>{t.invoices.receipt.penalties}</span>
+                            <span>{f.currency(facture.penalites)}</span>
                         </div>
                     )}
                     <div className="flex justify-between font-semibold">
-                        <span className="text-foreground">Total dû</span>
-                        <span className="text-foreground">{currencyFormatter.format(facture.totalDu)}</span>
+                        <span className="text-foreground">{t.invoices.receipt.totalDue}</span>
+                        <span className="text-foreground">{f.currency(facture.totalDu)}</span>
                     </div>
                     <div className="flex justify-between text-brand-700">
-                        <span>Total encaissé</span>
-                        <span>{currencyFormatter.format(totalPaye)}</span>
+                        <span>{t.invoices.receipt.totalCollected}</span>
+                        <span>{f.currency(totalPaye)}</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                        <span className="text-foreground">Reste à payer</span>
-                        <span className="text-foreground">{currencyFormatter.format(facture.soldeRestant)}</span>
+                        <span className="text-foreground">{t.invoices.receipt.balanceDue}</span>
+                        <span className="text-foreground">{f.currency(facture.soldeRestant)}</span>
                     </div>
                 </div>
             </CardContent>

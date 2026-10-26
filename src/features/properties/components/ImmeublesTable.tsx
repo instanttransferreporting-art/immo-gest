@@ -17,27 +17,24 @@ import { ROUTES } from "@/constants/routes";
 import { ImmeubleDetailModal } from "@/features/properties/components/ImmeubleDetailModal";
 import { ImmeubleEditModal } from "@/features/properties/components/ImmeubleEditModal";
 import type { ImmeubleDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type ImmeublesTableProps = {
     immeubles: readonly ImmeubleDTO[];
     proprietaireOptions: readonly ProprietaireOptionDTO[];
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
 export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTableProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
 
     if (immeubles.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Building2 className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun immeuble enregistré</p>
-                <p className="text-sm text-muted-foreground">Ajoutez votre premier immeuble pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.properties.buildings.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.properties.buildings.emptyHint}</p>
             </div>
         );
     }
@@ -47,12 +44,12 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Référence</TableHead>
-                        <TableHead>Nom</TableHead>
-                        <TableHead>Ville</TableHead>
-                        <TableHead>Propriétaire</TableHead>
-                        <TableHead>Valeur estimative</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t.properties.buildings.reference}</TableHead>
+                        <TableHead>{t.common.name}</TableHead>
+                        <TableHead>{t.common.city}</TableHead>
+                        <TableHead>{t.properties.buildings.owner}</TableHead>
+                        <TableHead>{t.properties.buildings.estimatedValue}</TableHead>
+                        <TableHead className="text-right">{t.common.actions}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -78,7 +75,7 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                                 {immeuble.valeurEstimative != null
-                                    ? currencyFormatter.format(immeuble.valeurEstimative)
+                                    ? f.currency(immeuble.valeurEstimative)
                                     : "—"}
                             </TableCell>
                             <TableCell>

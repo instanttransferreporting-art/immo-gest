@@ -3,6 +3,8 @@ import { Inter, Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import {QueryProvider, SessionProvider, ThemeProvider} from "@/providers";
 import { Toaster } from "@/components/ui/toast";
+import { I18nProvider } from "@/i18n/client";
+import { getI18n, getLocale } from "@/i18n/server";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -19,26 +21,31 @@ const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
 });
 
-export const metadata: Metadata = {
-    title: "Immo Gest",
-    description: "Plateforme de gestion immobilière",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
 
-export default function RootLayout({
+    return { title: t.common.appName, description: t.common.tagline };
+}
+
+export default async function RootLayout({
                                        children,
                                    }: {
     children: React.ReactNode;
 }) {
+    const locale = await getLocale();
+
     return (
-        <html lang="fr" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+        <html lang={locale} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
         <body>
-        <ThemeProvider>
-            <SessionProvider>
-                <QueryProvider>
-                    <Toaster>{children}</Toaster>
-                </QueryProvider>
-            </SessionProvider>
-        </ThemeProvider>
+        <I18nProvider locale={locale}>
+            <ThemeProvider>
+                <SessionProvider>
+                    <QueryProvider>
+                        <Toaster>{children}</Toaster>
+                    </QueryProvider>
+                </SessionProvider>
+            </ThemeProvider>
+        </I18nProvider>
         </body>
         </html>
     );

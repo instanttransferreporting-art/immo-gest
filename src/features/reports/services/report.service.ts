@@ -69,10 +69,7 @@ async function getPerformanceSummaryCore(
     const rendementPeriod: ReportPeriod =
         periodDays !== null ? period : { ...NO_PERIOD, start: subMonths(new Date(), 12) };
     const annualisation = periodDays !== null && periodDays > 0 ? 365 / periodDays : 1;
-    const rendementBasisLabel =
-        periodDays !== null
-            ? "revenu encaissé sur la période, annualisé, vs. valeur estimative"
-            : "revenu encaissé sur 12 mois glissants vs. valeur estimative";
+    const rendementBasis: PerformanceSummaryDTO["rendementBasis"] = periodDays !== null ? "period" : "rolling12";
 
     type ImmeubleAgg = {
         immeubleId: string;
@@ -147,7 +144,7 @@ async function getPerformanceSummaryCore(
         tauxRecouvrement: totalFacture > 0 ? (totalEncaisse / totalFacture) * 100 : 0,
     };
 
-    return { rendementBasisLabel, occupationParImmeuble, rendementParImmeuble, rentabiliteGlobale };
+    return { rendementBasis, occupationParImmeuble, rendementParImmeuble, rentabiliteGlobale };
 }
 
 export class ReportService {

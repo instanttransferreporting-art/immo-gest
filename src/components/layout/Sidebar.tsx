@@ -3,11 +3,13 @@
 import { Logo } from "./Logo";
 import { Navigation } from "./Navigation";
 import {useSidebar} from "@/hooks/useSidebar";
+import { useI18n } from "@/i18n/client";
 
 export function Sidebar() {
 
     const { collapsed } =
         useSidebar();
+    const { t } = useI18n();
 
     return (
         <aside
@@ -32,7 +34,7 @@ export function Sidebar() {
             <div className="border-t border-border p-4">
                 {!collapsed && (
                     <p className="hidden text-center text-xs text-muted-foreground lg:block">
-                        © {new Date().getFullYear()} ImmoGest
+                        {t.layout.nav.footer(new Date().getFullYear())}
                     </p>
                 )}
             </div>

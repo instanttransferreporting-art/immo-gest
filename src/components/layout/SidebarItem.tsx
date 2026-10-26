@@ -1,13 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
-import { LucideIcon } from "lucide-react";
+import { Loader2, LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/client";
+import type { Messages } from "@/i18n/messages";
+
+/** Clés des libellés de menu (`t.layout.nav[...]`), hors entrées non textuelles. */
+export type SidebarItemKey = {
+    [K in keyof Messages["layout"]["nav"]]: Messages["layout"]["nav"][K] extends string ? K : never;
+}[keyof Messages["layout"]["nav"]];
 
 export type SidebarNavigationItem = {
-    title: string;
+    key: SidebarItemKey;
     href: string;
     icon: LucideIcon;
 };
@@ -19,6 +26,24 @@ type SidebarItemProps = {
     onNavigate?: () => void;
 };
 
+/** Icône du lien ; remplacée par un spinner pendant la navigation vers ce lien (doit être sous <Link>). */
+function ItemIcon({ icon: Icon, active }: { icon: LucideIcon; active: boolean }) {
+    const { pending } = useLinkStatus();
+
+    if (pending) {
+        return <Loader2 aria-hidden className="h-5 w-5 flex-shrink-0 animate-spin text-brand-600" />;
+    }
+
+    return (
+        <Icon
+            className={cn(
+                "h-5 w-5 flex-shrink-0",
+                active ? "text-brand-600" : "text-muted-foreground group-hover:text-foreground"
+            )}
+        />
+    );
+}
+
 export function SidebarItem({
                                 item,
                                 collapsed = false,
@@ -26,6 +51,8 @@ export function SidebarItem({
                                 onNavigate,
                             }: SidebarItemProps) {
     const pathname = usePathname();
+    const { t } = useI18n();
+    const title = t.layout.nav[item.key];
 
     const active =
         pathname === item.href ||
@@ -37,9 +64,9 @@ export function SidebarItem({
         <Link
             href={item.href}
             onClick={onNavigate}
-            title={collapsed || responsive ? item.title : undefined}
+            title={collapsed || responsive ? title : undefined}
             className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                 collapsed && "justify-center",
                 responsive && !collapsed && "justify-center lg:justify-start",
 
@@ -48,17 +75,10 @@ export function SidebarItem({
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
         >
-            <Icon
-                className={cn(
-                    "h-5 w-5 flex-shrink-0",
-                    active
-                        ? "text-brand-600"
-                        : "text-muted-foreground group-hover:text-foreground"
-                )}
-            />
+            <ItemIcon icon={Icon} active={active} />
 
             {!collapsed && (
-                <span className={cn("truncate", responsive && "hidden lg:inline")}>{item.title}</span>
+                <span className={cn("truncate", responsive && "hidden lg:inline")}>{title}</span>
             )}
         </Link>
     );

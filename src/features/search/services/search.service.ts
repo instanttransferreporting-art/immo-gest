@@ -2,6 +2,7 @@ import { getCurrentOrganizationId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/constants/routes";
 import type { SearchResultDTO } from "@/features/search/types/search.types";
+import { getI18n } from "@/i18n/server";
 
 const MAX_PER_GROUP = 5;
 
@@ -12,6 +13,7 @@ const contains = (value: string) => ({ contains: value, mode: "insensitive" as c
 export class SearchService {
     /** Recherche globale (immeubles, unités, locataires, contrats, propriétaires) limitée à l'organisation courante. */
     static async search(rawQuery: string): Promise<SearchResultDTO[]> {
+        const { t } = await getI18n();
         const query = rawQuery.trim();
 
         if (query.length < SEARCH_MIN_LENGTH) {
@@ -108,7 +110,7 @@ export class SearchService {
                     id: unite.id,
                     group: "UNITE",
                     title: `${unite.immeuble.nom} — ${unite.numero}`,
-                    subtitle: "Unité",
+                    subtitle: t.admin.search.unit,
                     href: `${ROUTES.PROPERTIES}/${unite.immeuble.id}`,
                 })
             ),

@@ -2,23 +2,29 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import { ImmeubleService } from "@/features/properties/services/immeuble.service";
 import { immeubleSchema } from "@/features/properties/schemas/property.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { ImmeubleDTO } from "@/features/properties/types/property.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createImmeuble(input: unknown): Promise<ActionResponse<ImmeubleDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("IMMEUBLE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -29,7 +35,7 @@ export async function createImmeuble(input: unknown): Promise<ActionResponse<Imm
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -40,7 +46,7 @@ export async function createImmeuble(input: unknown): Promise<ActionResponse<Imm
         if (!immeuble) {
             return {
                 success: false,
-                message: "Le propriétaire sélectionné est introuvable.",
+                message: t.properties.buildings.ownerNotFound,
             };
         }
 
@@ -55,25 +61,29 @@ export async function createImmeuble(input: unknown): Promise<ActionResponse<Imm
 
         return {
             success: true,
-            message: "Immeuble créé avec succès.",
+            message: t.properties.buildings.created,
             data: immeuble,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création de l'immeuble.",
+            message: t.properties.buildings.createFailed,
         };
     }
 }
 
 export async function updateImmeuble(id: string, input: unknown): Promise<ActionResponse<ImmeubleDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("IMMEUBLE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -84,7 +94,7 @@ export async function updateImmeuble(id: string, input: unknown): Promise<Action
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -95,7 +105,7 @@ export async function updateImmeuble(id: string, input: unknown): Promise<Action
         if (!immeuble) {
             return {
                 success: false,
-                message: "L'immeuble est introuvable.",
+                message: t.properties.buildings.notFound,
             };
         }
 
@@ -111,25 +121,29 @@ export async function updateImmeuble(id: string, input: unknown): Promise<Action
 
         return {
             success: true,
-            message: "Immeuble mis à jour avec succès.",
+            message: t.properties.buildings.updated,
             data: immeuble,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour de l'immeuble.",
+            message: t.properties.buildings.updateFailed,
         };
     }
 }
 
 export async function deleteImmeuble(id: string): Promise<ActionResponse<void>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("IMMEUBLE_DELETE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -150,13 +164,13 @@ export async function deleteImmeuble(id: string): Promise<ActionResponse<void>> 
 
         return {
             success: true,
-            message: "Immeuble mis à jour avec succès.",
+            message: t.properties.buildings.deleted,
             data: immeuble,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour de l'immeuble.",
+            message: t.properties.buildings.deleteFailed,
         };
     }
 }

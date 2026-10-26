@@ -1,19 +1,20 @@
 import { z } from "zod";
+import { V } from "@/i18n/validation-keys";
 
 export const organizationSchema = z.object({
-    nom: z.string().min(1, { error: "Le nom de l'agence est requis." }),
+    nom: z.string().min(1, { error: V.agencyNameRequired }),
     tauxCommissionDefaut: z
-        .number({ error: "Le taux de commission est requis." })
-        .min(0, { error: "Le taux ne peut pas être négatif." })
-        .max(100, { error: "Le taux ne peut pas dépasser 100%." }),
+        .number({ error: V.commissionRateRequired })
+        .min(0, { error: V.rateNonNegative })
+        .max(100, { error: V.rateMax100 }),
     tauxPenaliteRetard: z
-        .number({ error: "Le taux de pénalité est requis." })
-        .min(0, { error: "Le taux ne peut pas être négatif." })
-        .max(100, { error: "Le taux ne peut pas dépasser 100%." }),
+        .number({ error: V.penaltyRateRequired })
+        .min(0, { error: V.rateNonNegative })
+        .max(100, { error: V.rateMax100 }),
     adresse: z.string().optional(),
     ville: z.string().optional(),
     telephone: z.string().optional(),
-    email: z.union([z.string().email({ error: "L'email est invalide." }), z.literal("")]).optional(),
+    email: z.union([z.string().email({ error: V.emailInvalid }), z.literal("")]).optional(),
 });
 
 export type OrganizationFormValues = z.infer<typeof organizationSchema>;
@@ -31,9 +32,9 @@ export const LOGO_ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"] as 
 export const LOGO_MAX_SIZE_BYTES = 2 * 1024 * 1024;
 
 export const logoFileSchema = z
-    .instanceof(File, { error: "Aucun fichier reçu." })
-    .refine((file) => file.size > 0, { error: "Le fichier est vide." })
-    .refine((file) => file.size <= LOGO_MAX_SIZE_BYTES, { error: "Le logo ne doit pas dépasser 2 Mo." })
+    .instanceof(File, { error: V.noFile })
+    .refine((file) => file.size > 0, { error: V.emptyFile })
+    .refine((file) => file.size <= LOGO_MAX_SIZE_BYTES, { error: V.logoTooLarge })
     .refine((file) => (LOGO_ACCEPTED_TYPES as readonly string[]).includes(file.type), {
-        error: "Format non supporté : utilisez PNG, JPEG ou WebP.",
+        error: V.logoFormat,
     });

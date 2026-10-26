@@ -14,15 +14,16 @@ import { ReportExportService } from "@/features/reports/services/report-export.s
 import { REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
 import type { ReportType } from "@/features/reports/types/report.types";
 import { parseReportPeriod } from "@/features/reports/period";
+import { getI18n } from "@/i18n/server";
 
 type RouteParams = { params: Promise<{ type: string }> };
 
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
     const { type } = await params;
-    const session = await getCurrentSession();
+    const [session, { t }] = await Promise.all([getCurrentSession(), getI18n()]);
 
     if (!session) {
-        return NextResponse.json({ error: "Vous devez être connecté pour effectuer cette action." }, { status: 401 });
+        return NextResponse.json({ error: t.common.errors.unauthenticated }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                 const factureId = searchParams.get("factureId");
 
                 if (!factureId) {
-                    return NextResponse.json({ error: "Le paramètre factureId est requis." }, { status: 400 });
+                    return NextResponse.json({ error: t.reports.missingParam("factureId") }, { status: 400 });
                 }
 
                 const { buffer, filename } = await QuittanceExportService.generate(factureId);
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                 const contratId = searchParams.get("contratId");
 
                 if (!contratId) {
-                    return NextResponse.json({ error: "Le paramètre contratId est requis." }, { status: 400 });
+                    return NextResponse.json({ error: t.reports.missingParam("contratId") }, { status: 400 });
                 }
 
                 const { buffer, filename } = await ContratExportService.generate(contratId);
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                 const reversementId = searchParams.get("reversementId");
 
                 if (!reversementId) {
-                    return NextResponse.json({ error: "Le paramètre reversementId est requis." }, { status: 400 });
+                    return NextResponse.json({ error: t.reports.missingParam("reversementId") }, { status: 400 });
                 }
 
                 const { buffer, filename } = await ReversementExportService.generate(reversementId);
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                 const isValidReportType = REPORT_DEFINITIONS.some((definition) => definition.type === reportType);
 
                 if (!reportType || !isValidReportType) {
-                    return NextResponse.json({ error: "Le paramètre reportType est invalide." }, { status: 400 });
+                    return NextResponse.json({ error: t.reports.invalidReportType }, { status: 400 });
                 }
 
                 const period = parseReportPeriod(searchParams.get("du"), searchParams.get("au"));
@@ -99,11 +100,11 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
             }
 
             default:
-                return NextResponse.json({ error: "Type d'export inconnu." }, { status: 404 });
+                return NextResponse.json({ error: t.reports.unknownExport }, { status: 404 });
         }
     } catch (error) {
         if (error instanceof ForbiddenError) {
-            return NextResponse.json({ error: error.message }, { status: 403 });
+            return NextResponse.json({ error: t.common.errors.forbidden }, { status: 403 });
         }
 
         if (
@@ -115,6 +116,6 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
         }
 
         console.error(`[export] Échec de la génération (type=${type})`, error);
-        return NextResponse.json({ error: "Une erreur est survenue lors de la génération du fichier." }, { status: 500 });
+        return NextResponse.json({ error: t.reports.exportFailed }, { status: 500 });
     }
 }

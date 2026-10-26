@@ -18,6 +18,7 @@ import { PaiementsHistoryTable } from "@/features/payments/components/PaiementsH
 import { QuittanceApercu } from "@/features/payments/components/QuittanceApercu";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
+import { useI18n } from "@/i18n/client";
 
 type FactureDetailPanelProps = {
     facture: FactureDTO;
@@ -25,6 +26,8 @@ type FactureDetailPanelProps = {
 };
 
 export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -40,7 +43,7 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
                     <CardTitle className="text-base font-semibold text-foreground">
-                        Historique des paiements
+                        {t.payments.history}
                     </CardTitle>
 
                     <Dialog open={open} onOpenChange={setOpen}>
@@ -54,12 +57,12 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
                             }
                         >
                             <Plus className="h-4 w-4" />
-                            Enregistrer un paiement
+                            {t.payments.record}
                         </DialogTrigger>
 
                         <DialogContent className="max-w-md rounded-2xl">
                             <DialogHeader>
-                                <DialogTitle>Enregistrer un paiement</DialogTitle>
+                                <DialogTitle>{t.payments.record}</DialogTitle>
                             </DialogHeader>
 
                             <PaiementForm
@@ -73,7 +76,7 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
 
                 <CardContent className="px-6">
                     {isSoldee && (
-                        <p className="mb-3 text-sm text-brand-600">Cette facture est intégralement payée.</p>
+                        <p className="mb-3 text-sm text-brand-600">{t.payments.fullyPaid}</p>
                     )}
                     <PaiementsHistoryTable paiements={paiements} />
                 </CardContent>

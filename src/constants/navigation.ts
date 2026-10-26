@@ -14,67 +14,49 @@ import {
 } from "lucide-react";
 
 import { ROUTES } from "./routes";
-import { SidebarNavigationItem } from "@/components/layout/SidebarItem";
+import type { SidebarNavigationItem } from "@/components/layout/SidebarItem";
+import type { Messages } from "@/i18n/messages";
 
-export const SIDEBAR_NAVIGATION: SidebarNavigationItem[] = [
+export type SidebarSectionKey = keyof Messages["layout"]["nav"]["sections"];
+
+export type SidebarNavigationSection = {
+    /** Clé de traduction du titre du groupe (`t.layout.nav.sections[...]`). */
+    key: SidebarSectionKey;
+    items: SidebarNavigationItem[];
+};
+
+/** Menu latéral, regroupé par domaine métier. Les libellés sont traduits à l'affichage. */
+export const SIDEBAR_SECTIONS: SidebarNavigationSection[] = [
     {
-        title: "Dashboard",
-        href: ROUTES.DASHBOARD,
-        icon: LayoutDashboard,
+        key: "pilotage",
+        items: [
+            { key: "dashboard", href: ROUTES.DASHBOARD, icon: LayoutDashboard },
+            { key: "reports", href: ROUTES.REPORTS, icon: BarChart3 },
+        ],
     },
     {
-        title: "Patrimoine",
-        href: ROUTES.PROPERTIES,
-        icon: Home,
+        key: "gestionLocative",
+        items: [
+            { key: "properties", href: ROUTES.PROPERTIES, icon: Home },
+            { key: "tenants", href: ROUTES.TENANTS, icon: Users },
+            { key: "leases", href: ROUTES.LEASES, icon: FileText },
+            { key: "incidents", href: ROUTES.INCIDENTS, icon: Wrench },
+        ],
     },
     {
-        title: "Locataires",
-        href: ROUTES.TENANTS,
-        icon: Users,
+        key: "finances",
+        items: [
+            { key: "invoices", href: ROUTES.INVOICES, icon: ReceiptText },
+            { key: "payments", href: ROUTES.PAYMENTS, icon: Receipt },
+            { key: "collections", href: ROUTES.RECOUVREMENT, icon: AlertTriangle },
+        ],
     },
     {
-        title: "Contrats",
-        href: ROUTES.LEASES,
-        icon: FileText,
-    },
-    {
-        title: "Factures",
-        href: ROUTES.INVOICES,
-        icon: ReceiptText,
-    },
-    {
-        title: "Paiements",
-        href: ROUTES.PAYMENTS,
-        icon: Receipt,
-    },
-    {
-        title: "Recouvrement",
-        href: ROUTES.RECOUVREMENT,
-        icon: AlertTriangle,
-    },
-    {
-        title: "Incidents",
-        href: ROUTES.INCIDENTS,
-        icon: Wrench,
-    },
-    {
-        title: "Rapports",
-        href: ROUTES.REPORTS,
-        icon: BarChart3,
-    },
-    {
-        title: "Utilisateurs",
-        href: ROUTES.USERS,
-        icon: UserCog,
-    },
-    {
-        title: "Journal d'audit",
-        href: ROUTES.AUDIT,
-        icon: History,
-    },
-    {
-        title: "Paramètres",
-        href: ROUTES.SETTINGS,
-        icon: Settings,
+        key: "administration",
+        items: [
+            { key: "users", href: ROUTES.USERS, icon: UserCog },
+            { key: "audit", href: ROUTES.AUDIT, icon: History },
+            { key: "settings", href: ROUTES.SETTINGS, icon: Settings },
+        ],
     },
 ];

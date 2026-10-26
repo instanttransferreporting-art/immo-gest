@@ -17,31 +17,25 @@ import { DocumentsContratPanel } from "@/features/leases/components/DocumentsCon
 import { DocumentContratService } from "@/features/leases/services/document-contrat.service";
 import { ContratStatutActions } from "@/features/leases/components/ContratStatutActions";
 import { RenouvelerContratButton } from "@/features/leases/components/RenouvelerContratButton";
-import { FREQUENCE_LABELS, STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
 import { StatutBail } from "@/generated/prisma/enums";
+import { getI18n } from "@/i18n/server";
 
 type PageProps = {
     params: Promise<{ id: string }>;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
-    const contrat = await ContratService.getById(id);
+    const [contrat, { t }] = await Promise.all([ContratService.getById(id), getI18n()]);
 
     return {
-        title: contrat ? `Contrat ${contrat.numeroContrat} | Immo Gest` : "Contrat | Immo Gest",
+        title: `${contrat ? t.leases.contractTitle(contrat.numeroContrat) : t.leases.contractFallbackTitle} | ${t.common.appName}`,
     };
 }
 
 export default async function ContratDetailPage({ params }: PageProps) {
+    const { t, f } = await getI18n();
+
     const { id } = await params;
     const contrat = await ContratService.getById(id);
 
@@ -58,14 +52,14 @@ export default async function ContratDetailPage({ params }: PageProps) {
     return (
         <Container>
             <PageTitle
-                title={`Contrat ${contrat.numeroContrat}`}
+                title={t.leases.contractTitle(contrat.numeroContrat)}
                 description={`${contrat.unite.immeuble.nom} — ${contrat.unite.numero}`}
             />
 
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <Card className="rounded-2xl border border-border shadow-sm lg:col-span-2">
                     <CardHeader className="flex flex-col gap-3 px-6">
-                        <CardTitle className="text-base font-semibold text-foreground">Détails du contrat</CardTitle>
+                        <CardTitle className="text-base font-semibold text-foreground">{t.leases.details}</CardTitle>
 
                         <div className="flex flex-wrap items-center gap-2">
                             <Button
@@ -75,7 +69,7 @@ export default async function ContratDetailPage({ params }: PageProps) {
                                 nativeButton={false}
                             >
                                 <Download className="h-4 w-4" />
-                                Télécharger le bail
+                                {t.leases.downloadLease}
                             </Button>
 
                             <GenererContratDialog contratId={contrat.id} defaults={documentDefaults} />
@@ -102,48 +96,48 @@ export default async function ContratDetailPage({ params }: PageProps) {
                     <CardContent className="space-y-3 px-6 py-2">
                         <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                             <div>
-                                <dt className="text-muted-foreground">Locataire</dt>
+                                <dt className="text-muted-foreground">{t.leases.tenant}</dt>
                                 <dd className="font-medium text-foreground">{locataireNom}</dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Statut</dt>
+                                <dt className="text-muted-foreground">{t.common.status}</dt>
                                 <dd>
                                     <Badge variant="outline" className="rounded-lg">
-                                        {STATUT_BAIL_LABELS[contrat.statut]}
+                                        {t.enums.statutBail[contrat.statut]}
                                     </Badge>
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Période</dt>
+                                <dt className="text-muted-foreground">{t.leases.period}</dt>
                                 <dd className="font-medium text-foreground">
-                                    {dateFormatter.format(contrat.dateDebut)} → {dateFormatter.format(contrat.dateFin)}
+                                    {f.date(contrat.dateDebut)} → {f.date(contrat.dateFin)}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Fréquence de paiement</dt>
-                                <dd className="font-medium text-foreground">{FREQUENCE_LABELS[contrat.frequence]}</dd>
+                                <dt className="text-muted-foreground">{t.leases.paymentFrequency}</dt>
+                                <dd className="font-medium text-foreground">{t.enums.frequenceEcheance[contrat.frequence]}</dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Loyer de base</dt>
+                                <dt className="text-muted-foreground">{t.leases.baseRent}</dt>
                                 <dd className="font-medium text-foreground">
-                                    {currencyFormatter.format(contrat.loyerBase)}
+                                    {f.currency(contrat.loyerBase)}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Charges</dt>
+                                <dt className="text-muted-foreground">{t.leases.charges}</dt>
                                 <dd className="font-medium text-foreground">
-                                    {currencyFormatter.format(contrat.charges)}
+                                    {f.currency(contrat.charges)}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Dépôt de garantie</dt>
+                                <dt className="text-muted-foreground">{t.leases.securityDeposit}</dt>
                                 <dd className="font-medium text-foreground">
-                                    {currencyFormatter.format(contrat.depotGarantie)}
+                                    {f.currency(contrat.depotGarantie)}
                                 </dd>
                             </div>
                             {contrat.statut === StatutBail.RESILIE && contrat.motifResiliation && (
                                 <div className="sm:col-span-2">
-                                    <dt className="text-muted-foreground">Motif de résiliation</dt>
+                                    <dt className="text-muted-foreground">{t.leases.terminationReason}</dt>
                                     <dd className="font-medium text-foreground">{contrat.motifResiliation}</dd>
                                 </div>
                             )}

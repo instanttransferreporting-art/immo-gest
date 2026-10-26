@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { reactiverContrat, suspendreContrat } from "@/features/leases/actions/contrat.actions";
 import { StatutBail } from "@/generated/prisma/enums";
+import { useI18n } from "@/i18n/client";
 
 type ContratStatutActionsProps = {
     contratId: string;
@@ -15,6 +16,8 @@ type ContratStatutActionsProps = {
 };
 
 export function ContratStatutActions({ contratId, statut }: ContratStatutActionsProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +59,7 @@ export function ContratStatutActions({ contratId, statut }: ContratStatutActions
                 className="rounded-lg"
             >
                 <PauseCircle className="h-4 w-4" />
-                Suspendre
+                {t.leases.status.suspend}
             </Button>
         );
     }
@@ -71,7 +74,7 @@ export function ContratStatutActions({ contratId, statut }: ContratStatutActions
                 className="rounded-lg"
             >
                 <PlayCircle className="h-4 w-4" />
-                Réactiver
+                {t.leases.status.reactivate}
             </Button>
         );
     }

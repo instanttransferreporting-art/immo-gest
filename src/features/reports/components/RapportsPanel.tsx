@@ -5,8 +5,9 @@ import { Download, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { REPORT_CATEGORY_LABELS, REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
-import type { PerformanceSummaryDTO, ReportCategory, ReportSummaryDTO } from "@/features/reports/types/report.types";
+import { REPORT_CATEGORIES, REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
+import type { PerformanceSummaryDTO, ReportSummaryDTO } from "@/features/reports/types/report.types";
+import { useI18n } from "@/i18n/client";
 
 type RapportsPanelProps = {
     summaries: ReportSummaryDTO[];
@@ -15,22 +16,17 @@ type RapportsPanelProps = {
     periodQuery: string;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const percentFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
-
-const CATEGORIES: ReportCategory[] = ["LOCATIFS", "FINANCIERS", "PERFORMANCE"];
 
 function ReportCard({ summary, periodQuery }: { summary: ReportSummaryDTO; periodQuery: string }) {
+    const { t, f } = useI18n();
+
     const definition = REPORT_DEFINITIONS.find((item) => item.type === summary.type);
 
     if (!definition) {
         return null;
     }
+
+    const labels = t.reports.definitions[definition.type];
 
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
@@ -42,21 +38,21 @@ function ReportCard({ summary, periodQuery }: { summary: ReportSummaryDTO; perio
                 </div>
 
                 <div>
-                    <p className="text-sm font-semibold text-foreground">{definition.label}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{definition.description}</p>
+                    <p className="text-sm font-semibold text-foreground">{labels.label}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{labels.description}</p>
                     <p className="mt-1 text-xs text-brand-600">
-                        {definition.periodBasis ? `Période : ${definition.periodBasis}` : "Instantané (non filtré)"}
+                        {definition.filteredByPeriod ? t.reports.card.periodBasis(labels.periodBasis) : t.reports.card.snapshot}
                     </p>
                 </div>
 
                 <div>
                     <p className="text-xl font-bold text-foreground">
                         {definition.isAmount && summary.total !== null
-                            ? currencyFormatter.format(summary.total)
+                            ? f.currency(summary.total)
                             : summary.count}
                     </p>
                     {definition.isAmount && (
-                        <p className="text-xs text-muted-foreground">{summary.count} élément(s)</p>
+                        <p className="text-xs text-muted-foreground">{t.common.items(summary.count)}</p>
                     )}
                 </div>
 
@@ -68,7 +64,7 @@ function ReportCard({ summary, periodQuery }: { summary: ReportSummaryDTO; perio
                     nativeButton={false}
                 >
                     <Download className="h-4 w-4" />
-                    Exporter (Excel)
+                    {t.common.exportExcelLong}
                 </Button>
             </CardContent>
         </Card>
@@ -76,30 +72,32 @@ function ReportCard({ summary, periodQuery }: { summary: ReportSummaryDTO; perio
 }
 
 function PerformanceContent({ performance }: { performance: PerformanceSummaryDTO }) {
+    const { t, f } = useI18n();
+
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardContent className="px-6 py-4">
-                        <p className="text-sm text-muted-foreground">Total facturé</p>
+                        <p className="text-sm text-muted-foreground">{t.reports.performance.totalBilled}</p>
                         <p className="mt-2 text-xl font-bold text-foreground">
-                            {currencyFormatter.format(performance.rentabiliteGlobale.totalFacture)}
+                            {f.currency(performance.rentabiliteGlobale.totalFacture)}
                         </p>
                     </CardContent>
                 </Card>
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardContent className="px-6 py-4">
-                        <p className="text-sm text-muted-foreground">Total encaissé</p>
+                        <p className="text-sm text-muted-foreground">{t.reports.performance.totalCollected}</p>
                         <p className="mt-2 text-xl font-bold text-foreground">
-                            {currencyFormatter.format(performance.rentabiliteGlobale.totalEncaisse)}
+                            {f.currency(performance.rentabiliteGlobale.totalEncaisse)}
                         </p>
                     </CardContent>
                 </Card>
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardContent className="px-6 py-4">
-                        <p className="text-sm text-muted-foreground">Taux de recouvrement</p>
+                        <p className="text-sm text-muted-foreground">{t.reports.performance.collectionRate}</p>
                         <p className="mt-2 text-xl font-bold text-foreground">
-                            {percentFormatter.format(performance.rentabiliteGlobale.tauxRecouvrement)}%
+                            {f.percent(performance.rentabiliteGlobale.tauxRecouvrement)}%
                         </p>
                     </CardContent>
                 </Card>
@@ -108,12 +106,12 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardContent className="px-6 py-4">
                     <p className="mb-3 text-sm font-semibold text-foreground">
-                        Taux d&apos;occupation par immeuble{" "}
-                        <span className="font-normal text-muted-foreground">(situation actuelle)</span>
+                        {t.reports.performance.occupancyByBuilding}{" "}
+                        <span className="font-normal text-muted-foreground">{t.reports.performance.currentSituation}</span>
                     </p>
 
                     {performance.occupationParImmeuble.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">Aucun immeuble enregistré.</p>
+                        <p className="text-sm text-muted-foreground">{t.reports.performance.noBuildings}</p>
                     ) : (
                         <div className="space-y-2">
                             {performance.occupationParImmeuble.map((immeuble) => (
@@ -123,9 +121,9 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
                                 >
                                     <span className="text-foreground">{immeuble.immeubleNom}</span>
                                     <span className="text-muted-foreground">
-                                        {immeuble.unitesOccupees} / {immeuble.totalUnites} unités —{" "}
+                                        {t.reports.performance.occupiedUnits(immeuble.unitesOccupees, immeuble.totalUnites)}{" "}
                                         <span className="font-medium text-foreground">
-                                            {percentFormatter.format(immeuble.tauxOccupation)}%
+                                            {f.percent(immeuble.tauxOccupation)}%
                                         </span>
                                     </span>
                                 </div>
@@ -138,11 +136,11 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardContent className="px-6 py-4">
                     <p className="mb-3 text-sm font-semibold text-foreground">
-                        Rendement par immeuble ({performance.rendementBasisLabel})
+                        {t.reports.performance.yieldByBuilding} ({t.reports.performance.yieldBasis[performance.rendementBasis]})
                     </p>
 
                     {performance.rendementParImmeuble.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">Aucun immeuble enregistré.</p>
+                        <p className="text-sm text-muted-foreground">{t.reports.performance.noBuildings}</p>
                     ) : (
                         <div className="space-y-2">
                             {performance.rendementParImmeuble.map((immeuble) => (
@@ -152,11 +150,11 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
                                 >
                                     <span className="text-foreground">{immeuble.immeubleNom}</span>
                                     <span className="text-muted-foreground">
-                                        {currencyFormatter.format(immeuble.revenuAnnuelEncaisse)} / an —{" "}
+                                        {t.reports.performance.perYear(f.currency(immeuble.revenuAnnuelEncaisse))}{" "}
                                         <span className="font-medium text-foreground">
                                             {immeuble.rendement !== null
-                                                ? `${percentFormatter.format(immeuble.rendement)}%`
-                                                : "N/A (valeur estimative manquante)"}
+                                                ? `${f.percent(immeuble.rendement)}%`
+                                                : t.reports.performance.noEstimatedValue}
                                         </span>
                                     </span>
                                 </div>
@@ -170,17 +168,19 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
 }
 
 export function RapportsPanel({ summaries, performance, periodQuery }: RapportsPanelProps) {
+    const { t } = useI18n();
+
     return (
         <Tabs defaultValue="LOCATIFS">
             <TabsList>
-                {CATEGORIES.map((category) => (
+                {REPORT_CATEGORIES.map((category) => (
                     <TabsTab key={category} value={category}>
-                        {REPORT_CATEGORY_LABELS[category]}
+                        {t.reports.categories[category]}
                     </TabsTab>
                 ))}
             </TabsList>
 
-            {CATEGORIES.map((category) => (
+            {REPORT_CATEGORIES.map((category) => (
                 <TabsPanel key={category} value={category}>
                     {category === "PERFORMANCE" ? (
                         <PerformanceContent performance={performance} />

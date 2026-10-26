@@ -16,6 +16,7 @@ import {
 import { ImmeubleForm } from "@/features/properties/components/ImmeubleForm";
 import { ImmeublesTable } from "@/features/properties/components/ImmeublesTable";
 import type { ImmeubleDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type ImmeublesPanelProps = {
     immeubles: readonly ImmeubleDTO[];
@@ -23,6 +24,8 @@ type ImmeublesPanelProps = {
 };
 
 export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -37,7 +40,7 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
                 <CardTitle className="text-base font-semibold text-foreground">
-                    Immeubles
+                    {t.properties.buildings.title}
                 </CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
@@ -51,12 +54,12 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouvel immeuble</DialogTitle>
+                            <DialogTitle>{t.properties.buildings.new}</DialogTitle>
                         </DialogHeader>
 
                         <ImmeubleForm proprietaireOptions={proprietaireOptions} onSuccess={handleSuccess} />
@@ -67,7 +70,7 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
             <CardContent className="px-6">
                 {!hasProprietaires && (
                     <p className="mb-3 text-sm text-amber-600">
-                        Ajoutez d&apos;abord un propriétaire pour pouvoir créer un immeuble.
+                        {t.properties.buildings.needOwnerFirst}
                     </p>
                 )}
 

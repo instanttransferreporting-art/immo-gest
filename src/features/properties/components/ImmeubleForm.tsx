@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/toast";
 import { createImmeuble } from "@/features/properties/actions/immeuble.actions";
 import { immeubleSchema, type ImmeubleFormValues } from "@/features/properties/schemas/property.schema";
 import type { ImmeubleDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
+import { useI18n } from "@/i18n/client";
 
 type ImmeubleFormProps = {
     proprietaireOptions: readonly ProprietaireOptionDTO[];
@@ -25,6 +26,8 @@ const DEFAULT_VALUES: Partial<ImmeubleFormValues> = {
 };
 
 export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -45,7 +48,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
 
         toast.add({
             title: result.message,
-            description: `Référence : ${result.data.reference}`,
+            description: t.properties.buildings.referenceToast(result.data.reference),
             type: "success",
         });
         reset();
@@ -56,7 +59,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
                 <label htmlFor="proprietaireId" className="text-sm font-medium text-foreground">
-                    Propriétaire
+                    {t.properties.buildings.owner}
                 </label>
                 <select
                     id="proprietaireId"
@@ -66,7 +69,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                     )}
                     {...register("proprietaireId")}
                 >
-                    <option value="">Sélectionner un propriétaire</option>
+                    <option value="">{t.properties.buildings.selectOwner}</option>
                     {proprietaireOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                             {`${option.nom} ${option.prenom ?? ""}`.trim()}
@@ -74,52 +77,52 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                     ))}
                 </select>
                 {errors.proprietaireId && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.proprietaireId.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.proprietaireId.message)}</p>
                 )}
             </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                    Nom de l&apos;immeuble
+                    {t.properties.buildings.name}
                 </label>
                 <Input
                     id="nom"
                     className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                     {...register("nom")}
                 />
-                {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="adresse" className="text-sm font-medium text-foreground">
-                        Adresse
+                        {t.common.address}
                     </label>
                     <Input
                         id="adresse"
                         className={cn("h-10 rounded-xl", errors.adresse && "border-red-500")}
                         {...register("adresse")}
                     />
-                    {errors.adresse && <p className="animate-pulse text-sm text-red-500">{errors.adresse.message}</p>}
+                    {errors.adresse && <p className="animate-pulse text-sm text-red-500">{tv(errors.adresse.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="ville" className="text-sm font-medium text-foreground">
-                        Ville
+                        {t.common.city}
                     </label>
                     <Input
                         id="ville"
                         className={cn("h-10 rounded-xl", errors.ville && "border-red-500")}
                         {...register("ville")}
                     />
-                    {errors.ville && <p className="animate-pulse text-sm text-red-500">{errors.ville.message}</p>}
+                    {errors.ville && <p className="animate-pulse text-sm text-red-500">{tv(errors.ville.message)}</p>}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="nombreNiveaux" className="text-sm font-medium text-foreground">
-                        Niveaux
+                        {t.properties.buildings.levels}
                     </label>
                     <Input
                         id="nombreNiveaux"
@@ -129,13 +132,13 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                         {...register("nombreNiveaux", { valueAsNumber: true })}
                     />
                     {errors.nombreNiveaux && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.nombreNiveaux.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.nombreNiveaux.message)}</p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="valeurEstimative" className="text-sm font-medium text-foreground">
-                        Valeur estimative
+                        {t.properties.buildings.estimatedValue}
                     </label>
                     <Input
                         id="valeurEstimative"
@@ -154,7 +157,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer l'immeuble"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.properties.buildings.submit}
             </Button>
         </form>
     );

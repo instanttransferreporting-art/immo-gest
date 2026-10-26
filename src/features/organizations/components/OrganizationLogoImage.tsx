@@ -1,6 +1,9 @@
+"use client";
+
 import { Building2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/client";
 
 type OrganizationLogoImageProps = {
     logo: string | null;
@@ -14,6 +17,8 @@ type OrganizationLogoImageProps = {
  * fond clair) — ou, à défaut, l'icône de marque par défaut.
  */
 export function OrganizationLogoImage({ logo, organizationNom, className, iconClassName }: OrganizationLogoImageProps) {
+    const { t } = useI18n();
+
     if (!logo) {
         return (
             <div
@@ -36,7 +41,7 @@ export function OrganizationLogoImage({ logo, organizationNom, className, iconCl
         >
             {/* URL Supabase publique et dynamique : pas d'optimisation next/image nécessaire pour un logo. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={`Logo ${organizationNom}`} className="h-full w-full object-contain" />
+            <img src={logo} alt={t.admin.settings.logo.alt(organizationNom)} className="h-full w-full object-contain" />
         </div>
     );
 }

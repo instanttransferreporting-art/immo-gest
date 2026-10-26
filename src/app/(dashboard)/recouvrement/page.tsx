@@ -4,19 +4,24 @@ import { Container, PageTitle } from "@/components/layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImpayesTable } from "@/features/collections/components/ImpayesTable";
 import { RecouvrementService } from "@/features/collections/services/recouvrement.service";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Recouvrement | Immo Gest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+
+    return { title: `${t.operations.collections.pageTitle} | ${t.common.appName}` };
+}
 
 export default async function RecouvrementPage() {
+    const { t } = await getI18n();
+
     const impayes = await RecouvrementService.listImpayes();
 
     return (
         <Container>
             <PageTitle
-                title="Recouvrement"
-                description="Suivez les impayés et déclenchez les relances graduées."
+                title={t.operations.collections.pageTitle}
+                description={t.operations.collections.description}
             />
 
             <div className="mt-6">

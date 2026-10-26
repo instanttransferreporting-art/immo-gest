@@ -14,10 +14,9 @@ import {
 } from "@/features/leases/actions/document-contrat.actions";
 import {
     DOCUMENT_CONTRAT_ALLOWED_EXTENSIONS,
-    TYPE_DOCUMENT_CONTRAT_HINTS,
-    TYPE_DOCUMENT_CONTRAT_LABELS,
 } from "@/features/leases/constants/document-contrat.constants";
 import type { DocumentContratDTO } from "@/features/leases/types/document-contrat.types";
+import { useI18n } from "@/i18n/client";
 
 type DocumentsContratPanelProps = {
     contratId: string;
@@ -35,9 +34,9 @@ const TYPES = [
 
 const ACCEPT = DOCUMENT_CONTRAT_ALLOWED_EXTENSIONS.map((extension) => `.${extension}`).join(",");
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function DocumentsContratPanel({ contratId, documents, avecContratSuivant }: DocumentsContratPanelProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [pending, setPending] = useState<string | null>(null);
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -63,7 +62,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                 router.refresh();
             }
         } catch {
-            toast.add({ title: "Le téléversement a échoué. Vérifiez la taille du fichier (10 Mo max).", type: "error" });
+            toast.add({ title: t.leases.documents.uploadTooLarge, type: "error" });
         } finally {
             setPending(null);
 
@@ -94,7 +93,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Documents du bail</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.leases.documents.title}</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-5 px-6 pb-6">
@@ -111,9 +110,9 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <p className="text-sm font-medium text-foreground">
-                                        {TYPE_DOCUMENT_CONTRAT_LABELS[type]}
+                                        {t.enums.typeDocumentContrat[type]}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">{TYPE_DOCUMENT_CONTRAT_HINTS[type]}</p>
+                                    <p className="text-xs text-muted-foreground">{t.enums.typeDocumentContratHint[type]}</p>
                                 </div>
 
                                 <Button
@@ -129,7 +128,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                                     ) : (
                                         <UploadCloud className="h-4 w-4" />
                                     )}
-                                    Téléverser
+                                    {t.leases.documents.upload}
                                 </Button>
 
                                 <input
@@ -144,7 +143,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                             </div>
 
                             {files.length === 0 ? (
-                                <p className="text-xs italic text-muted-foreground">Aucun document.</p>
+                                <p className="text-xs italic text-muted-foreground">{t.leases.documents.none}</p>
                             ) : (
                                 <ul className="space-y-1">
                                     {files.map((document) => (
@@ -155,7 +154,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                                             <span className="min-w-0 truncate">
                                                 {document.nomFichier}
                                                 <span className="ml-2 text-xs text-muted-foreground">
-                                                    {dateFormatter.format(document.createdAt)}
+                                                    {f.date(document.createdAt)}
                                                 </span>
                                             </span>
 
@@ -164,7 +163,7 @@ export function DocumentsContratPanel({ contratId, documents, avecContratSuivant
                                                 variant="ghost"
                                                 size="sm"
                                                 className="shrink-0"
-                                                aria-label={`Télécharger ${document.nomFichier}`}
+                                                aria-label={t.leases.documents.download(document.nomFichier)}
                                                 disabled={pending !== null}
                                                 onClick={() => handleDownload(document.id)}
                                             >

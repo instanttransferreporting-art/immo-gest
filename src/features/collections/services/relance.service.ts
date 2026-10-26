@@ -19,7 +19,7 @@ const NIVEAU_ORDER: readonly NiveauRelance[] = [
 const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export class RelanceNiveauOrderError extends Error {
-    constructor(niveauRequis: NiveauRelance) {
+    constructor(readonly niveauRequis: NiveauRelance) {
         super(`Impossible de générer cette relance : le niveau ${niveauRequis} doit être envoyé au préalable.`);
         this.name = "RelanceNiveauOrderError";
     }

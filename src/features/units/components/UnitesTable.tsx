@@ -13,21 +13,15 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { computeChargesAmount } from "@/features/units/services/charges.calculator";
-import { ETAT_UNITE_LABELS, FREQUENCE_PAIEMENT_LABELS, TYPE_UNITE_LABELS } from "@/features/units/constants/unit.constants";
 import { UniteDetailModal } from "@/features/units/components/UniteDetailModal";
 import { UniteEditModal } from "@/features/units/components/UniteEditModal";
 import { FrequencePaiement } from "@/generated/prisma/enums";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { useI18n } from "@/i18n/client";
 
 type UnitesTableProps = {
     unites: readonly UniteDTO[];
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const ETAT_BADGE_VARIANT: Record<UniteDTO["etat"], "default" | "secondary" | "outline"> = {
     LIBRE: "outline",
@@ -36,14 +30,16 @@ const ETAT_BADGE_VARIANT: Record<UniteDTO["etat"], "default" | "secondary" | "ou
 };
 
 export function UnitesTable({ unites }: UnitesTableProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
 
     if (unites.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-10 text-center">
                 <DoorOpen className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucune unité enregistrée</p>
-                <p className="text-sm text-muted-foreground">Ajoutez la première unité de cet immeuble.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.units.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.units.emptyHint}</p>
             </div>
         );
     }
@@ -53,14 +49,14 @@ export function UnitesTable({ unites }: UnitesTableProps) {
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
-                        <TableHead>Numéro</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Surface</TableHead>
-                        <TableHead>Loyer</TableHead>
-                        <TableHead>Charges</TableHead>
-                        <TableHead>Fréquence</TableHead>
-                        <TableHead>État</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t.units.number}</TableHead>
+                        <TableHead>{t.common.type}</TableHead>
+                        <TableHead>{t.units.surface}</TableHead>
+                        <TableHead>{t.units.rent}</TableHead>
+                        <TableHead>{t.units.charges}</TableHead>
+                        <TableHead>{t.units.frequency}</TableHead>
+                        <TableHead>{t.units.state}</TableHead>
+                        <TableHead className="text-right">{t.common.actions}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -69,7 +65,7 @@ export function UnitesTable({ unites }: UnitesTableProps) {
                         const frequenceLabel =
                             unite.frequencePaiement === FrequencePaiement.AUTRE && unite.frequenceAutreTexte
                                 ? unite.frequenceAutreTexte
-                                : FREQUENCE_PAIEMENT_LABELS[unite.frequencePaiement];
+                                : t.enums.frequencePaiement[unite.frequencePaiement];
 
                         return (
                             <TableRow key={unite.id}>
@@ -78,23 +74,23 @@ export function UnitesTable({ unites }: UnitesTableProps) {
                                         {unite.numero}
                                         {unite.isMeuble && (
                                             <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">
-                                                Meublé
+                                                {t.units.furnished}
                                             </span>
                                         )}
                                     </span>
                                 </TableCell>
-                                <TableCell className="text-muted-foreground">{TYPE_UNITE_LABELS[unite.type]}</TableCell>
+                                <TableCell className="text-muted-foreground">{t.enums.typeUnite[unite.type]}</TableCell>
                                 <TableCell className="text-muted-foreground">{unite.surface} m²</TableCell>
                                 <TableCell className="text-muted-foreground">
-                                    {currencyFormatter.format(unite.loyerMensuel)}
+                                    {f.currency(unite.loyerMensuel)}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">
-                                    {currencyFormatter.format(computeChargesAmount(unite))}
+                                    {f.currency(computeChargesAmount(unite))}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground text-xs">{frequenceLabel}</TableCell>
                                 <TableCell>
                                     <Badge variant={ETAT_BADGE_VARIANT[unite.etat]} className="rounded-lg">
-                                        {ETAT_UNITE_LABELS[unite.etat]}
+                                        {t.enums.etatUnite[unite.etat]}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>

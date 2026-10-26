@@ -19,6 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toDateInput } from "@/features/reports/period";
+import type { Messages } from "@/i18n/messages";
+import { useI18n } from "@/i18n/client";
 
 type ReportPeriodFilterProps = {
     du: string | null;
@@ -26,34 +28,37 @@ type ReportPeriodFilterProps = {
     periodLabel: string;
 };
 
-type Preset = { label: string; range: () => { du: string | null; au: string | null } };
+type PresetKey = keyof Messages["reports"]["period"]["presets"];
+type Preset = { key: PresetKey; range: () => { du: string | null; au: string | null } };
 
 function range(start: Date, end: Date) {
     return { du: toDateInput(start), au: toDateInput(end) };
 }
 
 const PRESETS: Preset[] = [
-    { label: "Ce mois", range: () => range(startOfMonth(new Date()), endOfMonth(new Date())) },
+    { key: "thisMonth", range: () => range(startOfMonth(new Date()), endOfMonth(new Date())) },
     {
-        label: "Mois dernier",
+        key: "lastMonth",
         range: () => {
             const lastMonth = subMonths(new Date(), 1);
             return range(startOfMonth(lastMonth), endOfMonth(lastMonth));
         },
     },
-    { label: "Ce trimestre", range: () => range(startOfQuarter(new Date()), endOfQuarter(new Date())) },
-    { label: "Cette année", range: () => range(startOfYear(new Date()), endOfYear(new Date())) },
+    { key: "thisQuarter", range: () => range(startOfQuarter(new Date()), endOfQuarter(new Date())) },
+    { key: "thisYear", range: () => range(startOfYear(new Date()), endOfYear(new Date())) },
     {
-        label: "Année dernière",
+        key: "lastYear",
         range: () => {
             const lastYear = subYears(new Date(), 1);
             return range(startOfYear(lastYear), endOfYear(lastYear));
         },
     },
-    { label: "Tout", range: () => ({ du: null, au: null }) },
+    { key: "all", range: () => ({ du: null, au: null }) },
 ];
 
 export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
@@ -89,7 +94,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <CalendarRange className="h-4 w-4 text-brand-600" />
-                        <p className="text-sm font-semibold text-foreground">Période analysée</p>
+                        <p className="text-sm font-semibold text-foreground">{t.reports.period.title}</p>
                         {isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                     </div>
                     <p className="text-sm text-muted-foreground first-letter:uppercase">{periodLabel}</p>
@@ -98,7 +103,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
                 <div className="flex flex-wrap gap-2">
                     {PRESETS.map((preset) => (
                         <Button
-                            key={preset.label}
+                            key={preset.key}
                             type="button"
                             size="sm"
                             variant="outline"
@@ -109,7 +114,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
                                 isActive(preset) && "border-brand-600 bg-brand-50 text-brand-700"
                             )}
                         >
-                            {preset.label}
+                            {t.reports.period.presets[preset.key]}
                         </Button>
                     ))}
                 </div>
@@ -123,7 +128,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
                 >
                     <div className="space-y-1.5">
                         <label htmlFor="report-du" className="text-sm font-medium text-foreground">
-                            Du
+                            {t.reports.period.from}
                         </label>
                         <Input
                             id="report-du"
@@ -137,7 +142,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
 
                     <div className="space-y-1.5">
                         <label htmlFor="report-au" className="text-sm font-medium text-foreground">
-                            Au
+                            {t.reports.period.to}
                         </label>
                         <Input
                             id="report-au"
@@ -154,7 +159,7 @@ export function ReportPeriodFilter({ du, au, periodLabel }: ReportPeriodFilterPr
                         disabled={isPending}
                         className="h-10 rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
-                        Appliquer
+                        {t.common.apply}
                     </Button>
                 </form>
             </CardContent>

@@ -12,9 +12,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ROUTES } from "@/constants/routes";
-import { STATUT_BAIL_LABELS } from "@/features/leases/constants/lease.constants";
 import { StatutBail } from "@/generated/prisma/enums";
 import type { LocataireContratDTO } from "@/features/tenants/types/tenant.types";
+import { useI18n } from "@/i18n/client";
 
 type LocataireContratsListProps = {
     contrats: readonly LocataireContratDTO[];
@@ -29,12 +29,14 @@ const STATUT_BADGE_VARIANT: Record<StatutBail, "default" | "secondary" | "destru
 };
 
 function ContratBadge({ contrat }: { contrat: LocataireContratDTO }) {
+    const { t } = useI18n();
+
     return (
         <Link href={`${ROUTES.LEASES}/${contrat.id}`}>
             <Badge
                 variant={STATUT_BADGE_VARIANT[contrat.statut]}
                 className="rounded-lg font-mono hover:opacity-80"
-                title={`${contrat.unite.immeuble.nom} — ${contrat.unite.numero} (${STATUT_BAIL_LABELS[contrat.statut]})`}
+                title={`${contrat.unite.immeuble.nom} — ${contrat.unite.numero} (${t.enums.statutBail[contrat.statut]})`}
             >
                 {contrat.numeroContrat}
             </Badge>
@@ -43,6 +45,8 @@ function ContratBadge({ contrat }: { contrat: LocataireContratDTO }) {
 }
 
 export function LocataireContratsList({ contrats, maxVisible = 2 }: LocataireContratsListProps) {
+    const { t } = useI18n();
+
     if (contrats.length === 0) {
         return <span className="text-sm text-muted-foreground">—</span>;
     }
@@ -79,7 +83,7 @@ export function LocataireContratsList({ contrats, maxVisible = 2 }: LocataireCon
                                     {contrat.unite.immeuble.nom} — {contrat.unite.numero}
                                 </span>
                                 <Badge variant={STATUT_BADGE_VARIANT[contrat.statut]} className="ml-auto rounded-lg text-xs">
-                                    {STATUT_BAIL_LABELS[contrat.statut]}
+                                    {t.enums.statutBail[contrat.statut]}
                                 </Badge>
                             </DropdownMenuItem>
                         ))}

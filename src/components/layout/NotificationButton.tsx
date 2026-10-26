@@ -2,15 +2,19 @@
 
 import { Bell } from "lucide-react";
 
+import { useI18n } from "@/i18n/client";
+
 type NotificationButtonProps = {
     count?: number;
 };
 
 export function NotificationButton({ count = 0 }: NotificationButtonProps) {
+    const { t } = useI18n();
+
     return (
         <button
             type="button"
-            aria-label="Notifications"
+            aria-label={t.layout.header.notifications}
             className="
                 relative
                 flex

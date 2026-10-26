@@ -12,24 +12,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-    ETAT_UNITE_LABELS,
-    FREQUENCE_PAIEMENT_LABELS,
-    TYPE_CHARGES_LABELS,
-    TYPE_UNITE_LABELS,
-} from "@/features/units/constants/unit.constants";
 import { FrequencePaiement } from "@/generated/prisma/enums";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { useI18n } from "@/i18n/client";
 
 type UniteDetailModalProps = {
     unite: UniteDTO;
 };
-
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
 
 const etatVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     LIBRE: "default",
@@ -38,12 +27,14 @@ const etatVariant: Record<string, "default" | "secondary" | "destructive" | "out
 };
 
 export function UniteDetailModal({ unite }: UniteDetailModalProps) {
+    const { t, f } = useI18n();
+
     const [open, setOpen] = useState(false);
 
     const frequenceLabel =
         unite.frequencePaiement === FrequencePaiement.AUTRE && unite.frequenceAutreTexte
             ? unite.frequenceAutreTexte
-            : FREQUENCE_PAIEMENT_LABELS[unite.frequencePaiement];
+            : t.enums.frequencePaiement[unite.frequencePaiement];
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -57,75 +48,75 @@ export function UniteDetailModal({ unite }: UniteDetailModalProps) {
                 }
             >
                 <Eye className="h-4 w-4" />
-                Détail
+                {t.common.details}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        Unité {unite.numero}
+                        {t.units.unitTitle(unite.numero)}
                         <Badge
                             variant={etatVariant[unite.etat] ?? "outline"}
                             className="rounded-lg text-xs"
                         >
-                            {ETAT_UNITE_LABELS[unite.etat]}
+                            {t.enums.etatUnite[unite.etat]}
                         </Badge>
                     </DialogTitle>
                 </DialogHeader>
 
                 <dl className="space-y-3 text-sm">
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Type</dt>
-                        <dd className="font-medium text-foreground">{TYPE_UNITE_LABELS[unite.type]}</dd>
+                        <dt className="text-muted-foreground">{t.common.type}</dt>
+                        <dd className="font-medium text-foreground">{t.enums.typeUnite[unite.type]}</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Surface</dt>
+                        <dt className="text-muted-foreground">{t.units.surface}</dt>
                         <dd className="font-medium text-foreground">{unite.surface} m²</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Pièces</dt>
+                        <dt className="text-muted-foreground">{t.units.rooms}</dt>
                         <dd className="font-medium text-foreground">{unite.nombrePieces}</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Loyer de base</dt>
+                        <dt className="text-muted-foreground">{t.units.baseRent}</dt>
                         <dd className="font-medium text-foreground">
-                            {currencyFormatter.format(unite.loyerMensuel)}
+                            {f.currency(unite.loyerMensuel)}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Charges ({TYPE_CHARGES_LABELS[unite.typeCharges]})</dt>
+                        <dt className="text-muted-foreground">{t.units.chargesWithType(t.enums.typeCharges[unite.typeCharges])}</dt>
                         <dd className="font-medium text-foreground">
                             {unite.typeCharges === "POURCENTAGE"
                                 ? `${unite.valeurCharges}%`
-                                : currencyFormatter.format(unite.valeurCharges)}
+                                : f.currency(unite.valeurCharges)}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Caution</dt>
+                        <dt className="text-muted-foreground">{t.units.deposit}</dt>
                         <dd className="font-medium text-foreground">
-                            {currencyFormatter.format(unite.caution)}
+                            {f.currency(unite.caution)}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Fréquence de paiement</dt>
+                        <dt className="text-muted-foreground">{t.units.paymentFrequency}</dt>
                         <dd className="font-medium text-foreground">{frequenceLabel}</dd>
                     </div>
 
                     <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Meublée</dt>
+                        <dt className="text-muted-foreground">{t.units.furnishedFeminine}</dt>
                         <dd className="font-medium text-foreground">
                             {unite.isMeuble ? (
                                 <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                                    Oui
+                                    {t.common.yes}
                                 </span>
                             ) : (
-                                <span className="text-muted-foreground">Non</span>
+                                <span className="text-muted-foreground">{t.common.no}</span>
                             )}
                         </dd>
                     </div>

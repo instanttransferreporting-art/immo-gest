@@ -10,8 +10,8 @@ import { toast } from "@/components/ui/toast";
 import { genererReversement } from "@/features/payouts/actions/reversement.actions";
 import { ReversementsTable } from "@/features/payouts/components/ReversementsTable";
 import { CompteRenduGestion } from "@/features/payouts/components/CompteRenduGestion";
-import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
+import { useI18n } from "@/i18n/client";
 
 type ReversementBilanPanelProps = {
     proprietaireId: string;
@@ -21,6 +21,8 @@ type ReversementBilanPanelProps = {
 const now = new Date();
 
 export function ReversementBilanPanel({ proprietaireId, reversements }: ReversementBilanPanelProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [mois, setMois] = useState(now.getMonth() + 1);
     const [annee, setAnnee] = useState(now.getFullYear());
@@ -48,7 +50,7 @@ export function ReversementBilanPanel({ proprietaireId, reversements }: Reversem
         <div className="space-y-6">
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
-                    <CardTitle className="text-base font-semibold text-foreground">Reversements</CardTitle>
+                    <CardTitle className="text-base font-semibold text-foreground">{t.operations.payouts.listTitle}</CardTitle>
 
                     <div className="flex items-center gap-2">
                         <select
@@ -56,9 +58,9 @@ export function ReversementBilanPanel({ proprietaireId, reversements }: Reversem
                             onChange={(event) => setMois(Number(event.target.value))}
                             className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                         >
-                            {MOIS_LABELS.map((label, index) => (
-                                <option key={label} value={index + 1}>
-                                    {label}
+                            {Array.from({ length: 12 }, (_, index) => (
+                                <option key={index} value={index + 1}>
+                                    {f.monthName(index + 1)}
                                 </option>
                             ))}
                         </select>
@@ -86,7 +88,7 @@ export function ReversementBilanPanel({ proprietaireId, reversements }: Reversem
                             ) : (
                                 <ReceiptText className="h-4 w-4" />
                             )}
-                            Générer le bilan
+                            {t.operations.payouts.generate}
                         </Button>
                     </div>
                 </CardHeader>

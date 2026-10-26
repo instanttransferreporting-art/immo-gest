@@ -13,6 +13,7 @@ import { RoleSelect } from "@/features/users/components/RoleSelect";
 import { updateUserSchema, type UpdateUserFormValues } from "@/features/users/schemas/user.schema";
 import type { AssignableRole } from "@/features/users/constants/user.constants";
 import type { TeamMemberDTO } from "@/features/users/types/user.types";
+import { useI18n } from "@/i18n/client";
 
 type EditUserFormProps = {
     user: TeamMemberDTO;
@@ -21,6 +22,8 @@ type EditUserFormProps = {
 };
 
 export function EditUserForm({ user, isSelf, onSuccess }: EditUserFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -57,31 +60,31 @@ export function EditUserForm({ user, isSelf, onSuccess }: EditUserFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="edit-prenom" className="text-sm font-medium text-foreground">
-                        Prénom
+                        {t.common.firstName}
                     </label>
                     <Input
                         id="edit-prenom"
                         className={cn("h-10 rounded-xl", errors.prenom && "border-red-500")}
                         {...register("prenom")}
                     />
-                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{errors.prenom.message}</p>}
+                    {errors.prenom && <p className="animate-pulse text-sm text-red-500">{tv(errors.prenom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="edit-nom" className="text-sm font-medium text-foreground">
-                        Nom
+                        {t.common.lastName}
                     </label>
                     <Input
                         id="edit-nom"
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="edit-role" className="text-sm font-medium text-foreground">
-                        Rôle
+                        {t.common.role}
                     </label>
                     {/* readOnly-like : un <select disabled> ne serait pas soumis par react-hook-form */}
                     <RoleSelect
@@ -93,9 +96,9 @@ export function EditUserForm({ user, isSelf, onSuccess }: EditUserFormProps) {
                         {...register("role")}
                     />
                     {isSelf && (
-                        <p className="text-xs text-muted-foreground">Vous ne pouvez pas modifier votre propre rôle.</p>
+                        <p className="text-xs text-muted-foreground">{t.admin.users.cannotChangeOwnRole}</p>
                     )}
-                    {errors.role && <p className="animate-pulse text-sm text-red-500">{errors.role.message}</p>}
+                    {errors.role && <p className="animate-pulse text-sm text-red-500">{tv(errors.role.message)}</p>}
                 </div>
             </div>
 
@@ -104,7 +107,7 @@ export function EditUserForm({ user, isSelf, onSuccess }: EditUserFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.common.save}
             </Button>
         </form>
     );

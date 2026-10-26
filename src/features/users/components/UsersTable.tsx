@@ -22,20 +22,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
-import { ROLE_LABELS } from "@/constants/roles";
 import { setUserActive } from "@/features/users/actions/user.actions";
 import { EditUserForm } from "@/features/users/components/EditUserForm";
 import { ResetPasswordForm } from "@/features/users/components/ResetPasswordForm";
 import type { TeamMemberDTO } from "@/features/users/types/user.types";
+import { useI18n } from "@/i18n/client";
 
 type UsersTableProps = {
     users: readonly TeamMemberDTO[];
     currentUserId: string;
 };
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function UsersTable({ users, currentUserId }: UsersTableProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const [editingUser, setEditingUser] = useState<TeamMemberDTO | null>(null);
     const [resettingUser, setResettingUser] = useState<TeamMemberDTO | null>(null);
@@ -59,8 +59,8 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <UserCog className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun utilisateur</p>
-                <p className="text-sm text-muted-foreground">Ajoutez les membres de votre équipe pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.admin.users.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.admin.users.emptyHint}</p>
             </div>
         );
     }
@@ -71,12 +71,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted hover:bg-muted">
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Rôle</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead>Créé le</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t.common.name}</TableHead>
+                            <TableHead>{t.common.email}</TableHead>
+                            <TableHead>{t.common.role}</TableHead>
+                            <TableHead>{t.common.status}</TableHead>
+                            <TableHead>{t.admin.users.createdAt}</TableHead>
+                            <TableHead className="text-right">{t.common.actions}</TableHead>
                         </TableRow>
                     </TableHeader>
 
@@ -88,10 +88,10 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                                 <TableRow key={user.id}>
                                     <TableCell className="font-medium text-foreground">
                                         {user.prenom} {user.nom}
-                                        {isSelf && <span className="ml-2 text-xs text-muted-foreground">(vous)</span>}
+                                        {isSelf && <span className="ml-2 text-xs text-muted-foreground">{t.common.you}</span>}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                                    <TableCell className="text-muted-foreground">{ROLE_LABELS[user.role]}</TableCell>
+                                    <TableCell className="text-muted-foreground">{t.enums.role[user.role]}</TableCell>
                                     <TableCell>
                                         <Badge
                                             className={
@@ -100,11 +100,11 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                                                     : "rounded-lg bg-red-50 text-red-700"
                                             }
                                         >
-                                            {user.isActive ? "Actif" : "Désactivé"}
+                                            {user.isActive ? t.common.active : t.admin.users.disabled}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
-                                        {dateFormatter.format(user.createdAt)}
+                                        {f.date(user.createdAt)}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -124,12 +124,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                                             <DropdownMenuContent align="end" className="w-56 rounded-xl">
                                                 <DropdownMenuItem onClick={() => setEditingUser(user)}>
                                                     <Pencil className="h-4 w-4" />
-                                                    Modifier
+                                                    {t.common.edit}
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem onClick={() => setResettingUser(user)}>
                                                     <KeyRound className="h-4 w-4" />
-                                                    Réinitialiser le mot de passe
+                                                    {t.admin.users.resetPassword}
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem
@@ -140,12 +140,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                                                     {user.isActive ? (
                                                         <>
                                                             <Ban className="h-4 w-4" />
-                                                            Désactiver le compte
+                                                            {t.admin.users.deactivate}
                                                         </>
                                                     ) : (
                                                         <>
                                                             <CheckCircle2 className="h-4 w-4" />
-                                                            Réactiver le compte
+                                                            {t.admin.users.reactivate}
                                                         </>
                                                     )}
                                                 </DropdownMenuItem>
@@ -169,7 +169,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
             >
                 <DialogContent className="max-w-lg rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Modifier l&apos;utilisateur</DialogTitle>
+                        <DialogTitle>{t.admin.users.edit}</DialogTitle>
                     </DialogHeader>
 
                     {editingUser && (
@@ -195,7 +195,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
             >
                 <DialogContent className="max-w-md rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
+                        <DialogTitle>{t.admin.users.resetPassword}</DialogTitle>
                     </DialogHeader>
 
                     {resettingUser && (

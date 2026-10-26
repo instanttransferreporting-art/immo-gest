@@ -4,12 +4,13 @@ import { getCurrentSession } from "@/lib/auth";
 import { DashboardService } from "@/features/dashboard/services/dashboard.service";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { DashboardMetricsDTO } from "@/features/dashboard/types/dashboard.types";
+import { getI18n } from "@/i18n/server";
 
 export async function getDashboardMetrics(): Promise<ActionResponse<DashboardMetricsDTO>> {
-    const session = await getCurrentSession();
+    const [session, { t }] = await Promise.all([getCurrentSession(), getI18n()]);
 
     if (!session) {
-        return { success: false, message: "Vous devez être connecté pour effectuer cette action." };
+        return { success: false, message: t.common.errors.unauthenticated };
     }
 
     try {
@@ -17,13 +18,13 @@ export async function getDashboardMetrics(): Promise<ActionResponse<DashboardMet
 
         return {
             success: true,
-            message: "Métriques récupérées avec succès.",
+            message: "OK",
             data: metrics,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors du chargement des métriques.",
+            message: t.dashboard.loadFailed,
         };
     }
 }

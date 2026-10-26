@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import {
     CautionExceedsMontantInitialError,
@@ -14,15 +14,21 @@ import { restitutionCautionSchema } from "@/features/leases/schemas/caution.sche
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { CautionDTO } from "@/features/leases/types/caution.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function restituerCaution(input: unknown): Promise<ActionResponse<CautionDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("CAUTION_RESTITUER");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -33,7 +39,7 @@ export async function restituerCaution(input: unknown): Promise<ActionResponse<C
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -52,17 +58,21 @@ export async function restituerCaution(input: unknown): Promise<ActionResponse<C
 
         return {
             success: true,
-            message: "Caution mise à jour avec succès.",
+            message: t.leases.caution.updated,
             data: caution,
         };
     } catch (error) {
-        if (error instanceof CautionExceedsMontantInitialError || error instanceof CautionNotFoundError) {
-            return { success: false, message: error.message };
+        if (error instanceof CautionExceedsMontantInitialError) {
+            return { success: false, message: t.leases.caution.exceedsInitial };
+        }
+
+        if (error instanceof CautionNotFoundError) {
+            return { success: false, message: t.leases.caution.notFound };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour de la caution.",
+            message: t.leases.caution.updateFailed,
         };
     }
 }

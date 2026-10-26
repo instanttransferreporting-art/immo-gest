@@ -2,23 +2,29 @@
 
 import { revalidatePath } from "next/cache";
 
-import { effectiveOrganizationId, UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { effectiveOrganizationId } from "@/lib/auth";
+import { checkPermission } from "@/lib/permissions";
 import { AuditService } from "@/lib/audit";
 import { UniteService } from "@/features/units/services/unite.service";
 import { uniteSchema, uniteUpdateSchema } from "@/features/units/schemas/unit.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function createUnite(input: unknown): Promise<ActionResponse<UniteDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("UNITE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -29,7 +35,7 @@ export async function createUnite(input: unknown): Promise<ActionResponse<UniteD
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -48,25 +54,29 @@ export async function createUnite(input: unknown): Promise<ActionResponse<UniteD
 
         return {
             success: true,
-            message: "Unité créée avec succès.",
+            message: t.units.created,
             data: unite,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la création de l'unité.",
+            message: t.units.createFailed,
         };
     }
 }
 
 export async function updateUnite(id: string, input: unknown): Promise<ActionResponse<UniteDTO>> {
+    const { t } = await getI18n();
+
     let user;
 
     try {
         user = await checkPermission("UNITE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -77,7 +87,7 @@ export async function updateUnite(id: string, input: unknown): Promise<ActionRes
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -88,7 +98,7 @@ export async function updateUnite(id: string, input: unknown): Promise<ActionRes
         if (!unite) {
             return {
                 success: false,
-                message: "L'unité est introuvable.",
+                message: t.units.notFound,
             };
         }
 
@@ -103,13 +113,13 @@ export async function updateUnite(id: string, input: unknown): Promise<ActionRes
 
         return {
             success: true,
-            message: "Unité mise à jour avec succès.",
+            message: t.units.updated,
             data: unite,
         };
     } catch {
         return {
             success: false,
-            message: "Une erreur est survenue lors de la mise à jour de l'unité.",
+            message: t.units.updateFailed,
         };
     }
 }

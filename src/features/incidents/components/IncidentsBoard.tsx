@@ -7,22 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { updateStatutIncident } from "@/features/incidents/actions/incident.actions";
 import {
-    PRIORITE_INCIDENT_LABELS,
     PRIORITE_INCIDENT_STYLES,
-    STATUT_INCIDENT_LABELS,
     STATUT_INCIDENT_ORDER,
     STATUT_INCIDENT_STYLES,
 } from "@/features/incidents/constants/incident.constants";
 import { StatutIncident } from "@/generated/prisma/enums";
 import type { IncidentDTO } from "@/features/incidents/types/incident.types";
+import { useI18n } from "@/i18n/client";
 
 type IncidentsBoardProps = {
     incidents: readonly IncidentDTO[];
 };
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
 
     async function handleStatutChange(incidentId: string, statut: StatutIncident) {
@@ -38,8 +37,8 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Wrench className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun incident</p>
-                <p className="text-sm text-muted-foreground">Signalez une panne pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.operations.incidents.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.operations.incidents.emptyHint}</p>
             </div>
         );
     }
@@ -53,7 +52,7 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                     <div key={statut} className="space-y-3 rounded-xl bg-muted p-3">
                         <div className="flex items-center justify-between px-1">
                             <span className={`rounded-lg px-2 py-1 text-xs font-semibold ${STATUT_INCIDENT_STYLES[statut]}`}>
-                                {STATUT_INCIDENT_LABELS[statut]}
+                                {t.enums.statutIncident[statut]}
                             </span>
                             <span className="text-xs text-muted-foreground">{columnIncidents.length}</span>
                         </div>
@@ -74,7 +73,7 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                                             <Badge
                                                 className={`rounded-lg ${PRIORITE_INCIDENT_STYLES[incident.priorite]}`}
                                             >
-                                                {PRIORITE_INCIDENT_LABELS[incident.priorite]}
+                                                {t.enums.prioriteIncident[incident.priorite]}
                                             </Badge>
                                         </div>
 
@@ -84,12 +83,12 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
 
                                         {incident.prestataire && (
                                             <p className="text-xs text-muted-foreground">
-                                                Prestataire : {incident.prestataire}
+                                                {t.operations.incidents.provider(incident.prestataire)}
                                             </p>
                                         )}
 
                                         <p className="text-xs text-muted-foreground">
-                                            Signalé le {dateFormatter.format(incident.dateSignalement)}
+                                            {t.operations.incidents.reportedOn(f.date(incident.dateSignalement))}
                                         </p>
 
                                         <select
@@ -101,7 +100,7 @@ export function IncidentsBoard({ incidents }: IncidentsBoardProps) {
                                         >
                                             {STATUT_INCIDENT_ORDER.map((option) => (
                                                 <option key={option} value={option}>
-                                                    {STATUT_INCIDENT_LABELS[option]}
+                                                    {t.enums.statutIncident[option]}
                                                 </option>
                                             ))}
                                         </select>

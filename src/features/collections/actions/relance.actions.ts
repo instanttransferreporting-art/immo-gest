@@ -2,20 +2,25 @@
 
 import { revalidatePath } from "next/cache";
 
-import { UnauthenticatedError } from "@/lib/auth";
-import { checkPermission, ForbiddenError } from "@/lib/permissions";
+import { checkPermission } from "@/lib/permissions";
 import { RelanceNiveauOrderError, RelanceService } from "@/features/collections/services/relance.service";
 import { genererRelanceSchema } from "@/features/collections/schemas/collection.schema";
 import { ROUTES } from "@/constants/routes";
 import type { ActionResponse } from "@/types/action-response.types";
 import type { RelanceDTO } from "@/features/collections/types/collection.types";
+import { getI18n } from "@/i18n/server";
+import { authErrorMessage } from "@/i18n/action-errors";
 
 export async function genererRelance(input: unknown): Promise<ActionResponse<RelanceDTO>> {
+    const { t } = await getI18n();
+
     try {
         await checkPermission("RELANCE_CREATE");
     } catch (error) {
-        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
-            return { success: false, message: error.message };
+        const authMessage = await authErrorMessage(error);
+
+        if (authMessage) {
+            return { success: false, message: authMessage };
         }
 
         throw error;
@@ -26,7 +31,7 @@ export async function genererRelance(input: unknown): Promise<ActionResponse<Rel
     if (!parsed.success) {
         return {
             success: false,
-            message: "Les informations saisies sont invalides.",
+            message: t.common.invalidInput,
             errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
         };
     }
@@ -38,17 +43,20 @@ export async function genererRelance(input: unknown): Promise<ActionResponse<Rel
 
         return {
             success: true,
-            message: "Relance enregistrée avec succès.",
+            message: t.operations.collections.created,
             data: relance,
         };
     } catch (error) {
         if (error instanceof RelanceNiveauOrderError) {
-            return { success: false, message: error.message };
+            return {
+                success: false,
+                message: t.operations.collections.levelOrder(t.enums.niveauRelance[error.niveauRequis]),
+            };
         }
 
         return {
             success: false,
-            message: "Une erreur est survenue lors de la génération de la relance.",
+            message: t.operations.collections.createFailed,
         };
     }
 }

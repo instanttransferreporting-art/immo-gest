@@ -27,14 +27,15 @@ import { EditOrganizationForm } from "@/features/platform/components/EditOrganiz
 import { setOrganizationActive, startImpersonation } from "@/features/platform/actions/platform.actions";
 import { ROUTES } from "@/constants/routes";
 import type { OrganizationSummaryDTO } from "@/features/platform/types/platform.types";
+import { useI18n } from "@/i18n/client";
 
 type OrganizationsTableProps = {
     organizations: readonly OrganizationSummaryDTO[];
 };
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
-
 export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
+    const { t, f } = useI18n();
+
     const router = useRouter();
     const { update } = useSession();
     const [editingOrganization, setEditingOrganization] = useState<OrganizationSummaryDTO | null>(null);
@@ -76,8 +77,8 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
                 <Building2 className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Aucune entreprise enregistrée</p>
-                <p className="text-sm text-muted-foreground">Ajoutez votre première entreprise pour commencer.</p>
+                <p className="text-sm font-medium text-muted-foreground">{t.admin.platform.empty}</p>
+                <p className="text-sm text-muted-foreground">{t.admin.platform.emptyHint}</p>
             </div>
         );
     }
@@ -88,13 +89,13 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted hover:bg-muted">
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Ville</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead>Immeubles</TableHead>
-                            <TableHead>Utilisateurs</TableHead>
-                            <TableHead>Créée le</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t.common.name}</TableHead>
+                            <TableHead>{t.common.city}</TableHead>
+                            <TableHead>{t.common.status}</TableHead>
+                            <TableHead>{t.admin.platform.buildings}</TableHead>
+                            <TableHead>{t.admin.platform.users}</TableHead>
+                            <TableHead>{t.common.createdAtFeminine}</TableHead>
+                            <TableHead className="text-right">{t.common.actions}</TableHead>
                         </TableRow>
                     </TableHeader>
 
@@ -111,13 +112,13 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                                                 : "rounded-lg bg-red-50 text-red-700"
                                         }
                                     >
-                                        {organization.isActive ? "Active" : "Suspendue"}
+                                        {organization.isActive ? t.common.activeFeminine : t.common.suspended}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">{organization.totalImmeubles}</TableCell>
                                 <TableCell className="text-muted-foreground">{organization.totalUsers}</TableCell>
                                 <TableCell className="text-muted-foreground">
-                                    {dateFormatter.format(organization.createdAt)}
+                                    {f.date(organization.createdAt)}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
@@ -140,12 +141,12 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                                                 onClick={() => handleImpersonate(organization)}
                                             >
                                                 <ArrowLeftRight className="h-4 w-4" />
-                                                Basculer sur cette agence
+                                                {t.admin.platform.switchTo}
                                             </DropdownMenuItem>
 
                                             <DropdownMenuItem onClick={() => setEditingOrganization(organization)}>
                                                 <Pencil className="h-4 w-4" />
-                                                Éditer l&apos;organisation
+                                                {t.admin.platform.editOrganization}
                                             </DropdownMenuItem>
 
                                             <DropdownMenuItem
@@ -155,12 +156,12 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                                                 {organization.isActive ? (
                                                     <>
                                                         <Ban className="h-4 w-4" />
-                                                        Suspendre l&apos;agence
+                                                        {t.admin.platform.suspend}
                                                     </>
                                                 ) : (
                                                     <>
                                                         <CheckCircle2 className="h-4 w-4" />
-                                                        Réactiver l&apos;agence
+                                                        {t.admin.platform.reactivate}
                                                     </>
                                                 )}
                                             </DropdownMenuItem>
@@ -183,7 +184,7 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
             >
                 <DialogContent className="max-w-lg rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Éditer l&apos;entreprise</DialogTitle>
+                        <DialogTitle>{t.admin.platform.editCompany}</DialogTitle>
                     </DialogHeader>
 
                     {editingOrganization && (

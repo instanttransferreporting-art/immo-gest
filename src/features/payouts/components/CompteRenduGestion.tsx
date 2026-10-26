@@ -5,23 +5,16 @@ import { Download, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PrintLetterhead } from "@/components/layout/PrintLetterhead";
-import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
-import { STATUT_REVERSEMENT_LABELS } from "@/features/payouts/constants/payout.constants";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
+import { useI18n } from "@/i18n/client";
 
 type CompteRenduGestionProps = {
     reversement: ReversementDTO;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
-
 export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
+    const { t, f } = useI18n();
+
     const proprietaireNom = `${reversement.proprietaire.nom} ${reversement.proprietaire.prenom ?? ""}`.trim();
 
     return (
@@ -31,9 +24,9 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-foreground">Compte Rendu de Gestion</h2>
+                        <h2 className="text-lg font-bold text-foreground">{t.operations.payouts.reportTitle}</h2>
                         <p className="text-sm text-muted-foreground">
-                            {MOIS_LABELS[reversement.mois - 1]} {reversement.annee}
+                            {f.monthYear(reversement.mois, reversement.annee)}
                         </p>
                     </div>
 
@@ -45,7 +38,7 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
                             onClick={() => window.print()}
                         >
                             <Printer className="h-4 w-4" />
-                            Imprimer
+                            {t.common.print}
                         </Button>
 
                         <Button
@@ -54,29 +47,29 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
                             nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
-                            Export Excel
+                            {t.common.exportExcel}
                         </Button>
                     </div>
                 </div>
 
                 <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt className="text-muted-foreground">Propriétaire</dt>
+                        <dt className="text-muted-foreground">{t.operations.payouts.owner}</dt>
                         <dd className="font-medium text-foreground">{proprietaireNom}</dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Statut</dt>
-                        <dd className="font-medium text-foreground">{STATUT_REVERSEMENT_LABELS[reversement.statut]}</dd>
+                        <dt className="text-muted-foreground">{t.common.status}</dt>
+                        <dd className="font-medium text-foreground">{t.enums.statutReversement[reversement.statut]}</dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Date de génération</dt>
-                        <dd className="font-medium text-foreground">{dateFormatter.format(reversement.dateGeneration)}</dd>
+                        <dt className="text-muted-foreground">{t.operations.payouts.generatedOn}</dt>
+                        <dd className="font-medium text-foreground">{f.dateLong(reversement.dateGeneration)}</dd>
                     </div>
                     {reversement.dateValidation && (
                         <div>
-                            <dt className="text-muted-foreground">Date de validation</dt>
+                            <dt className="text-muted-foreground">{t.operations.payouts.approvedOn}</dt>
                             <dd className="font-medium text-foreground">
-                                {dateFormatter.format(reversement.dateValidation)}
+                                {f.dateLong(reversement.dateValidation)}
                             </dd>
                         </div>
                     )}
@@ -84,18 +77,18 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
 
                 <div className="space-y-2 border-t border-border pt-4 text-sm">
                     <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total encaissé</span>
-                        <span className="text-foreground">{currencyFormatter.format(reversement.totalEncaisse)}</span>
+                        <span className="text-muted-foreground">{t.operations.payouts.totalCollected}</span>
+                        <span className="text-foreground">{f.currency(reversement.totalEncaisse)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                            Frais d&apos;agence ({reversement.tauxCommission}%)
+                            {t.operations.payouts.agencyFees(reversement.tauxCommission)}
                         </span>
-                        <span className="text-red-600">- {currencyFormatter.format(reversement.commission)}</span>
+                        <span className="text-red-600">- {f.currency(reversement.commission)}</span>
                     </div>
                     <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
-                        <span className="text-foreground">Net à payer au propriétaire</span>
-                        <span className="text-brand-700">{currencyFormatter.format(reversement.netAPayer)}</span>
+                        <span className="text-foreground">{t.operations.payouts.netToOwner}</span>
+                        <span className="text-brand-700">{f.currency(reversement.netAPayer)}</span>
                     </div>
                 </div>
             </CardContent>

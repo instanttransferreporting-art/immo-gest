@@ -7,6 +7,7 @@ import { Loader2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { searchGlobal } from "@/features/search/actions/search.actions";
+import { useI18n } from "@/i18n/client";
 import type { SearchResultDTO, SearchResultGroup } from "@/features/search/types/search.types";
 
 type SearchBarProps = {
@@ -17,19 +18,11 @@ type SearchBarProps = {
 const MIN_LENGTH = 2;
 const DEBOUNCE_MS = 250;
 
-const GROUP_LABELS: Readonly<Record<SearchResultGroup, string>> = {
-    IMMEUBLE: "Immeubles",
-    UNITE: "Unités",
-    LOCATAIRE: "Locataires",
-    CONTRAT: "Contrats",
-    PROPRIETAIRE: "Propriétaires",
-};
+const GROUP_ORDER: readonly SearchResultGroup[] = ["IMMEUBLE", "UNITE", "LOCATAIRE", "CONTRAT", "PROPRIETAIRE"];
 
-export function SearchBar({
-    placeholder = "Rechercher un bien, un locataire...",
-    className,
-}: SearchBarProps) {
+export function SearchBar({ placeholder, className }: SearchBarProps) {
     const router = useRouter();
+    const { t } = useI18n();
     const containerRef = useRef<HTMLDivElement>(null);
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<readonly SearchResultDTO[]>([]);
@@ -113,7 +106,7 @@ export function SearchBar({
             <Input
                 type="search"
                 value={query}
-                placeholder={placeholder}
+                placeholder={placeholder ?? t.layout.header.searchPlaceholder}
                 autoComplete="off"
                 onChange={(event) => {
                     setQuery(event.target.value);
@@ -132,10 +125,10 @@ export function SearchBar({
                 <div className="absolute top-12 left-0 z-50 max-h-96 w-[28rem] max-w-[90vw] overflow-y-auto rounded-2xl border border-border bg-popover p-2 text-popover-foreground shadow-lg">
                     {visibleResults.length === 0 ? (
                         <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-                            {loading ? "Recherche..." : "Aucun résultat."}
+                            {loading ? t.common.searching : t.layout.header.noResults}
                         </p>
                     ) : (
-                        (Object.keys(GROUP_LABELS) as SearchResultGroup[]).map((group) => {
+                        GROUP_ORDER.map((group) => {
                             const items = visibleResults.filter((result) => result.group === group);
 
                             if (items.length === 0) {
@@ -145,7 +138,7 @@ export function SearchBar({
                             return (
                                 <div key={group} className="py-1">
                                     <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                        {GROUP_LABELS[group]}
+                                        {t.layout.header.searchGroups[group]}
                                     </p>
 
                                     {items.map((item) => {

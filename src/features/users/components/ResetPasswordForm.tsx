@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/toast";
 import { resetUserPassword } from "@/features/users/actions/user.actions";
 import { resetPasswordSchema, type ResetPasswordFormValues } from "@/features/users/schemas/user.schema";
 import type { TeamMemberDTO } from "@/features/users/types/user.types";
+import { useI18n } from "@/i18n/client";
 
 type ResetPasswordFormProps = {
     user: TeamMemberDTO;
@@ -18,6 +19,8 @@ type ResetPasswordFormProps = {
 };
 
 export function ResetPasswordForm({ user, onSuccess }: ResetPasswordFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -47,12 +50,12 @@ export function ResetPasswordForm({ user, onSuccess }: ResetPasswordFormProps) {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <p className="text-sm text-muted-foreground">
-                Nouveau mot de passe pour {user.prenom} {user.nom} ({user.email}).
+                {t.admin.users.newPasswordFor(`${user.prenom} ${user.nom}`, user.email)}
             </p>
 
             <div className="space-y-1.5">
                 <label htmlFor="reset-password" className="text-sm font-medium text-foreground">
-                    Nouveau mot de passe
+                    {t.admin.users.newPassword}
                 </label>
                 <Input
                     id="reset-password"
@@ -61,7 +64,7 @@ export function ResetPasswordForm({ user, onSuccess }: ResetPasswordFormProps) {
                     className={cn("h-10 rounded-xl", errors.password && "border-red-500")}
                     {...register("password")}
                 />
-                {errors.password && <p className="animate-pulse text-sm text-red-500">{errors.password.message}</p>}
+                {errors.password && <p className="animate-pulse text-sm text-red-500">{tv(errors.password.message)}</p>}
             </div>
 
             <Button
@@ -69,7 +72,7 @@ export function ResetPasswordForm({ user, onSuccess }: ResetPasswordFormProps) {
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Réinitialiser"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.admin.users.reset}
             </Button>
         </form>
     );

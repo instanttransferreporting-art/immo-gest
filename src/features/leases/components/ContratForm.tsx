@@ -11,15 +11,11 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { createContrat } from "@/features/leases/actions/contrat.actions";
 import { contratSchema, type ContratFormValues } from "@/features/leases/schemas/lease.schema";
-import { FREQUENCE_LABELS } from "@/features/leases/constants/lease.constants";
 import { calculateProrata } from "@/features/leases/services/prorata.calculator";
-import {
-    calculateDateFinAuto,
-    calculateMontantContrat,
-    getFrequenceDescription,
-} from "@/features/leases/services/contrat-calculator";
+import { calculateDateFinAuto, calculateMontantContrat } from "@/features/leases/services/contrat-calculator";
 import { FrequenceEcheance } from "@/generated/prisma/enums";
 import type { ContratDTO, LocataireOptionDTO, UniteLibreOptionDTO } from "@/features/leases/types/lease.types";
+import { useI18n } from "@/i18n/client";
 
 type ContratFormProps = {
     uniteOptions: readonly UniteLibreOptionDTO[];
@@ -32,13 +28,9 @@ type ContratFormProps = {
 const toDateInputValue = (date: Date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
 export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: ContratFormProps) {
+    const { t, tv, f } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -138,7 +130,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             {/* Unité */}
             <div className="space-y-1.5">
                 <label htmlFor="uniteId" className="text-sm font-medium text-foreground">
-                    Unité (libre)
+                    {t.leases.form.freeUnit}
                 </label>
                 <select
                     id="uniteId"
@@ -148,39 +140,39 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     )}
                     {...register("uniteId")}
                 >
-                    <option value="">Sélectionner une unité</option>
+                    <option value="">{t.leases.form.selectUnit}</option>
                     {uniteOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                             {option.immeuble.nom} — {option.numero}
-                            {option.isMeuble ? " (Meublé)" : ""}
+                            {option.isMeuble ? t.leases.form.furnishedSuffix : ""}
                         </option>
                     ))}
                 </select>
-                {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{errors.uniteId.message}</p>}
+                {errors.uniteId && <p className="animate-pulse text-sm text-red-500">{tv(errors.uniteId.message)}</p>}
             </div>
 
             {/* Nature du logement */}
             <div className="space-y-1.5">
                 <label htmlFor="isMeuble" className="text-sm font-medium text-foreground">
-                    Nature du logement
+                    {t.leases.form.housingType}
                 </label>
                 <select
                     id="isMeuble"
                     className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     {...register("isMeuble", { setValueAs: (value) => value === true || value === "true" })}
                 >
-                    <option value="false">Non meublé</option>
-                    <option value="true">Meublé</option>
+                    <option value="false">{t.leases.form.unfurnished}</option>
+                    <option value="true">{t.leases.form.furnished}</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
-                    Pré-rempli selon l&apos;unité ; si vous le modifiez, l&apos;unité sera mise à jour.
+                    {t.leases.form.housingTypeHint}
                 </p>
             </div>
 
             {/* Locataire */}
             <div className="space-y-1.5">
                 <label htmlFor="locataireId" className="text-sm font-medium text-foreground">
-                    Locataire
+                    {t.leases.tenant}
                 </label>
                 <select
                     id="locataireId"
@@ -190,7 +182,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     )}
                     {...register("locataireId")}
                 >
-                    <option value="">Sélectionner un locataire</option>
+                    <option value="">{t.leases.form.selectTenant}</option>
                     {locataireOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                             {option.raisonSociale ?? `${option.nom} ${option.prenom}`}
@@ -198,7 +190,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     ))}
                 </select>
                 {errors.locataireId && (
-                    <p className="animate-pulse text-sm text-red-500">{errors.locataireId.message}</p>
+                    <p className="animate-pulse text-sm text-red-500">{tv(errors.locataireId.message)}</p>
                 )}
             </div>
 
@@ -206,7 +198,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="dateDebut" className="text-sm font-medium text-foreground">
-                        Date de début
+                        {t.leases.form.startDate}
                     </label>
                     <Input
                         id="dateDebut"
@@ -216,13 +208,13 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         {...register("dateDebut", { setValueAs: (value) => (value ? new Date(value) : new Date("")) })}
                     />
                     {errors.dateDebut && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.dateDebut.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.dateDebut.message)}</p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="dateFin" className="text-sm font-medium text-foreground">
-                        Date de fin
+                        {t.leases.form.endDate}
                     </label>
                     <Controller
                         control={control}
@@ -247,10 +239,10 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     />
                     {!isNuitee ? (
                         <p className="text-xs text-muted-foreground">
-                            Fixée automatiquement au 31 décembre de l&apos;année de début (période fiscale).
+                            {t.leases.form.endDateAuto}
                         </p>
                     ) : (
-                        errors.dateFin && <p className="animate-pulse text-sm text-red-500">{errors.dateFin.message}</p>
+                        errors.dateFin && <p className="animate-pulse text-sm text-red-500">{tv(errors.dateFin.message)}</p>
                     )}
                 </div>
             </div>
@@ -259,7 +251,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
                     <label htmlFor="loyerBase" className="text-sm font-medium text-foreground">
-                        {isNuitee ? "Tarif par nuit" : "Loyer de base"}
+                        {isNuitee ? t.leases.form.nightlyRate : t.leases.baseRent}
                     </label>
                     <Input
                         id="loyerBase"
@@ -269,13 +261,13 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         {...register("loyerBase", { valueAsNumber: true })}
                     />
                     {errors.loyerBase && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.loyerBase.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.loyerBase.message)}</p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="charges" className="text-sm font-medium text-foreground">
-                        Charges
+                        {t.leases.charges}
                     </label>
                     <Input
                         id="charges"
@@ -284,12 +276,12 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         className={cn("h-10 rounded-xl", errors.charges && "border-red-500")}
                         {...register("charges", { valueAsNumber: true })}
                     />
-                    {errors.charges && <p className="animate-pulse text-sm text-red-500">{errors.charges.message}</p>}
+                    {errors.charges && <p className="animate-pulse text-sm text-red-500">{tv(errors.charges.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="depotGarantie" className="text-sm font-medium text-foreground">
-                        Caution
+                        {t.leases.deposit}
                     </label>
                     <Input
                         id="depotGarantie"
@@ -299,7 +291,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         {...register("depotGarantie", { valueAsNumber: true })}
                     />
                     {errors.depotGarantie && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.depotGarantie.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.depotGarantie.message)}</p>
                     )}
                 </div>
             </div>
@@ -307,21 +299,21 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             {/* Fréquence */}
             <div className="space-y-1.5">
                 <label htmlFor="frequence" className="text-sm font-medium text-foreground">
-                    Fréquence de paiement
+                    {t.leases.paymentFrequency}
                 </label>
                 <select
                     id="frequence"
                     className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     {...register("frequence")}
                 >
-                    {Object.entries(FREQUENCE_LABELS).map(([value, label]) => (
+                    {Object.entries(t.enums.frequenceEcheance).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>
                     ))}
                 </select>
                 {frequence && (
-                    <p className="text-xs text-muted-foreground">{getFrequenceDescription(frequence as FrequenceEcheance)}</p>
+                    <p className="text-xs text-muted-foreground">{t.leases.form.frequencyDescriptions[frequence as FrequenceEcheance]}</p>
                 )}
             </div>
 
@@ -329,12 +321,12 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             {isNuitee && (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-4">
                     <p className="text-sm font-medium text-amber-800">
-                        Mode nuitée — Tarification à la nuit
+                        {t.leases.form.nightlyMode}
                     </p>
 
                     <div className="space-y-1.5">
                         <label htmlFor="nombreNuitees" className="text-sm font-medium text-foreground">
-                            Nombre de nuitées
+                            {t.leases.form.nightsCount}
                         </label>
                         <Input
                             id="nombreNuitees"
@@ -344,7 +336,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                             {...register("nombreNuitees", { valueAsNumber: true })}
                         />
                         {errors.nombreNuitees && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.nombreNuitees.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.nombreNuitees.message)}</p>
                         )}
                     </div>
 
@@ -352,13 +344,13 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     {montantNuiteesCalc !== null && (
                         <div className="rounded-lg bg-card border border-amber-200 p-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Montant calculé</span>
+                                <span className="text-muted-foreground">{t.leases.form.computedAmount}</span>
                                 <span className="font-semibold text-amber-800">
-                                    {currencyFormatter.format(montantNuiteesCalc)}
+                                    {f.currency(montantNuiteesCalc)}
                                 </span>
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                {nombreNuitees} nuit{nombreNuitees !== 1 ? "s" : ""} × {currencyFormatter.format(loyerBase)}
+                                {t.leases.form.nightsTimesRate(nombreNuitees ?? 0, f.currency(loyerBase))}
                             </p>
                         </div>
                     )}
@@ -366,8 +358,8 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     {/* Override montant */}
                     <div className="space-y-1.5">
                         <label htmlFor="montantTotalOverride" className="text-sm font-medium text-foreground">
-                            Montant total (override manuel)
-                            <span className="ml-1 text-xs font-normal text-muted-foreground">— optionnel</span>
+                            {t.leases.form.totalOverride}
+                            <span className="ml-1 text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                         </label>
                         <Input
                             id="montantTotalOverride"
@@ -375,8 +367,8 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                             min={0}
                             placeholder={
                                 montantNuiteesCalc !== null
-                                    ? `Calculé : ${currencyFormatter.format(montantNuiteesCalc)}`
-                                    : "Saisir un montant personnalisé"
+                                    ? t.leases.form.computedPlaceholder(f.currency(montantNuiteesCalc))
+                                    : t.leases.form.customAmountPlaceholder
                             }
                             className={cn(
                                 "h-10 rounded-xl bg-background",
@@ -388,12 +380,12 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         />
                         {errors.montantTotalOverride && (
                             <p className="animate-pulse text-sm text-red-500">
-                                {errors.montantTotalOverride.message}
+                                {tv(errors.montantTotalOverride.message)}
                             </p>
                         )}
                         {montantTotalOverride && montantNuiteesCalc !== null && (
                             <p className="text-xs text-amber-600">
-                                ⚠ Montant manuel : {currencyFormatter.format(montantTotalOverride)} (calculé : {currencyFormatter.format(montantNuiteesCalc)})
+                                {t.leases.form.manualAmountWarning(f.currency(montantTotalOverride), f.currency(montantNuiteesCalc))}
                             </p>
                         )}
                     </div>
@@ -402,9 +394,9 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                     {montantEffectif !== null && (
                         <div className="rounded-lg bg-brand-50 border border-brand-200 p-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-brand-800 font-medium">Montant final du séjour</span>
+                                <span className="text-brand-800 font-medium">{t.leases.form.finalStayAmount}</span>
                                 <span className="font-bold text-brand-900">
-                                    {currencyFormatter.format(montantEffectif)}
+                                    {f.currency(montantEffectif)}
                                 </span>
                             </div>
                         </div>
@@ -415,11 +407,11 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             {/* Prorata pour les baux classiques */}
             {prorata !== null && (
                 <div className="rounded-xl bg-brand-50 p-4 text-sm">
-                    <p className="font-medium text-brand-800">Aperçu du premier loyer (prorata temporis)</p>
+                    <p className="font-medium text-brand-800">{t.leases.form.prorataTitle}</p>
                     <p className="mt-1 text-brand-700">
-                        {currencyFormatter.format(prorata)}
+                        {f.currency(prorata)}
                         {prorata !== loyerBase && (
-                            <span className="text-brand-600"> (au lieu de {currencyFormatter.format(loyerBase)})</span>
+                            <span className="text-brand-600">{t.leases.form.insteadOf(f.currency(loyerBase))}</span>
                         )}
                     </p>
                 </div>
@@ -430,7 +422,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer le contrat"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.leases.form.submit}
             </Button>
         </form>
     );

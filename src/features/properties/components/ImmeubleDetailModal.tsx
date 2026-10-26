@@ -13,24 +13,15 @@ import {
 } from "@/components/ui/dialog";
 import type { ImmeubleDTO } from "@/features/properties/types/property.types";
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 
 type ImmeubleDetailModalProps = {
     immeuble: ImmeubleDTO;
 };
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XAF",
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-});
-
 export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
+    const { t, f } = useI18n();
+
     const [open, setOpen] = useState(false);
 
     return (
@@ -45,7 +36,7 @@ export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
                 }
             >
                 <Eye className="h-4 w-4" />
-                Détail
+                {t.properties.buildings.detail}
             </DialogTrigger>
 
             <DialogContent className="max-w-md rounded-2xl">
@@ -60,42 +51,42 @@ export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
 
                 <dl className="space-y-3 text-sm">
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Propriétaire</dt>
+                        <dt className="text-muted-foreground">{t.properties.buildings.owner}</dt>
                         <dd className="font-medium text-foreground">
                             {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Adresse</dt>
+                        <dt className="text-muted-foreground">{t.common.address}</dt>
                         <dd className="text-right font-medium text-foreground">
                             {immeuble.adresse}
                         </dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Ville</dt>
+                        <dt className="text-muted-foreground">{t.common.city}</dt>
                         <dd className="font-medium text-foreground">{immeuble.ville}</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Niveaux</dt>
+                        <dt className="text-muted-foreground">{t.properties.buildings.levels}</dt>
                         <dd className="font-medium text-foreground">{immeuble.nombreNiveaux}</dd>
                     </div>
 
                     <div className="flex justify-between border-b border-border pb-2">
-                        <dt className="text-muted-foreground">Valeur estimative</dt>
+                        <dt className="text-muted-foreground">{t.properties.buildings.estimatedValue}</dt>
                         <dd className="font-medium text-foreground">
                             {immeuble.valeurEstimative != null
-                                ? currencyFormatter.format(immeuble.valeurEstimative)
+                                ? f.currency(immeuble.valeurEstimative)
                                 : "—"}
                         </dd>
                     </div>
 
                     <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Enregistré le</dt>
+                        <dt className="text-muted-foreground">{t.properties.buildings.registeredOn}</dt>
                         <dd className="font-medium text-foreground">
-                            {dateFormatter.format(new Date(immeuble.createdAt))}
+                            {f.dateLong(immeuble.createdAt)}
                         </dd>
                     </div>
                 </dl>

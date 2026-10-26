@@ -16,6 +16,7 @@ import {
 import { UniteForm } from "@/features/units/components/UniteForm";
 import { UnitesTable } from "@/features/units/components/UnitesTable";
 import type { UniteDTO } from "@/features/units/types/unit.types";
+import { useI18n } from "@/i18n/client";
 
 type UnitesPanelProps = {
     immeubleId: string;
@@ -23,6 +24,8 @@ type UnitesPanelProps = {
 };
 
 export function UnitesPanel({ immeubleId, unites }: UnitesPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -34,7 +37,7 @@ export function UnitesPanel({ immeubleId, unites }: UnitesPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Unités</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.units.title}</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -46,12 +49,12 @@ export function UnitesPanel({ immeubleId, unites }: UnitesPanelProps) {
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouvelle unité</DialogTitle>
+                            <DialogTitle>{t.units.new}</DialogTitle>
                         </DialogHeader>
 
                         <UniteForm immeubleId={immeubleId} onSuccess={handleSuccess} />

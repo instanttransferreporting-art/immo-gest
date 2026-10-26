@@ -16,6 +16,7 @@ import {
 import { CreateUserForm } from "@/features/users/components/CreateUserForm";
 import { UsersTable } from "@/features/users/components/UsersTable";
 import type { TeamMemberDTO } from "@/features/users/types/user.types";
+import { useI18n } from "@/i18n/client";
 
 type UsersPanelProps = {
     users: readonly TeamMemberDTO[];
@@ -23,6 +24,8 @@ type UsersPanelProps = {
 };
 
 export function UsersPanel({ users, currentUserId }: UsersPanelProps) {
+    const { t } = useI18n();
+
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -34,7 +37,7 @@ export function UsersPanel({ users, currentUserId }: UsersPanelProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
-                <CardTitle className="text-base font-semibold text-foreground">Équipe</CardTitle>
+                <CardTitle className="text-base font-semibold text-foreground">{t.admin.users.team}</CardTitle>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
@@ -43,12 +46,12 @@ export function UsersPanel({ users, currentUserId }: UsersPanelProps) {
                         }
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter
+                        {t.common.add}
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Nouvel utilisateur</DialogTitle>
+                            <DialogTitle>{t.admin.users.new}</DialogTitle>
                         </DialogHeader>
 
                         <CreateUserForm onSuccess={handleSuccess} />

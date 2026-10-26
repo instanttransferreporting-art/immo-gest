@@ -14,12 +14,15 @@ import {
     type CreateOrganizationFormValues,
 } from "@/features/platform/schemas/platform.schema";
 import type { OrganizationSummaryDTO } from "@/features/platform/types/platform.types";
+import { useI18n } from "@/i18n/client";
 
 type CreateOrganizationFormProps = {
     onSuccess?: (organization: OrganizationSummaryDTO) => void;
 };
 
 export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProps) {
+    const { t, tv } = useI18n();
+
     const {
         register,
         handleSubmit,
@@ -56,19 +59,19 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5 sm:col-span-2">
                     <label htmlFor="nom" className="text-sm font-medium text-foreground">
-                        Nom de l&apos;entreprise
+                        {t.admin.platform.companyName}
                     </label>
                     <Input
                         id="nom"
                         className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                         {...register("nom")}
                     />
-                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                    {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-foreground">
-                        Taux de commission (%)
+                        {t.admin.platform.commissionRate}
                     </label>
                     <Input
                         id="tauxCommissionDefaut"
@@ -80,18 +83,18 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                         {...register("tauxCommissionDefaut", { valueAsNumber: true })}
                     />
                     {errors.tauxCommissionDefaut && (
-                        <p className="animate-pulse text-sm text-red-500">{errors.tauxCommissionDefaut.message}</p>
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.tauxCommissionDefaut.message)}</p>
                     )}
                 </div>
             </div>
 
             <div className="border-t border-border pt-4">
-                <p className="mb-3 text-sm font-medium text-foreground">Compte administrateur de l&apos;entreprise</p>
+                <p className="mb-3 text-sm font-medium text-foreground">{t.admin.platform.adminAccount}</p>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <label htmlFor="adminPrenom" className="text-sm font-medium text-foreground">
-                            Prénom
+                            {t.common.firstName}
                         </label>
                         <Input
                             id="adminPrenom"
@@ -99,13 +102,13 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                             {...register("adminPrenom")}
                         />
                         {errors.adminPrenom && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.adminPrenom.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.adminPrenom.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="adminNom" className="text-sm font-medium text-foreground">
-                            Nom
+                            {t.common.lastName}
                         </label>
                         <Input
                             id="adminNom"
@@ -113,13 +116,13 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                             {...register("adminNom")}
                         />
                         {errors.adminNom && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.adminNom.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.adminNom.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
                         <label htmlFor="adminEmail" className="text-sm font-medium text-foreground">
-                            Email
+                            {t.common.email}
                         </label>
                         <Input
                             id="adminEmail"
@@ -128,13 +131,13 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                             {...register("adminEmail")}
                         />
                         {errors.adminEmail && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.adminEmail.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.adminEmail.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
                         <label htmlFor="adminPassword" className="text-sm font-medium text-foreground">
-                            Mot de passe initial
+                            {t.admin.users.initialPassword}
                         </label>
                         <Input
                             id="adminPassword"
@@ -143,7 +146,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                             {...register("adminPassword")}
                         />
                         {errors.adminPassword && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.adminPassword.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.adminPassword.message)}</p>
                         )}
                     </div>
                 </div>
@@ -154,7 +157,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 disabled={isSubmitting}
                 className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer l'entreprise"}
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.admin.platform.submit}
             </Button>
         </form>
     );

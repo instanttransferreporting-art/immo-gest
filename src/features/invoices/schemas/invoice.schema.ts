@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { V } from "@/i18n/validation-keys";
 
 export const genererFactureSchema = z.object({
-    contratId: z.string().min(1, { error: "Le contrat est requis." }),
+    contratId: z.string().min(1, { error: V.leaseRequired }),
     mois: z.number().int().min(1).max(12),
     annee: z.number().int().min(2000).max(2100),
 });

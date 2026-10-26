@@ -19,6 +19,7 @@ import { updateImmeuble } from "@/features/properties/actions/immeuble.actions";
 import { immeubleSchema, type ImmeubleFormValues } from "@/features/properties/schemas/property.schema";
 import type { ImmeubleDTO, ProprietaireOptionDTO } from "@/features/properties/types/property.types";
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 
 type ImmeubleEditModalProps = {
     immeuble: ImmeubleDTO;
@@ -27,6 +28,8 @@ type ImmeubleEditModalProps = {
 };
 
 export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: ImmeubleEditModalProps) {
+    const { t, tv } = useI18n();
+
     const [open, setOpen] = useState(false);
 
     const {
@@ -85,18 +88,18 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                 }
             >
                 <Pencil className="h-4 w-4" />
-                Modifier
+                {t.common.edit}
             </DialogTrigger>
 
             <DialogContent className="max-w-lg rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle>Modifier l&apos;immeuble</DialogTitle>
+                    <DialogTitle>{t.properties.buildings.edit}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                     <div className="space-y-1.5">
                         <label htmlFor="edit-proprietaireId" className="text-sm font-medium text-foreground">
-                            Propriétaire
+                            {t.properties.buildings.owner}
                         </label>
                         <select
                             id="edit-proprietaireId"
@@ -106,7 +109,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                             )}
                             {...register("proprietaireId")}
                         >
-                            <option value="">Sélectionner un propriétaire</option>
+                            <option value="">{t.properties.buildings.selectOwner}</option>
                             {proprietaireOptions.map((option) => (
                                 <option key={option.id} value={option.id}>
                                     {`${option.nom} ${option.prenom ?? ""}`.trim()}
@@ -114,26 +117,26 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                             ))}
                         </select>
                         {errors.proprietaireId && (
-                            <p className="animate-pulse text-sm text-red-500">{errors.proprietaireId.message}</p>
+                            <p className="animate-pulse text-sm text-red-500">{tv(errors.proprietaireId.message)}</p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-nom" className="text-sm font-medium text-foreground">
-                            Nom de l&apos;immeuble
+                            {t.properties.buildings.name}
                         </label>
                         <Input
                             id="edit-nom"
                             className={cn("h-10 rounded-xl", errors.nom && "border-red-500")}
                             {...register("nom")}
                         />
-                        {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
+                        {errors.nom && <p className="animate-pulse text-sm text-red-500">{tv(errors.nom.message)}</p>}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-adresse" className="text-sm font-medium text-foreground">
-                                Adresse
+                                {t.common.address}
                             </label>
                             <Input
                                 id="edit-adresse"
@@ -141,13 +144,13 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                                 {...register("adresse")}
                             />
                             {errors.adresse && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.adresse.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.adresse.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-ville" className="text-sm font-medium text-foreground">
-                                Ville
+                                {t.common.city}
                             </label>
                             <Input
                                 id="edit-ville"
@@ -155,7 +158,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                                 {...register("ville")}
                             />
                             {errors.ville && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.ville.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.ville.message)}</p>
                             )}
                         </div>
                     </div>
@@ -163,7 +166,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <label htmlFor="edit-nombreNiveaux" className="text-sm font-medium text-foreground">
-                                Niveaux
+                                {t.properties.buildings.levels}
                             </label>
                             <Input
                                 id="edit-nombreNiveaux"
@@ -173,13 +176,13 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                                 {...register("nombreNiveaux", { valueAsNumber: true })}
                             />
                             {errors.nombreNiveaux && (
-                                <p className="animate-pulse text-sm text-red-500">{errors.nombreNiveaux.message}</p>
+                                <p className="animate-pulse text-sm text-red-500">{tv(errors.nombreNiveaux.message)}</p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-valeurEstimative" className="text-sm font-medium text-foreground">
-                                Valeur estimative
+                                {t.properties.buildings.estimatedValue}
                             </label>
                             <Input
                                 id="edit-valeurEstimative"
@@ -198,7 +201,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                         disabled={isSubmitting}
                         className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer les modifications"}
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t.properties.buildings.saveChanges}
                     </Button>
                 </form>
             </DialogContent>

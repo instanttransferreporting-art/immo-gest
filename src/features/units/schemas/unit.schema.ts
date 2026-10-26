@@ -1,30 +1,31 @@
 import { z } from "zod";
 
 import { FrequencePaiement, TypeCharges, TypeUnite } from "@/generated/prisma/enums";
+import { V } from "@/i18n/validation-keys";
 
 // Schéma objet de base (sans refine) pour pouvoir utiliser .omit()
 const uniteBaseSchema = z.object({
-    immeubleId: z.string().min(1, { error: "L'immeuble est requis." }),
-    numero: z.string().min(1, { error: "Le numéro est requis." }),
-    type: z.enum(TypeUnite, { error: "Le type d'unité est requis." }),
-    surface: z.number({ error: "La surface est requise." }).positive({ error: "La surface doit être positive." }),
+    immeubleId: z.string().min(1, { error: V.buildingRequired }),
+    numero: z.string().min(1, { error: V.phoneNumberRequired }),
+    type: z.enum(TypeUnite, { error: V.unitTypeRequired }),
+    surface: z.number({ error: V.surfaceRequired }).positive({ error: V.surfacePositive }),
     nombrePieces: z
-        .number({ error: "Le nombre de pièces est requis." })
-        .int({ error: "Nombre entier requis." })
-        .positive({ error: "Doit être au moins 1." }),
+        .number({ error: V.roomsRequired })
+        .int({ error: V.integerRequired })
+        .positive({ error: V.atLeastOne }),
     loyerMensuel: z
-        .number({ error: "Le loyer est requis." })
-        .positive({ error: "Le loyer doit être positif." }),
-    typeCharges: z.enum(TypeCharges, { error: "Le type de charges est requis." }),
+        .number({ error: V.rentRequired })
+        .positive({ error: V.rentPositive }),
+    typeCharges: z.enum(TypeCharges, { error: V.chargesTypeRequired }),
     valeurCharges: z
-        .number({ error: "La valeur des charges est requise." })
-        .nonnegative({ error: "La valeur ne peut pas être négative." }),
+        .number({ error: V.chargesValueRequired })
+        .nonnegative({ error: V.valueNonNegative }),
     caution: z
-        .number({ error: "La caution est requise." })
-        .nonnegative({ error: "La caution ne peut pas être négative." }),
+        .number({ error: V.depositRequired })
+        .nonnegative({ error: V.depositNonNegative }),
     isMeuble: z.boolean().default(false),
     frequencePaiement: z
-        .enum(FrequencePaiement, { error: "La fréquence est requise." })
+        .enum(FrequencePaiement, { error: V.frequencyRequired })
         .default(FrequencePaiement.MENSUEL),
     frequenceAutreTexte: z.string().optional(),
 });
@@ -35,7 +36,7 @@ function addRefines<T extends z.ZodType<{ typeCharges: TypeCharges; valeurCharge
         .refine(
             (data) => data.typeCharges !== TypeCharges.POURCENTAGE || data.valeurCharges <= 100,
             {
-                error: "Le pourcentage de charges ne peut pas dépasser 100.",
+                error: V.chargesPercentMax,
                 path: ["valeurCharges"],
             }
         )
@@ -44,7 +45,7 @@ function addRefines<T extends z.ZodType<{ typeCharges: TypeCharges; valeurCharge
                 data.frequencePaiement !== FrequencePaiement.AUTRE ||
                 (data.frequenceAutreTexte && data.frequenceAutreTexte.length > 0),
             {
-                error: "Précisez la fréquence personnalisée.",
+                error: V.customFrequencyRequired,
                 path: ["frequenceAutreTexte"],
             }
         );
