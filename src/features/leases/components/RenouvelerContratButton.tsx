@@ -78,7 +78,7 @@ export function RenouvelerContratButton({
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                     <input type="hidden" {...register("contratId")} />
 
-                    <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                    <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
                         Un nouveau contrat sera créé pour la période fiscale suivante, avec les mêmes conditions
                         (ajustables ci-dessous). L&apos;ancien contrat passera au statut Expiré.
                     </p>
@@ -127,7 +127,7 @@ export function RenouvelerContratButton({
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                        className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
                         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer le renouvellement"}
                     </Button>

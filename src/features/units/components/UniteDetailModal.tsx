@@ -121,7 +121,7 @@ export function UniteDetailModal({ unite }: UniteDetailModalProps) {
                         <dt className="text-muted-foreground">Meublée</dt>
                         <dd className="font-medium text-foreground">
                             {unite.isMeuble ? (
-                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                                     Oui
                                 </span>
                             ) : (

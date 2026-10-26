@@ -13,6 +13,7 @@ import { ProprietaireNotFoundError } from "@/features/payouts/services/reverseme
 import { ReportExportService } from "@/features/reports/services/report-export.service";
 import { REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
 import type { ReportType } from "@/features/reports/types/report.types";
+import { parseReportPeriod } from "@/features/reports/period";
 
 type RouteParams = { params: Promise<{ type: string }> };
 
@@ -88,7 +89,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
                     return NextResponse.json({ error: "Le paramètre reportType est invalide." }, { status: 400 });
                 }
 
-                const { buffer, filename } = await ReportExportService.generate(reportType as ReportType);
+                const period = parseReportPeriod(searchParams.get("du"), searchParams.get("au"));
+                const { buffer, filename } = await ReportExportService.generate(reportType as ReportType, period);
                 return buildFileResponse(
                     buffer,
                     filename,

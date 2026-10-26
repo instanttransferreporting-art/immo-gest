@@ -29,7 +29,6 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
         resolver: zodResolver(organizationSchema),
         defaultValues: {
             nom: organization.nom,
-            logo: organization.logo ?? "",
             tauxCommissionDefaut: organization.tauxCommissionDefaut,
             tauxPenaliteRetard: organization.tauxPenaliteRetard,
             adresse: organization.adresse ?? "",
@@ -72,18 +71,6 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                     {errors.nom && <p className="animate-pulse text-sm text-red-500">{errors.nom.message}</p>}
                 </div>
 
-                <div className="space-y-1.5">
-                    <label htmlFor="logo" className="text-sm font-medium text-foreground">
-                        Logo (URL)
-                    </label>
-                    <Input
-                        id="logo"
-                        disabled={!canEdit}
-                        className={cn("h-10 rounded-xl", errors.logo && "border-red-500")}
-                        {...register("logo")}
-                    />
-                    {errors.logo && <p className="animate-pulse text-sm text-red-500">{errors.logo.message}</p>}
-                </div>
 
                 <div className="space-y-1.5">
                     <label htmlFor="tauxCommissionDefaut" className="text-sm font-medium text-foreground">
@@ -170,7 +157,7 @@ export function OrganizationForm({ organization, canEdit }: OrganizationFormProp
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                    className="h-10 rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                 >
                     {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer"}
                 </Button>

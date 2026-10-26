@@ -4,6 +4,7 @@ import { Download, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PrintLetterhead } from "@/components/layout/PrintLetterhead";
 import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 import type { PaiementDTO } from "@/features/payments/types/payment.types";
@@ -30,6 +31,8 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardContent className="space-y-6 px-6 py-4">
+                <PrintLetterhead />
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-bold text-foreground">Quittance de Loyer</h2>
@@ -49,7 +52,7 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
 
                         <Button
                             render={<a href={`/api/export/quittance?factureId=${facture.id}`} />}
-                            className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
@@ -100,7 +103,7 @@ export function QuittanceApercu({ facture, paiements }: QuittanceApercuProps) {
                         <span className="text-foreground">Total dû</span>
                         <span className="text-foreground">{currencyFormatter.format(facture.totalDu)}</span>
                     </div>
-                    <div className="flex justify-between text-emerald-700">
+                    <div className="flex justify-between text-brand-700">
                         <span>Total encaissé</span>
                         <span>{currencyFormatter.format(totalPaye)}</span>
                     </div>

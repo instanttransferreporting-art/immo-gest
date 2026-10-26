@@ -11,6 +11,8 @@ import type { PerformanceSummaryDTO, ReportCategory, ReportSummaryDTO } from "@/
 type RapportsPanelProps = {
     summaries: ReportSummaryDTO[];
     performance: PerformanceSummaryDTO;
+    /** Paramètres d'URL de la période (du/au), repris dans les liens d'export. */
+    periodQuery: string;
 };
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR", {
@@ -23,7 +25,7 @@ const percentFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits:
 
 const CATEGORIES: ReportCategory[] = ["LOCATIFS", "FINANCIERS", "PERFORMANCE"];
 
-function ReportCard({ summary }: { summary: ReportSummaryDTO }) {
+function ReportCard({ summary, periodQuery }: { summary: ReportSummaryDTO; periodQuery: string }) {
     const definition = REPORT_DEFINITIONS.find((item) => item.type === summary.type);
 
     if (!definition) {
@@ -34,7 +36,7 @@ function ReportCard({ summary }: { summary: ReportSummaryDTO }) {
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardContent className="flex flex-col gap-3 px-6 py-4">
                 <div className="flex items-start justify-between gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <FileText className="h-5 w-5" />
                     </div>
                 </div>
@@ -42,6 +44,9 @@ function ReportCard({ summary }: { summary: ReportSummaryDTO }) {
                 <div>
                     <p className="text-sm font-semibold text-foreground">{definition.label}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{definition.description}</p>
+                    <p className="mt-1 text-xs text-brand-600">
+                        {definition.periodBasis ? `Période : ${definition.periodBasis}` : "Instantané (non filtré)"}
+                    </p>
                 </div>
 
                 <div>
@@ -56,7 +61,7 @@ function ReportCard({ summary }: { summary: ReportSummaryDTO }) {
                 </div>
 
                 <Button
-                    render={<a href={`/api/export/rapport?reportType=${summary.type}`} />}
+                    render={<a href={`/api/export/rapport?reportType=${summary.type}${periodQuery ? `&${periodQuery}` : ""}`} />}
                     variant="outline"
                     size="sm"
                     className="rounded-lg"
@@ -102,7 +107,10 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
 
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardContent className="px-6 py-4">
-                    <p className="mb-3 text-sm font-semibold text-foreground">Taux d&apos;occupation par immeuble</p>
+                    <p className="mb-3 text-sm font-semibold text-foreground">
+                        Taux d&apos;occupation par immeuble{" "}
+                        <span className="font-normal text-muted-foreground">(situation actuelle)</span>
+                    </p>
 
                     {performance.occupationParImmeuble.length === 0 ? (
                         <p className="text-sm text-muted-foreground">Aucun immeuble enregistré.</p>
@@ -130,7 +138,7 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardContent className="px-6 py-4">
                     <p className="mb-3 text-sm font-semibold text-foreground">
-                        Rendement par immeuble (revenu encaissé / 12 mois vs. valeur estimative)
+                        Rendement par immeuble ({performance.rendementBasisLabel})
                     </p>
 
                     {performance.rendementParImmeuble.length === 0 ? (
@@ -161,7 +169,7 @@ function PerformanceContent({ performance }: { performance: PerformanceSummaryDT
     );
 }
 
-export function RapportsPanel({ summaries, performance }: RapportsPanelProps) {
+export function RapportsPanel({ summaries, performance, periodQuery }: RapportsPanelProps) {
     return (
         <Tabs defaultValue="LOCATIFS">
             <TabsList>
@@ -181,7 +189,7 @@ export function RapportsPanel({ summaries, performance }: RapportsPanelProps) {
                             {summaries
                                 .filter((summary) => REPORT_DEFINITIONS.find((d) => d.type === summary.type)?.category === category)
                                 .map((summary) => (
-                                    <ReportCard key={summary.type} summary={summary} />
+                                    <ReportCard key={summary.type} summary={summary} periodQuery={periodQuery} />
                                 ))}
                         </div>
                     )}

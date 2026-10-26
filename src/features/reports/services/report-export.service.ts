@@ -16,12 +16,21 @@ import { MODE_PAIEMENT_LABELS } from "@/features/payments/constants/payment.cons
 import { STATUT_CAUTION_LABELS } from "@/features/leases/constants/caution.constants";
 import { REPORT_DEFINITIONS } from "@/features/reports/constants/report.constants";
 import type { ReportType } from "@/features/reports/types/report.types";
+import {
+    formatPeriodLabel,
+    hasPeriod,
+    isInPeriod,
+    NO_PERIOD,
+    overlapsPeriod,
+    type ReportPeriod,
+} from "@/features/reports/period";
 
 const EXPIRED_STATUTS: StatutBail[] = [StatutBail.RESILIE, StatutBail.EXPIRE];
 
 type Column = { header: string; key: string; width: number };
 
 async function buildWorkbook(
+    period: ReportPeriod,
     title: string,
     columns: Column[],
     rows: Record<string, unknown>[],
@@ -43,7 +52,7 @@ async function buildWorkbook(
 
     const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
     sheet.mergeCells(`A2:${lastColumnLetter}2`);
-    sheet.getCell("A2").value = `Exporté le ${dateFormatter.format(new Date())} — ${rows.length} ligne(s)`;
+    sheet.getCell("A2").value = `Période : ${formatPeriodLabel(period)} — exporté le ${dateFormatter.format(new Date())} — ${rows.length} ligne(s)`;
     sheet.getCell("A2").font = { size: 10, color: { argb: "FF64748B" } };
 
     sheet.addRow([]);
@@ -76,10 +85,13 @@ function locataireNom(locataire: { nom: string; prenom: string; raisonSociale: s
     return locataire.raisonSociale ?? `${locataire.nom} ${locataire.prenom}`;
 }
 
-async function buildLocataires(organizationId: string) {
-    const locataires = await LocataireRepository.findAll(organizationId);
+async function buildLocataires(organizationId: string, period: ReportPeriod) {
+    const locataires = (await LocataireRepository.findAll(organizationId)).filter((locataire) =>
+        isInPeriod(locataire.createdAt, period)
+    );
 
     return buildWorkbook(
+        period,
         "Locataires",
         [
             { header: "Type", key: "type", width: 14 },
@@ -100,10 +112,12 @@ async function buildLocataires(organizationId: string) {
     );
 }
 
-async function buildBiens(organizationId: string) {
+/** Instantané du parc : la période n'est qu'indiquée dans l'en-tête, pas filtrée. */
+async function buildBiens(organizationId: string, period: ReportPeriod) {
     const unites = await UniteRepository.findAllForExport(organizationId);
 
     return buildWorkbook(
+        period,
         "Biens",
         [
             { header: "Immeuble", key: "immeuble", width: 24 },
@@ -131,10 +145,21 @@ async function buildBiens(organizationId: string) {
     );
 }
 
-async function buildContrats(organizationId: string, statuts: StatutBail[], title: string) {
-    const contrats = await ContratRepository.findByStatutsForExport(organizationId, statuts);
+async function buildContrats(
+    organizationId: string,
+    statuts: StatutBail[],
+    title: string,
+    period: ReportPeriod,
+    basis: "overlap" | "dateFin"
+) {
+    const contrats = (await ContratRepository.findByStatutsForExport(organizationId, statuts)).filter((contrat) =>
+        basis === "overlap"
+            ? overlapsPeriod(contrat.dateDebut, contrat.dateFin, period)
+            : isInPeriod(contrat.dateFin, period)
+    );
 
     return buildWorkbook(
+        period,
         title,
         [
             { header: "N° Contrat", key: "numeroContrat", width: 20 },
@@ -163,10 +188,13 @@ async function buildContrats(organizationId: string, statuts: StatutBail[], titl
     );
 }
 
-async function buildLoyersFactures(organizationId: string) {
-    const factures = await FactureRepository.findAll(organizationId);
+async function buildLoyersFactures(organizationId: string, period: ReportPeriod) {
+    const factures = (await FactureRepository.findAll(organizationId)).filter((facture) =>
+        isInPeriod(facture.echeance.dateEcheance, period)
+    );
 
     return buildWorkbook(
+        period,
         "Loyers facturés",
         [
             { header: "N° Facture", key: "numero", width: 20 },
@@ -195,10 +223,13 @@ async function buildLoyersFactures(organizationId: string) {
     );
 }
 
-async function buildLoyersEncaisses(organizationId: string) {
-    const paiements = await PaiementRepository.findAllForExport(organizationId);
+async function buildLoyersEncaisses(organizationId: string, period: ReportPeriod) {
+    const paiements = (await PaiementRepository.findAllForExport(organizationId)).filter((paiement) =>
+        isInPeriod(paiement.datePaiement, period)
+    );
 
     return buildWorkbook(
+        period,
         "Loyers encaissés",
         [
             { header: "Date", key: "date", width: 14 },
@@ -227,10 +258,13 @@ async function buildLoyersEncaisses(organizationId: string) {
     );
 }
 
-async function buildImpayes(organizationId: string) {
-    const factures = await FactureRepository.findImpayes(organizationId);
+async function buildImpayes(organizationId: string, period: ReportPeriod) {
+    const factures = (await FactureRepository.findImpayes(organizationId)).filter((facture) =>
+        isInPeriod(facture.echeance.dateEcheance, period)
+    );
 
     return buildWorkbook(
+        period,
         "Impayés",
         [
             { header: "N° Facture", key: "numero", width: 20 },
@@ -253,10 +287,13 @@ async function buildImpayes(organizationId: string) {
     );
 }
 
-async function buildCautions(organizationId: string) {
-    const cautions = await CautionRepository.findAllForExport(organizationId);
+async function buildCautions(organizationId: string, period: ReportPeriod) {
+    const cautions = (await CautionRepository.findAllForExport(organizationId)).filter((caution) =>
+        isInPeriod(caution.createdAt, period)
+    );
 
     return buildWorkbook(
+        period,
         "Cautions",
         [
             { header: "N° Contrat", key: "numeroContrat", width: 20 },
@@ -282,10 +319,13 @@ async function buildCautions(organizationId: string) {
     );
 }
 
-async function buildCharges(organizationId: string) {
-    const contrats = await ContratRepository.findByStatutsForExport(organizationId, [StatutBail.ACTIF]);
+async function buildCharges(organizationId: string, period: ReportPeriod) {
+    const contrats = (await ContratRepository.findByStatutsForExport(organizationId, [StatutBail.ACTIF])).filter(
+        (contrat) => overlapsPeriod(contrat.dateDebut, contrat.dateFin, period)
+    );
 
     return buildWorkbook(
+        period,
         "Charges locatives",
         [
             { header: "N° Contrat", key: "numeroContrat", width: 20 },
@@ -305,41 +345,46 @@ async function buildCharges(organizationId: string) {
     );
 }
 
-function filenameFor(type: ReportType): string {
+function filenameFor(type: ReportType, period: ReportPeriod): string {
     const definition = REPORT_DEFINITIONS.find((item) => item.type === type);
     const slug = (definition?.label ?? type).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
-    const dateSegment = new Date().toISOString().slice(0, 10).replace(/-/g, "_");
-    return `${slug}_${dateSegment}.xlsx`;
+    const dateSegment = hasPeriod(period)
+        ? `${period.du ?? "debut"}_au_${period.au ?? "aujourdhui"}`
+        : new Date().toISOString().slice(0, 10);
+    return `${slug}_${dateSegment.replace(/-/g, "_")}.xlsx`;
 }
 
 export class ReportExportService {
-    static async generate(type: ReportType): Promise<{ buffer: Buffer; filename: string }> {
+    static async generate(
+        type: ReportType,
+        period: ReportPeriod = NO_PERIOD
+    ): Promise<{ buffer: Buffer; filename: string }> {
         const organizationId = await getCurrentOrganizationId();
 
         const workbook = await (async () => {
             switch (type) {
                 case "locataires":
-                    return buildLocataires(organizationId);
+                    return buildLocataires(organizationId, period);
                 case "biens":
-                    return buildBiens(organizationId);
+                    return buildBiens(organizationId, period);
                 case "contrats-actifs":
-                    return buildContrats(organizationId, [StatutBail.ACTIF], "Contrats actifs");
+                    return buildContrats(organizationId, [StatutBail.ACTIF], "Contrats actifs", period, "overlap");
                 case "contrats-expires":
-                    return buildContrats(organizationId, EXPIRED_STATUTS, "Contrats expirés");
+                    return buildContrats(organizationId, EXPIRED_STATUTS, "Contrats expirés", period, "dateFin");
                 case "loyers-factures":
-                    return buildLoyersFactures(organizationId);
+                    return buildLoyersFactures(organizationId, period);
                 case "loyers-encaisses":
-                    return buildLoyersEncaisses(organizationId);
+                    return buildLoyersEncaisses(organizationId, period);
                 case "impayes":
-                    return buildImpayes(organizationId);
+                    return buildImpayes(organizationId, period);
                 case "cautions":
-                    return buildCautions(organizationId);
+                    return buildCautions(organizationId, period);
                 case "charges":
-                    return buildCharges(organizationId);
+                    return buildCharges(organizationId, period);
             }
         })();
 
         const buffer = await workbook.xlsx.writeBuffer();
-        return { buffer: Buffer.from(buffer), filename: filenameFor(type) };
+        return { buffer: Buffer.from(buffer), filename: filenameFor(type, period) };
     }
 }

@@ -6,6 +6,12 @@ import { ReportRepository } from "@/features/reports/repositories/report.reposit
 import { UniteRepository } from "@/features/units/repositories/unite.repository";
 import { PaiementRepository } from "@/features/payments/repositories/paiement.repository";
 import { FactureRepository } from "@/features/invoices/repositories/facture.repository";
+import {
+    isInPeriod,
+    NO_PERIOD,
+    periodLengthInDays,
+    type ReportPeriod,
+} from "@/features/reports/period";
 import type {
     OccupationImmeubleDTO,
     PerformanceSummaryDTO,
@@ -16,18 +22,18 @@ import type {
 
 const EXPIRED_STATUTS: StatutBail[] = [StatutBail.RESILIE, StatutBail.EXPIRE];
 
-async function getSummariesCore(organizationId: string): Promise<ReportSummaryDTO[]> {
+async function getSummariesCore(organizationId: string, period: ReportPeriod): Promise<ReportSummaryDTO[]> {
     const [locataires, biens, contratsActifs, contratsExpires, loyersFactures, loyersEncaisses, impayes, cautions, charges] =
         await Promise.all([
-            ReportRepository.getLocatairesSummary(organizationId),
+            ReportRepository.getLocatairesSummary(organizationId, period),
             ReportRepository.getBiensSummary(organizationId),
-            ReportRepository.getContratsSummary(organizationId, [StatutBail.ACTIF]),
-            ReportRepository.getContratsSummary(organizationId, EXPIRED_STATUTS),
-            ReportRepository.getLoyersFacturesSummary(organizationId),
-            ReportRepository.getLoyersEncaissesSummary(organizationId),
-            ReportRepository.getImpayesSummary(organizationId),
-            ReportRepository.getCautionsSummary(organizationId),
-            ReportRepository.getChargesSummary(organizationId),
+            ReportRepository.getContratsActifsSummary(organizationId, period),
+            ReportRepository.getContratsExpiresSummary(organizationId, EXPIRED_STATUTS, period),
+            ReportRepository.getLoyersFacturesSummary(organizationId, period),
+            ReportRepository.getLoyersEncaissesSummary(organizationId, period),
+            ReportRepository.getImpayesSummary(organizationId, period),
+            ReportRepository.getCautionsSummary(organizationId, period),
+            ReportRepository.getChargesSummary(organizationId, period),
         ]);
 
     return [
@@ -43,14 +49,30 @@ async function getSummariesCore(organizationId: string): Promise<ReportSummaryDT
     ];
 }
 
-async function getPerformanceSummaryCore(organizationId: string): Promise<PerformanceSummaryDTO> {
-    const [unites, paiements, facturesAggregate] = await Promise.all([
+async function getPerformanceSummaryCore(
+    organizationId: string,
+    period: ReportPeriod
+): Promise<PerformanceSummaryDTO> {
+    const [unites, allPaiements, allFactures] = await Promise.all([
         UniteRepository.findAllWithImmeubleAndEtat(organizationId),
         PaiementRepository.findAllForPerformance(organizationId),
         FactureRepository.findAll(organizationId),
     ]);
 
-    const oneYearAgo = subMonths(new Date(), 12);
+    // Totaux de rentabilité : sur la période choisie (échéance des factures, date des paiements).
+    const paiements = allPaiements.filter((paiement) => isInPeriod(paiement.datePaiement, period));
+    const facturesAggregate = allFactures.filter((facture) => isInPeriod(facture.echeance.dateEcheance, period));
+
+    // Rendement annuel : sur une période complète (du … au …), revenu annualisé ;
+    // sinon, comme avant, les 12 derniers mois glissants.
+    const periodDays = periodLengthInDays(period);
+    const rendementPeriod: ReportPeriod =
+        periodDays !== null ? period : { ...NO_PERIOD, start: subMonths(new Date(), 12) };
+    const annualisation = periodDays !== null && periodDays > 0 ? 365 / periodDays : 1;
+    const rendementBasisLabel =
+        periodDays !== null
+            ? "revenu encaissé sur la période, annualisé, vs. valeur estimative"
+            : "revenu encaissé sur 12 mois glissants vs. valeur estimative";
 
     type ImmeubleAgg = {
         immeubleId: string;
@@ -78,8 +100,8 @@ async function getPerformanceSummaryCore(organizationId: string): Promise<Perfor
         });
     }
 
-    for (const paiement of paiements) {
-        if (paiement.datePaiement < oneYearAgo) {
+    for (const paiement of allPaiements) {
+        if (!isInPeriod(paiement.datePaiement, rendementPeriod)) {
             continue;
         }
 
@@ -105,10 +127,10 @@ async function getPerformanceSummaryCore(organizationId: string): Promise<Perfor
         immeubleId: immeuble.immeubleId,
         immeubleNom: immeuble.nom,
         valeurEstimative: immeuble.valeurEstimative,
-        revenuAnnuelEncaisse: immeuble.revenuAnnuel,
+        revenuAnnuelEncaisse: immeuble.revenuAnnuel * annualisation,
         rendement:
             immeuble.valeurEstimative && immeuble.valeurEstimative > 0
-                ? (immeuble.revenuAnnuel / immeuble.valeurEstimative) * 100
+                ? ((immeuble.revenuAnnuel * annualisation) / immeuble.valeurEstimative) * 100
                 : null,
     }));
 
@@ -125,17 +147,17 @@ async function getPerformanceSummaryCore(organizationId: string): Promise<Perfor
         tauxRecouvrement: totalFacture > 0 ? (totalEncaisse / totalFacture) * 100 : 0,
     };
 
-    return { occupationParImmeuble, rendementParImmeuble, rentabiliteGlobale };
+    return { rendementBasisLabel, occupationParImmeuble, rendementParImmeuble, rentabiliteGlobale };
 }
 
 export class ReportService {
-    static async getSummaries(): Promise<ReportSummaryDTO[]> {
+    static async getSummaries(period: ReportPeriod = NO_PERIOD): Promise<ReportSummaryDTO[]> {
         const organizationId = await getCurrentOrganizationId();
-        return getSummariesCore(organizationId);
+        return getSummariesCore(organizationId, period);
     }
 
-    static async getPerformanceSummary(): Promise<PerformanceSummaryDTO> {
+    static async getPerformanceSummary(period: ReportPeriod = NO_PERIOD): Promise<PerformanceSummaryDTO> {
         const organizationId = await getCurrentOrganizationId();
-        return getPerformanceSummaryCore(organizationId);
+        return getPerformanceSummaryCore(organizationId, period);
     }
 }

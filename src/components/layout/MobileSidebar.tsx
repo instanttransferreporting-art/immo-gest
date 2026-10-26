@@ -30,7 +30,7 @@ export function MobileSidebar() {
                             text-muted-foreground
                             shadow-sm
                             hover:bg-muted
-                            lg:hidden
+                            md:hidden
                         "
                     />
                 }

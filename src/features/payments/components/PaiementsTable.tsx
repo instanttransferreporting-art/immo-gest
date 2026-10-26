@@ -64,7 +64,7 @@ export function PaiementsTable({ paiements }: PaiementsTableProps) {
                                 <Link href={`${ROUTES.INVOICES}/${paiement.factureId}`}>
                                     <Badge
                                         variant="outline"
-                                        className="rounded-lg font-mono text-emerald-700 hover:bg-emerald-50"
+                                        className="rounded-lg font-mono text-brand-700 hover:bg-brand-50"
                                     >
                                         {paiement.factureNumero}
                                     </Badge>
@@ -85,7 +85,7 @@ export function PaiementsTable({ paiements }: PaiementsTableProps) {
                                         Annulé
                                     </Badge>
                                 ) : (
-                                    <Badge className="rounded-lg bg-emerald-50 text-emerald-700">Payé</Badge>
+                                    <Badge className="rounded-lg bg-brand-50 text-brand-700">Payé</Badge>
                                 )}
                             </TableCell>
                             <TableCell className="text-muted-foreground">{paiement.enregistreParNom}</TableCell>

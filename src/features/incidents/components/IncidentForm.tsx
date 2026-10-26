@@ -157,7 +157,7 @@ export function IncidentForm({ uniteOptions, immeubleOptions, onSuccess }: Incid
             <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Signaler l'incident"}
             </Button>

@@ -2,6 +2,7 @@ export type OrganizationDTO = Readonly<{
     id: string;
     nom: string;
     logo: string | null;
+    logoDocument: string | null;
     tauxCommissionDefaut: number;
     tauxPenaliteRetard: number;
     adresse: string | null;

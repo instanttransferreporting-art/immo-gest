@@ -27,7 +27,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     <CardTitle className="text-base font-semibold text-foreground">
                         Factures impayées urgentes
                     </CardTitle>
-                    <Link href={ROUTES.INVOICES} className="text-sm text-emerald-700 hover:underline">
+                    <Link href={ROUTES.INVOICES} className="text-sm text-brand-700 hover:underline">
                         Voir tout
                     </Link>
                 </CardHeader>
@@ -35,7 +35,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                 <CardContent className="px-6">
                     {metrics.facturesImpayeesUrgentes.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                            <CheckCircle2 className="h-6 w-6 text-brand-500" />
                             <p className="text-sm text-muted-foreground">Aucune facture impayée en attente.</p>
                         </div>
                     ) : (
@@ -44,7 +44,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                 <li key={facture.id}>
                                     <Link
                                         href={`${ROUTES.INVOICES}/${facture.id}`}
-                                        className="flex items-center justify-between gap-3 py-3 hover:text-emerald-700"
+                                        className="flex items-center justify-between gap-3 py-3 hover:text-brand-700"
                                     >
                                         <div className="flex items-center gap-3">
                                             <Receipt className="h-4 w-4 text-muted-foreground" />
@@ -73,7 +73,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     <CardTitle className="text-base font-semibold text-foreground">
                         Incidents non résolus
                     </CardTitle>
-                    <Link href={ROUTES.INCIDENTS} className="text-sm text-emerald-700 hover:underline">
+                    <Link href={ROUTES.INCIDENTS} className="text-sm text-brand-700 hover:underline">
                         Voir tout
                     </Link>
                 </CardHeader>
@@ -81,7 +81,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                 <CardContent className="px-6">
                     {metrics.incidentsNonResolus.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                            <CheckCircle2 className="h-6 w-6 text-brand-500" />
                             <p className="text-sm text-muted-foreground">Aucun incident en cours.</p>
                         </div>
                     ) : (
@@ -113,7 +113,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                     <CardTitle className="text-base font-semibold text-foreground">
                         Contrats arrivant à échéance
                     </CardTitle>
-                    <Link href={ROUTES.LEASES} className="text-sm text-emerald-700 hover:underline">
+                    <Link href={ROUTES.LEASES} className="text-sm text-brand-700 hover:underline">
                         Voir tout
                     </Link>
                 </CardHeader>
@@ -121,7 +121,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                 <CardContent className="px-6">
                     {metrics.contratsArrivantEcheance.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                            <CheckCircle2 className="h-6 w-6 text-brand-500" />
                             <p className="text-sm text-muted-foreground">Aucun contrat n&apos;arrive à échéance.</p>
                         </div>
                     ) : (
@@ -130,7 +130,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                                 <li key={contrat.id}>
                                     <Link
                                         href={`${ROUTES.LEASES}/${contrat.id}`}
-                                        className="flex items-center justify-between gap-3 py-3 hover:text-emerald-700"
+                                        className="flex items-center justify-between gap-3 py-3 hover:text-brand-700"
                                     >
                                         <div className="flex items-center gap-3">
                                             <CalendarClock className="h-4 w-4 text-muted-foreground" />
@@ -155,7 +155,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
             <Card className="rounded-2xl border border-border shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between px-6">
                     <CardTitle className="text-base font-semibold text-foreground">Logements vacants</CardTitle>
-                    <Link href={ROUTES.PROPERTIES} className="text-sm text-emerald-700 hover:underline">
+                    <Link href={ROUTES.PROPERTIES} className="text-sm text-brand-700 hover:underline">
                         Voir tout
                     </Link>
                 </CardHeader>
@@ -163,7 +163,7 @@ export function AlertesSection({ metrics }: AlertesSectionProps) {
                 <CardContent className="px-6">
                     {metrics.logementsVacants.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                            <CheckCircle2 className="h-6 w-6 text-brand-500" />
                             <p className="text-sm text-muted-foreground">Aucun logement vacant.</p>
                         </div>
                     ) : (

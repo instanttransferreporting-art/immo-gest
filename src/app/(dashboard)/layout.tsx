@@ -4,6 +4,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import { getCurrentSession } from "@/lib/auth";
 import { RoleType } from "@/generated/prisma/enums";
 import { ROUTES } from "@/constants/routes";
+import { OrganizationService } from "@/features/organizations/services/organization.service";
+import { formatOrganizationAdresse, formatOrganizationContact } from "@/lib/organization-format";
 
 export default async function DashboardLayout({
                                             children,
@@ -20,5 +22,19 @@ export default async function DashboardLayout({
         redirect(ROUTES.PLATFORM);
     }
 
-    return <AppShell>{children}</AppShell>;
+    const organization = await OrganizationService.getCurrent();
+
+    return (
+        <AppShell
+            branding={{
+                organizationNom: organization.nom,
+                logo: organization.logo,
+                logoDocument: organization.logoDocument,
+                organizationAdresse: formatOrganizationAdresse(organization),
+                organizationContact: formatOrganizationContact(organization),
+            }}
+        >
+            {children}
+        </AppShell>
+    );
 }

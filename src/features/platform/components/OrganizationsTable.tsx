@@ -107,7 +107,7 @@ export function OrganizationsTable({ organizations }: OrganizationsTableProps) {
                                     <Badge
                                         className={
                                             organization.isActive
-                                                ? "rounded-lg bg-emerald-50 text-emerald-700"
+                                                ? "rounded-lg bg-brand-50 text-brand-700"
                                                 : "rounded-lg bg-red-50 text-red-700"
                                         }
                                     >

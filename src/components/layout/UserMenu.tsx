@@ -57,7 +57,7 @@ export function UserMenu() {
             "
             >
                 <Avatar>
-                    <AvatarFallback className="bg-emerald-600 font-semibold text-white">
+                    <AvatarFallback className="bg-brand-600 font-semibold text-white">
                         {getInitials(displayName)}
                     </AvatarFallback>
                 </Avatar>

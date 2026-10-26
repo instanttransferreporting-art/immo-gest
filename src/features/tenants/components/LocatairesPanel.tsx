@@ -51,7 +51,7 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
                         render={
                             <Button
                                 size="sm"
-                                className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                                className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             />
                         }
                     >
@@ -72,7 +72,7 @@ export function LocatairesPanel({ locataires }: LocatairesPanelProps) {
                                 <Button
                                     type="button"
                                     onClick={handleFinish}
-                                    className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                                    className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                                 >
                                     Terminer
                                 </Button>

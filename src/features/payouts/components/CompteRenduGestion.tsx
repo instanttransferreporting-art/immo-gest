@@ -4,6 +4,7 @@ import { Download, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PrintLetterhead } from "@/components/layout/PrintLetterhead";
 import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import { STATUT_REVERSEMENT_LABELS } from "@/features/payouts/constants/payout.constants";
 import type { ReversementDTO } from "@/features/payouts/types/payout.types";
@@ -26,6 +27,8 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardContent className="space-y-6 px-6 py-4">
+                <PrintLetterhead />
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-bold text-foreground">Compte Rendu de Gestion</h2>
@@ -47,7 +50,7 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
 
                         <Button
                             render={<a href={`/api/export/reversement?reversementId=${reversement.id}`} />}
-                            className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             nativeButton={false}
                         >
                             <Download className="h-4 w-4" />
@@ -92,7 +95,7 @@ export function CompteRenduGestion({ reversement }: CompteRenduGestionProps) {
                     </div>
                     <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
                         <span className="text-foreground">Net à payer au propriétaire</span>
-                        <span className="text-emerald-700">{currencyFormatter.format(reversement.netAPayer)}</span>
+                        <span className="text-brand-700">{currencyFormatter.format(reversement.netAPayer)}</span>
                     </div>
                 </div>
             </CardContent>

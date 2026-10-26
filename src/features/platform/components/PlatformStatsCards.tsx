@@ -16,7 +16,7 @@ export function PlatformStatsCards({ stats }: PlatformStatsCardsProps) {
                         <p className="text-sm text-muted-foreground">Entreprises</p>
                         <p className="mt-2 text-2xl font-bold text-foreground">{stats.totalOrganizations}</p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Building2 className="h-5 w-5" />
                     </div>
                 </CardContent>
@@ -28,7 +28,7 @@ export function PlatformStatsCards({ stats }: PlatformStatsCardsProps) {
                         <p className="text-sm text-muted-foreground">Immeubles (total)</p>
                         <p className="mt-2 text-2xl font-bold text-foreground">{stats.totalImmeubles}</p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Home className="h-5 w-5" />
                     </div>
                 </CardContent>
@@ -40,7 +40,7 @@ export function PlatformStatsCards({ stats }: PlatformStatsCardsProps) {
                         <p className="text-sm text-muted-foreground">Unités (total)</p>
                         <p className="mt-2 text-2xl font-bold text-foreground">{stats.totalUnites}</p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Layers className="h-5 w-5" />
                     </div>
                 </CardContent>
@@ -52,7 +52,7 @@ export function PlatformStatsCards({ stats }: PlatformStatsCardsProps) {
                         <p className="text-sm text-muted-foreground">Utilisateurs (total)</p>
                         <p className="mt-2 text-2xl font-bold text-foreground">{stats.totalUsers}</p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Users className="h-5 w-5" />
                     </div>
                 </CardContent>

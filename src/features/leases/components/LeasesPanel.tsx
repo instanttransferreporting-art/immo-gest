@@ -45,7 +45,7 @@ export function LeasesPanel({ contrats, uniteOptions, locataireOptions }: Leases
                             <Button
                                 size="sm"
                                 disabled={!canCreate}
-                                className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                                className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             />
                         }
                     >

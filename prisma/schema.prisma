@@ -21,7 +21,8 @@ datasource db {
 model Organization {
   id                   String   @id @default(uuid())
   nom                  String
-  logo                 String?
+  logo                 String? // Logo carré (barre latérale, emails)
+  logoDocument         String? // Logo long (en-tête des documents imprimés : factures, contrats…)
   tauxCommissionDefaut Float    @default(10)
   tauxPenaliteRetard   Float    @default(5) // Pourcentage appliqué sur le total dû à partir de la relance Niveau 1 BIS (J+15)
   adresse              String?

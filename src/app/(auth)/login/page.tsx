@@ -22,7 +22,7 @@ export default async function LoginPage() {
     return (
         <Card className="w-full max-w-md rounded-2xl border border-border shadow-md">
             <CardHeader className="flex flex-col items-center gap-3 pt-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
                     <Building2 className="h-6 w-6" />
                 </div>
 

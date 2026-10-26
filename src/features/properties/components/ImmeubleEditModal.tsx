@@ -80,7 +80,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                     <Button
                         size="sm"
                         variant="outline"
-                        className="rounded-lg border-border text-muted-foreground hover:text-emerald-700"
+                        className="rounded-lg border-border text-muted-foreground hover:text-brand-700"
                     />
                 }
             >
@@ -196,7 +196,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                        className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                     >
                         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer les modifications"}
                     </Button>

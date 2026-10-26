@@ -7,6 +7,8 @@ import { ContratNotFoundError } from "@/features/leases/services/contrat.service
 import { FREQUENCE_LABELS } from "@/features/leases/constants/lease.constants";
 import { TYPE_UNITE_LABELS } from "@/features/units/constants/unit.constants";
 import { ContratPdfDocument } from "@/features/leases/pdf/ContratPdfDocument";
+import { formatOrganizationAdresse, formatOrganizationContact } from "@/lib/organization-format";
+import { documentLogoUrl, loadPdfLogo } from "@/lib/pdf-logo";
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
 
@@ -20,6 +22,7 @@ export class ContratExportService {
         }
 
         const organization = await OrganizationService.getCurrent();
+        const logo = await loadPdfLogo(documentLogoUrl(organization));
 
         const locataireNom =
             contrat.locataire.raisonSociale ?? `${contrat.locataire.nom} ${contrat.locataire.prenom}`;
@@ -28,7 +31,9 @@ export class ContratExportService {
         const buffer = await renderToBuffer(
             <ContratPdfDocument
                 organizationNom={organization.nom}
-                organizationAdresse={organization.adresse}
+                organizationAdresse={formatOrganizationAdresse(organization)}
+                organizationContact={formatOrganizationContact(organization)}
+                organizationLogo={logo}
                 numeroContrat={contrat.numeroContrat}
                 proprietaireNom={proprietaireNom}
                 locataireNom={locataireNom}

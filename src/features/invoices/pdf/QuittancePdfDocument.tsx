@@ -1,10 +1,14 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 import { formatMontantPdf } from "@/lib/pdf-format";
+import { PdfLetterhead } from "@/components/pdf/PdfLetterhead";
+import type { PdfImageSource } from "@/lib/pdf-logo";
 
 type QuittancePdfDocumentProps = {
     organizationNom: string;
     organizationAdresse: string | null;
+    organizationContact: string | null;
+    organizationLogo: PdfImageSource | null;
     numeroFacture: string;
     periodeLabel: string;
     dateEmissionLabel: string;
@@ -25,21 +29,6 @@ const styles = StyleSheet.create({
         fontFamily: "Helvetica",
         fontSize: 11,
         padding: 48,
-    },
-    header: {
-        borderBottomColor: "#e2e8f0",
-        borderBottomWidth: 1,
-        marginBottom: 24,
-        paddingBottom: 16,
-    },
-    organizationNom: {
-        fontSize: 16,
-        fontWeight: 700,
-    },
-    organizationAdresse: {
-        color: "#64748b",
-        fontSize: 9,
-        marginTop: 2,
     },
     title: {
         fontSize: 18,
@@ -90,6 +79,8 @@ const styles = StyleSheet.create({
 export function QuittancePdfDocument({
     organizationNom,
     organizationAdresse,
+    organizationContact,
+    organizationLogo,
     numeroFacture,
     periodeLabel,
     dateEmissionLabel,
@@ -105,10 +96,12 @@ export function QuittancePdfDocument({
     return (
         <Document title={`Quittance ${numeroFacture}`}>
             <Page size="A4" style={styles.page}>
-                <View style={styles.header}>
-                    <Text style={styles.organizationNom}>{organizationNom}</Text>
-                    {organizationAdresse ? <Text style={styles.organizationAdresse}>{organizationAdresse}</Text> : null}
-                </View>
+                <PdfLetterhead
+                    logo={organizationLogo}
+                    organizationNom={organizationNom}
+                    organizationAdresse={organizationAdresse}
+                    organizationContact={organizationContact}
+                />
 
                 <Text style={styles.title}>Quittance de Loyer</Text>
                 <Text style={styles.subtitle}>Facture {numeroFacture}</Text>

@@ -66,7 +66,7 @@ export function ContratsTable({ contrats }: ContratsTableProps) {
                                 <Link href={`${ROUTES.LEASES}/${contrat.id}`}>
                                     <Badge
                                         variant="outline"
-                                        className="rounded-lg font-mono text-emerald-700 hover:bg-emerald-50"
+                                        className="rounded-lg font-mono text-brand-700 hover:bg-brand-50"
                                     >
                                         {contrat.numeroContrat}
                                     </Badge>

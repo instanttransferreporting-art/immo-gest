@@ -19,8 +19,7 @@ export class QuittanceExportService {
         const totalEncaisse = paiements.reduce((sum, paiement) => sum + paiement.montant, 0);
 
         return buildQuittancePdf({
-            organizationNom: organization.nom,
-            organizationAdresse: organization.adresse,
+            organization,
             facture,
             totalEncaisse,
         });

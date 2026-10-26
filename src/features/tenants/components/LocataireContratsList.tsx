@@ -74,7 +74,7 @@ export function LocataireContratsList({ contrats, maxVisible = 2 }: LocataireCon
                     <DropdownMenuContent align="start" className="w-64">
                         {hidden.map((contrat) => (
                             <DropdownMenuItem key={contrat.id} render={<Link href={`${ROUTES.LEASES}/${contrat.id}`} />}>
-                                <span className="font-mono text-emerald-700">{contrat.numeroContrat}</span>
+                                <span className="font-mono text-brand-700">{contrat.numeroContrat}</span>
                                 <span className="text-muted-foreground">
                                     {contrat.unite.immeuble.nom} — {contrat.unite.numero}
                                 </span>

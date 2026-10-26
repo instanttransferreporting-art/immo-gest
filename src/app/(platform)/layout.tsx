@@ -29,7 +29,7 @@ export default async function PlatformLayout({
         <div className="min-h-screen bg-background">
             <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white">
                         <Building2 className="h-5 w-5" />
                     </div>
                     <div>

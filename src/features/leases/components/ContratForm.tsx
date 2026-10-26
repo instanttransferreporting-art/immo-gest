@@ -400,10 +400,10 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
 
                     {/* Montant effectif final */}
                     {montantEffectif !== null && (
-                        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm">
+                        <div className="rounded-lg bg-brand-50 border border-brand-200 p-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-emerald-800 font-medium">Montant final du séjour</span>
-                                <span className="font-bold text-emerald-900">
+                                <span className="text-brand-800 font-medium">Montant final du séjour</span>
+                                <span className="font-bold text-brand-900">
                                     {currencyFormatter.format(montantEffectif)}
                                 </span>
                             </div>
@@ -414,12 +414,12 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
 
             {/* Prorata pour les baux classiques */}
             {prorata !== null && (
-                <div className="rounded-xl bg-emerald-50 p-4 text-sm">
-                    <p className="font-medium text-emerald-800">Aperçu du premier loyer (prorata temporis)</p>
-                    <p className="mt-1 text-emerald-700">
+                <div className="rounded-xl bg-brand-50 p-4 text-sm">
+                    <p className="font-medium text-brand-800">Aperçu du premier loyer (prorata temporis)</p>
+                    <p className="mt-1 text-brand-700">
                         {currencyFormatter.format(prorata)}
                         {prorata !== loyerBase && (
-                            <span className="text-emerald-600"> (au lieu de {currencyFormatter.format(loyerBase)})</span>
+                            <span className="text-brand-600"> (au lieu de {currencyFormatter.format(loyerBase)})</span>
                         )}
                     </p>
                 </div>
@@ -428,7 +428,7 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer le contrat"}
             </Button>

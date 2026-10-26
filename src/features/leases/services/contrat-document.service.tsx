@@ -10,6 +10,9 @@ import {
     type ContratBailDocData,
 } from "@/features/leases/services/contrat-docx.service";
 import { ContratBailPdfDocument } from "@/features/leases/pdf/ContratBailPdfDocument";
+import { formatOrganizationAdresse, formatOrganizationContact } from "@/lib/organization-format";
+import { OrganizationService } from "@/features/organizations/services/organization.service";
+import { documentLogoUrl, loadPdfLogo } from "@/lib/pdf-logo";
 import type { ContratDocumentValues, PeriodiciteBail } from "@/features/leases/schemas/contrat-document.schema";
 
 export type ContratDocumentDefaults = Omit<ContratDocumentValues, "dateDebut" | "dateSignature"> & {
@@ -121,8 +124,22 @@ export class ContratDocumentService {
             return { buffer: docx, filename: `${filenameBase}.docx`, contentType: DOCX_CONTENT_TYPE };
         }
 
-        const paragraphs = await readContratParagraphs(docx);
-        const pdf = await renderToBuffer(<ContratBailPdfDocument paragraphs={paragraphs} />);
+        const [paragraphs, organization] = await Promise.all([
+            readContratParagraphs(docx),
+            OrganizationService.getCurrent(),
+        ]);
+        const logo = await loadPdfLogo(documentLogoUrl(organization));
+        const pdf = await renderToBuffer(
+            <ContratBailPdfDocument
+                paragraphs={paragraphs}
+                letterhead={{
+                    logo,
+                    organizationNom: organization.nom,
+                    organizationAdresse: formatOrganizationAdresse(organization),
+                    organizationContact: formatOrganizationContact(organization),
+                }}
+            />
+        );
 
         return { buffer: Buffer.from(pdf), filename: `${filenameBase}.pdf`, contentType: "application/pdf" };
     }

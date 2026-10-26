@@ -4,6 +4,7 @@ const ORGANIZATION_SELECT = {
     id: true,
     nom: true,
     logo: true,
+    logoDocument: true,
     tauxCommissionDefaut: true,
     tauxPenaliteRetard: true,
     adresse: true,
@@ -26,7 +27,6 @@ export class OrganizationRepository {
         id: string,
         data: {
             nom: string;
-            logo?: string;
             tauxCommissionDefaut: number;
             tauxPenaliteRetard: number;
             adresse?: string;
@@ -38,6 +38,14 @@ export class OrganizationRepository {
         return prisma.organization.update({
             where: { id },
             data,
+            select: ORGANIZATION_SELECT,
+        });
+    }
+
+    static async setLogo(id: string, field: "logo" | "logoDocument", value: string | null) {
+        return prisma.organization.update({
+            where: { id },
+            data: { [field]: value },
             select: ORGANIZATION_SELECT,
         });
     }

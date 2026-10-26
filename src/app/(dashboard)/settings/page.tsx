@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentSession } from "@/lib/auth";
 import { RoleType } from "@/generated/prisma/enums";
 import { OrganizationForm } from "@/features/organizations/components/OrganizationForm";
+import { OrganizationLogoUploader } from "@/features/organizations/components/OrganizationLogoUploader";
+import { removeOrganizationLogo, uploadOrganizationLogo } from "@/features/organizations/actions/organization.actions";
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 
 export const metadata: Metadata = {
@@ -20,7 +22,39 @@ export default async function SettingsPage() {
         <Container>
             <PageTitle title="Paramètres" description="Gérez les informations de votre agence." />
 
-            <div className="mt-6">
+            <div className="mt-6 space-y-6">
+                <Card className="rounded-2xl border border-border shadow-sm">
+                    <CardHeader className="px-6">
+                        <CardTitle className="text-base font-semibold text-foreground">Logos de l&apos;agence</CardTitle>
+                    </CardHeader>
+
+                    <CardContent className="space-y-6 px-6">
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-foreground">Logo de l&apos;application</p>
+                            <OrganizationLogoUploader
+                                kind="sidebar"
+                                logo={organization.logo}
+                                organizationNom={organization.nom}
+                                canEdit={canEdit}
+                                onUpload={uploadOrganizationLogo}
+                                onRemove={removeOrganizationLogo}
+                            />
+                        </div>
+
+                        <div className="space-y-3 border-t border-border pt-6">
+                            <p className="text-sm font-medium text-foreground">Logo des documents imprimés</p>
+                            <OrganizationLogoUploader
+                                kind="document"
+                                logo={organization.logoDocument}
+                                organizationNom={organization.nom}
+                                canEdit={canEdit}
+                                onUpload={uploadOrganizationLogo}
+                                onRemove={removeOrganizationLogo}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card className="rounded-2xl border border-border shadow-sm">
                     <CardHeader className="px-6">
                         <CardTitle className="text-base font-semibold text-foreground">

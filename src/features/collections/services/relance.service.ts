@@ -5,6 +5,7 @@ import { RelanceRepository } from "@/features/collections/repositories/relance.r
 import { OrganizationService } from "@/features/organizations/services/organization.service";
 import { FactureService } from "@/features/invoices/services/facture.service";
 import { buildQuittancePdfSafe } from "@/features/invoices/pdf/quittance-pdf-builder";
+import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
 import type { GenererRelanceFormValues } from "@/features/collections/schemas/collection.schema";
 import type { RelanceDTO } from "@/features/collections/types/collection.types";
 
@@ -49,7 +50,7 @@ function envoyerRelanceAsync(
         // la pénalité éventuellement appliquée sur la facture.
         const attachment =
             niveau !== NiveauRelance.NIVEAU_1
-                ? await buildAttachmentForFacture(organizationId, organization.nom, organization.adresse, facture.id)
+                ? await buildAttachmentForFacture(organizationId, organization, facture.id)
                 : undefined;
 
         await MailService.sendRelance({
@@ -68,12 +69,7 @@ function envoyerRelanceAsync(
     });
 }
 
-async function buildAttachmentForFacture(
-    organizationId: string,
-    organizationNom: string,
-    organizationAdresse: string | null,
-    factureId: string
-) {
+async function buildAttachmentForFacture(organizationId: string, organization: OrganizationDTO, factureId: string) {
     const facture = await FactureService.getByIdForOrganization(factureId, organizationId);
 
     if (!facture) {
@@ -81,8 +77,7 @@ async function buildAttachmentForFacture(
     }
 
     return buildQuittancePdfSafe({
-        organizationNom,
-        organizationAdresse,
+        organization,
         facture,
         totalEncaisse: facture.totalDu - facture.soldeRestant,
     });

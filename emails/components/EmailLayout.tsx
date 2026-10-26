@@ -103,13 +103,13 @@ export const styles = {
         margin: "0 0 12px",
     },
     amountBox: {
-        backgroundColor: "#f0fdf4",
+        backgroundColor: "#eaf6fd",
         borderRadius: "12px",
         margin: "16px 0",
         padding: "16px",
     },
     amount: {
-        color: "#047857",
+        color: "#0a3a63",
         fontSize: "24px",
         fontWeight: 700,
         margin: 0,

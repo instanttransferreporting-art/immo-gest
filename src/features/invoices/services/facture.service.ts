@@ -57,8 +57,7 @@ function envoyerAvisEcheanceAsync(organizationId: string, facture: FactureDTO): 
         }
 
         const attachment = await buildQuittancePdfSafe({
-            organizationNom: organization.nom,
-            organizationAdresse: organization.adresse,
+            organization,
             facture,
             totalEncaisse: facture.totalDu - facture.soldeRestant,
         });

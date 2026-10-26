@@ -96,7 +96,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                         className={cn(
                             "h-9 rounded-lg text-sm font-medium transition-all duration-200",
                             type === option
-                                ? "bg-card text-emerald-700 shadow-sm"
+                                ? "bg-card text-brand-700 shadow-sm"
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                     >
@@ -291,7 +291,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
             <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer le locataire"}
             </Button>

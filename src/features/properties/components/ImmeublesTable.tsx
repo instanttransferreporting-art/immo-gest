@@ -60,14 +60,14 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
                     {immeubles.map((immeuble) => (
                         <TableRow key={immeuble.id}>
                             <TableCell>
-                                <Badge variant="outline" className="rounded-lg font-mono text-emerald-700">
+                                <Badge variant="outline" className="rounded-lg font-mono text-brand-700">
                                     {immeuble.reference}
                                 </Badge>
                             </TableCell>
                             <TableCell className="font-medium text-foreground">
                                 <Link
                                     href={`${ROUTES.PROPERTIES}/${immeuble.id}`}
-                                    className="hover:text-emerald-700 hover:underline"
+                                    className="hover:text-brand-700 hover:underline"
                                 >
                                     {immeuble.nom}
                                 </Link>

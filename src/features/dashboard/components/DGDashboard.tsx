@@ -32,7 +32,7 @@ export function DGDashboard({ metrics }: DGDashboardProps) {
                                 {metrics.totalUnites} unité(s) au total
                             </p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             <Building2 className="h-5 w-5" />
                         </div>
                     </CardContent>
@@ -49,7 +49,7 @@ export function DGDashboard({ metrics }: DGDashboardProps) {
                                 {metrics.unitesOccupees} / {metrics.totalUnites} unités occupées
                             </p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             <TrendingUp className="h-5 w-5" />
                         </div>
                     </CardContent>
@@ -61,7 +61,7 @@ export function DGDashboard({ metrics }: DGDashboardProps) {
                             <p className="text-sm text-muted-foreground">Contrats actifs</p>
                             <p className="mt-2 text-2xl font-bold text-foreground">{metrics.nombreContratsActifs}</p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             <FileText className="h-5 w-5" />
                         </div>
                     </CardContent>
@@ -75,7 +75,7 @@ export function DGDashboard({ metrics }: DGDashboardProps) {
                                 {currencyFormatter.format(metrics.revenuMensuelEncaisse)}
                             </p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             <Wallet className="h-5 w-5" />
                         </div>
                     </CardContent>
@@ -89,7 +89,7 @@ export function DGDashboard({ metrics }: DGDashboardProps) {
                                 {currencyFormatter.format(metrics.revenuAnnuelEncaisse)}
                             </p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             <Wallet className="h-5 w-5" />
                         </div>
                     </CardContent>

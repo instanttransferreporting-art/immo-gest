@@ -41,7 +41,7 @@ export function UnitesPanel({ immeubleId, unites }: UnitesPanelProps) {
                         render={
                             <Button
                                 size="sm"
-                                className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                                className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             />
                         }
                     >

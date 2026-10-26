@@ -1,9 +1,17 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 import type { ContratParagraph } from "@/features/leases/services/contrat-docx.service";
+import { PdfLetterhead } from "@/components/pdf/PdfLetterhead";
+import type { PdfImageSource } from "@/lib/pdf-logo";
 
 type ContratBailPdfDocumentProps = {
     paragraphs: ContratParagraph[];
+    letterhead: {
+        logo: PdfImageSource | null;
+        organizationNom: string;
+        organizationAdresse: string | null;
+        organizationContact: string | null;
+    };
 };
 
 const FONT = {
@@ -64,12 +72,14 @@ function splitColumns(paragraph: ContratParagraph): string[] | null {
     return parts.length === 2 ? parts : null;
 }
 
-export function ContratBailPdfDocument({ paragraphs }: ContratBailPdfDocumentProps) {
+export function ContratBailPdfDocument({ paragraphs, letterhead }: ContratBailPdfDocumentProps) {
     const counters = new Map<string, number>();
 
     return (
         <Document title="Contrat de bail" author="Immo Gest">
             <Page size="A4" style={styles.page}>
+                <PdfLetterhead {...letterhead} fontFamily={FONT.regular} fontFamilyBold={FONT.bold} />
+
                 {paragraphs.map((paragraph, index) => {
                     if (!paragraph.text.trim()) {
                         return <View key={index} style={styles.spacer} />;

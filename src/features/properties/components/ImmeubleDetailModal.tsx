@@ -52,7 +52,7 @@ export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         {immeuble.nom}
-                        <Badge variant="outline" className="rounded-lg font-mono text-emerald-700">
+                        <Badge variant="outline" className="rounded-lg font-mono text-brand-700">
                             {immeuble.reference}
                         </Badge>
                     </DialogTitle>

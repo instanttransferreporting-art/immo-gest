@@ -7,6 +7,7 @@ import { Sidebar } from "./Sidebar";
 import { SidebarProvider } from "./SidebarProvider";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ImpersonationBanner } from "@/features/platform/components/ImpersonationBanner";
+import { BrandingProvider, type Branding } from "./BrandingContext";
 
 function ShellContent({
                           children,
@@ -24,8 +25,8 @@ function ShellContent({
             <div
                 className={
                     collapsed
-                        ? "transition-all duration-300 lg:ml-20 print:ml-0"
-                        : "transition-all duration-300 lg:ml-72 print:ml-0"
+                        ? "transition-all duration-300 md:ml-20 print:ml-0"
+                        : "transition-all duration-300 md:ml-20 lg:ml-72 print:ml-0"
                 }
             >
                 {/* Le sticky doit être sur ce wrapper : le parent direct du header n'a que sa hauteur. */}
@@ -42,12 +43,16 @@ function ShellContent({
 
 export function AppShell({
                              children,
+                             branding,
                          }: {
     children: ReactNode;
+    branding: Branding;
 }) {
     return (
-        <SidebarProvider>
-            <ShellContent>{children}</ShellContent>
-        </SidebarProvider>
+        <BrandingProvider branding={branding}>
+            <SidebarProvider>
+                <ShellContent>{children}</ShellContent>
+            </SidebarProvider>
+        </BrandingProvider>
     );
 }

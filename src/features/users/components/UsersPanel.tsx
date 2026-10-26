@@ -39,7 +39,7 @@ export function UsersPanel({ users, currentUserId }: UsersPanelProps) {
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger
                         render={
-                            <Button size="sm" className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700" />
+                            <Button size="sm" className="rounded-lg bg-brand-600 text-white hover:bg-brand-700" />
                         }
                     >
                         <Plus className="h-4 w-4" />

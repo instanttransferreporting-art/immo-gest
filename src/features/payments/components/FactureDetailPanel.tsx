@@ -49,7 +49,7 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
                                 <Button
                                     size="sm"
                                     disabled={isSoldee}
-                                    className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                                    className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                                 />
                             }
                         >
@@ -73,7 +73,7 @@ export function FactureDetailPanel({ facture, paiements }: FactureDetailPanelPro
 
                 <CardContent className="px-6">
                     {isSoldee && (
-                        <p className="mb-3 text-sm text-emerald-600">Cette facture est intégralement payée.</p>
+                        <p className="mb-3 text-sm text-brand-600">Cette facture est intégralement payée.</p>
                     )}
                     <PaiementsHistoryTable paiements={paiements} />
                 </CardContent>

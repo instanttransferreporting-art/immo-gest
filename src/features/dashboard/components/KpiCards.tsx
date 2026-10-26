@@ -29,7 +29,7 @@ export function KpiCards({ metrics }: KpiCardsProps) {
                             {metrics.unitesOccupees} / {metrics.totalUnites} unités occupées
                         </p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Building2 className="h-5 w-5" />
                     </div>
                 </CardContent>
@@ -60,7 +60,7 @@ export function KpiCards({ metrics }: KpiCardsProps) {
                             {currencyFormatter.format(metrics.revenuMensuelEncaisse)}
                         </p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <Wallet className="h-5 w-5" />
                     </div>
                 </CardContent>

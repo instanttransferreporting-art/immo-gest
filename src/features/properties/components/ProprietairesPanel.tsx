@@ -42,7 +42,7 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                         render={
                             <Button
                                 size="sm"
-                                className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                                className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             />
                         }
                     >
@@ -74,7 +74,7 @@ export function ProprietairesPanel({ proprietaires }: ProprietairesPanelProps) {
                                 <div>
                                     <Link
                                         href={`/proprietaires/${proprietaire.id}/bilan`}
-                                        className="text-sm font-medium text-foreground hover:text-emerald-700 hover:underline"
+                                        className="text-sm font-medium text-foreground hover:text-brand-700 hover:underline"
                                     >
                                         {`${proprietaire.nom} ${proprietaire.prenom ?? ""}`.trim()}
                                     </Link>

@@ -168,7 +168,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
 
                 {generated ? (
                     <div className="space-y-4">
-                        <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                        <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
                             {periods.length === 2
                                 ? "Deux contrats sont générés : le bail de l'année en cours puis celui de l'année suivante."
                                 : "Un seul contrat est généré."}
@@ -281,7 +281,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             <label className="flex items-start gap-3 rounded-xl border border-border px-4 py-3 text-sm">
                                 <input
                                     type="checkbox"
-                                    className="mt-0.5 h-4 w-4 rounded border-input accent-emerald-600"
+                                    className="mt-0.5 h-4 w-4 rounded border-input accent-brand-600"
                                     {...register("reconductionAuto")}
                                 />
                                 <span>
@@ -294,7 +294,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             <label className="flex items-start gap-3 rounded-xl border border-border px-4 py-3 text-sm">
                                 <input
                                     type="checkbox"
-                                    className="mt-0.5 h-4 w-4 rounded border-input accent-emerald-600"
+                                    className="mt-0.5 h-4 w-4 rounded border-input accent-brand-600"
                                     {...register("genererContratSuivant")}
                                 />
                                 <span>
@@ -393,7 +393,7 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
 
                         <Button
                             type="submit"
-                            className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                            className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                         >
                             Générer le contrat
                         </Button>

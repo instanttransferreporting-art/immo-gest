@@ -21,7 +21,7 @@ export const STATUT_INCIDENT_LABELS: Readonly<Record<StatutIncident, string>> = 
 export const STATUT_INCIDENT_STYLES: Readonly<Record<StatutIncident, string>> = {
     NOUVEAU: "bg-blue-100 text-blue-700",
     EN_COURS: "bg-amber-100 text-amber-700",
-    RESOLU: "bg-emerald-100 text-emerald-700",
+    RESOLU: "bg-brand-100 text-brand-700",
 };
 
 export const STATUT_INCIDENT_ORDER: readonly StatutIncident[] = ["NOUVEAU", "EN_COURS", "RESOLU"];

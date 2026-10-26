@@ -79,7 +79,7 @@ export function ReversementBilanPanel({ proprietaireId, reversements }: Reversem
                             type="button"
                             onClick={handleGenerer}
                             disabled={isPending}
-                            className="h-9 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            className="h-9 rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                         >
                             {isPending ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />

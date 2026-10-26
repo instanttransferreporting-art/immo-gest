@@ -42,8 +42,7 @@ function envoyerQuittanceAsync(organizationId: string, facture: FactureDTO, paie
         const factureAJour: FactureDTO = { ...facture, soldeRestant };
 
         const attachment = await buildQuittancePdfSafe({
-            organizationNom: organization.nom,
-            organizationAdresse: organization.adresse,
+            organization,
             facture: factureAJour,
             totalEncaisse: factureAJour.totalDu - soldeRestant,
         });

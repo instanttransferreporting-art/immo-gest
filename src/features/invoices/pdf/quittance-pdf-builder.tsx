@@ -2,6 +2,9 @@ import { renderToBuffer } from "@react-pdf/renderer";
 
 import { MOIS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import { QuittancePdfDocument } from "@/features/invoices/pdf/QuittancePdfDocument";
+import { formatOrganizationAdresse, formatOrganizationContact } from "@/lib/organization-format";
+import { documentLogoUrl, loadPdfLogo } from "@/lib/pdf-logo";
+import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
 import type { FactureDTO } from "@/features/invoices/types/invoice.types";
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
@@ -12,8 +15,7 @@ function toFilenameSegment(value: string): string {
 }
 
 type BuildQuittancePdfParams = {
-    organizationNom: string;
-    organizationAdresse: string | null;
+    organization: Pick<OrganizationDTO, "nom" | "adresse" | "ville" | "telephone" | "email" | "logo" | "logoDocument">;
     facture: FactureDTO;
     totalEncaisse: number;
 };
@@ -28,7 +30,8 @@ export async function buildQuittancePdf(params: BuildQuittancePdfParams): Promis
     buffer: Buffer;
     filename: string;
 }> {
-    const { organizationNom, organizationAdresse, facture, totalEncaisse } = params;
+    const { organization, facture, totalEncaisse } = params;
+    const logo = await loadPdfLogo(documentLogoUrl(organization));
 
     const locataireNom =
         facture.contrat.locataire.raisonSociale ??
@@ -36,8 +39,10 @@ export async function buildQuittancePdf(params: BuildQuittancePdfParams): Promis
 
     const buffer = await renderToBuffer(
         <QuittancePdfDocument
-            organizationNom={organizationNom}
-            organizationAdresse={organizationAdresse}
+            organizationNom={organization.nom}
+            organizationAdresse={formatOrganizationAdresse(organization)}
+            organizationContact={formatOrganizationContact(organization)}
+            organizationLogo={logo}
             numeroFacture={facture.numero}
             periodeLabel={`${MOIS_LABELS[facture.mois - 1]} ${facture.annee}`}
             dateEmissionLabel={dateFormatter.format(facture.dateEmission)}

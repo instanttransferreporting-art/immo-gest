@@ -3,11 +3,14 @@ import { SidebarItem } from "./SidebarItem";
 
 type NavigationProps = {
     collapsed?: boolean;
+    /** Barre latérale fixe : réduite aux icônes sous le breakpoint lg. */
+    responsive?: boolean;
     onNavigate?: () => void;
 };
 
 export function Navigation({
                                collapsed = false,
+                               responsive = false,
                                onNavigate,
                            }: NavigationProps) {
     return (
@@ -17,6 +20,7 @@ export function Navigation({
                     key={item.href}
                     item={item}
                     collapsed={collapsed}
+                    responsive={responsive}
                     onNavigate={onNavigate}
                 />
             ))}

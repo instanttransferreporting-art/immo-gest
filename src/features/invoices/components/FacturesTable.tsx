@@ -65,7 +65,7 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                                 <Link href={`${ROUTES.INVOICES}/${facture.id}`}>
                                     <Badge
                                         variant="outline"
-                                        className="rounded-lg font-mono text-emerald-700 hover:bg-emerald-50"
+                                        className="rounded-lg font-mono text-brand-700 hover:bg-brand-50"
                                     >
                                         {facture.numero}
                                     </Badge>
@@ -92,7 +92,7 @@ export function FacturesTable({ factures }: FacturesTableProps) {
                             <TableCell>
                                 {facture.avisEnvoye ? (
                                     <Badge
-                                        className="rounded-lg bg-emerald-50 text-emerald-700"
+                                        className="rounded-lg bg-brand-50 text-brand-700"
                                         title={facture.avisEnvoyeAt ? dateFormatter.format(facture.avisEnvoyeAt) : undefined}
                                     >
                                         <MailCheck className="h-3.5 w-3.5" />

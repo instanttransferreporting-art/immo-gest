@@ -15,12 +15,14 @@ export type SidebarNavigationItem = {
 type SidebarItemProps = {
     item: SidebarNavigationItem;
     collapsed?: boolean;
+    responsive?: boolean;
     onNavigate?: () => void;
 };
 
 export function SidebarItem({
                                 item,
                                 collapsed = false,
+                                responsive = false,
                                 onNavigate,
                             }: SidebarItemProps) {
     const pathname = usePathname();
@@ -35,11 +37,14 @@ export function SidebarItem({
         <Link
             href={item.href}
             onClick={onNavigate}
+            title={collapsed || responsive ? item.title : undefined}
             className={cn(
                 "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                collapsed && "justify-center",
+                responsive && !collapsed && "justify-center lg:justify-start",
 
                 active
-                    ? "bg-emerald-50 text-emerald-700"
+                    ? "bg-brand-50 text-brand-700"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
         >
@@ -47,13 +52,13 @@ export function SidebarItem({
                 className={cn(
                     "h-5 w-5 flex-shrink-0",
                     active
-                        ? "text-emerald-600"
+                        ? "text-brand-600"
                         : "text-muted-foreground group-hover:text-foreground"
                 )}
             />
 
             {!collapsed && (
-                <span className="truncate">{item.title}</span>
+                <span className={cn("truncate", responsive && "hidden lg:inline")}>{item.title}</span>
             )}
         </Link>
     );

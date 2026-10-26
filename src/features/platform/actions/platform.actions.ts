@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { UnauthenticatedError } from "@/lib/auth";
 import { checkPermission, ForbiddenError } from "@/lib/permissions";
 import { EmailAlreadyUsedError } from "@/features/auth/services/auth.service";
-import { organizationSchema } from "@/features/organizations/schemas/organization.schema";
+import { logoFileSchema, logoKindSchema, organizationSchema } from "@/features/organizations/schemas/organization.schema";
+import {
+    OrganizationNotFoundError as OrganizationRecordNotFoundError,
+    OrganizationService,
+} from "@/features/organizations/services/organization.service";
 import type { OrganizationDTO } from "@/features/organizations/types/organization.types";
 import {
     OrganizationNotFoundError,
@@ -176,5 +180,82 @@ export async function startImpersonation(
             success: false,
             message: "Une erreur est survenue lors du basculement sur cette entreprise.",
         };
+    }
+}
+
+export async function uploadOrganizationLogoById(
+    organizationId: string,
+    formData: FormData
+): Promise<ActionResponse<OrganizationDTO>> {
+    try {
+        await checkPermission("ORGANIZATION_EDIT");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
+
+        throw error;
+    }
+
+    const parsed = logoFileSchema.safeParse(formData.get("logo"));
+    const parsedKind = logoKindSchema.safeParse(formData.get("kind"));
+
+    if (!parsed.success) {
+        return { success: false, message: parsed.error.issues[0]?.message ?? "Fichier invalide." };
+    }
+
+    if (!parsedKind.success) {
+        return { success: false, message: "Type de logo invalide." };
+    }
+
+    try {
+        const organization = await OrganizationService.updateLogo(organizationId, parsedKind.data, parsed.data);
+
+        revalidatePath(ROUTES.PLATFORM);
+
+        return { success: true, message: "Logo mis à jour avec succès.", data: organization };
+    } catch (error) {
+        if (error instanceof OrganizationRecordNotFoundError) {
+            return { success: false, message: error.message };
+        }
+
+        console.error("[logo] Échec du téléversement", error);
+
+        return { success: false, message: "Une erreur est survenue lors du téléversement du logo." };
+    }
+}
+
+export async function removeOrganizationLogoById(
+    organizationId: string,
+    kind: unknown
+): Promise<ActionResponse<OrganizationDTO>> {
+    try {
+        await checkPermission("ORGANIZATION_EDIT");
+    } catch (error) {
+        if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+            return { success: false, message: error.message };
+        }
+
+        throw error;
+    }
+
+    const parsedKind = logoKindSchema.safeParse(kind);
+
+    if (!parsedKind.success) {
+        return { success: false, message: "Type de logo invalide." };
+    }
+
+    try {
+        const organization = await OrganizationService.removeLogo(organizationId, parsedKind.data);
+
+        revalidatePath(ROUTES.PLATFORM);
+
+        return { success: true, message: "Logo retiré.", data: organization };
+    } catch (error) {
+        if (error instanceof OrganizationRecordNotFoundError) {
+            return { success: false, message: error.message };
+        }
+
+        return { success: false, message: "Une erreur est survenue lors de la suppression du logo." };
     }
 }

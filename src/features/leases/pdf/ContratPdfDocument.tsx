@@ -1,10 +1,14 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 import { formatMontantPdf } from "@/lib/pdf-format";
+import { PdfLetterhead } from "@/components/pdf/PdfLetterhead";
+import type { PdfImageSource } from "@/lib/pdf-logo";
 
 type ContratPdfDocumentProps = {
     organizationNom: string;
     organizationAdresse: string | null;
+    organizationContact: string | null;
+    organizationLogo: PdfImageSource | null;
     numeroContrat: string;
     proprietaireNom: string;
     locataireNom: string;
@@ -30,21 +34,6 @@ const styles = StyleSheet.create({
         fontSize: 10,
         lineHeight: 1.5,
         padding: 48,
-    },
-    header: {
-        borderBottomColor: "#e2e8f0",
-        borderBottomWidth: 1,
-        marginBottom: 20,
-        paddingBottom: 12,
-    },
-    organizationNom: {
-        fontSize: 14,
-        fontWeight: 700,
-    },
-    organizationAdresse: {
-        color: "#64748b",
-        fontSize: 8,
-        marginTop: 2,
     },
     title: {
         fontSize: 16,
@@ -122,6 +111,8 @@ const styles = StyleSheet.create({
 export function ContratPdfDocument({
     organizationNom,
     organizationAdresse,
+    organizationContact,
+    organizationLogo,
     numeroContrat,
     proprietaireNom,
     locataireNom,
@@ -141,10 +132,12 @@ export function ContratPdfDocument({
     return (
         <Document title={`Contrat de bail ${numeroContrat}`}>
             <Page size="A4" style={styles.page} wrap>
-                <View style={styles.header}>
-                    <Text style={styles.organizationNom}>{organizationNom}</Text>
-                    {organizationAdresse ? <Text style={styles.organizationAdresse}>{organizationAdresse}</Text> : null}
-                </View>
+                <PdfLetterhead
+                    logo={organizationLogo}
+                    organizationNom={organizationNom}
+                    organizationAdresse={organizationAdresse}
+                    organizationContact={organizationContact}
+                />
 
                 <Text style={styles.title}>Contrat de Bail à Usage d&apos;Habitation</Text>
                 <Text style={styles.subtitle}>Contrat n° {numeroContrat}</Text>

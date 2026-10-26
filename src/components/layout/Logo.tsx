@@ -1,31 +1,52 @@
-import Link from "next/link";
-import { Building2 } from "lucide-react";
+"use client";
 
+import Link from "next/link";
+
+import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
+import { useBranding } from "@/components/layout/BrandingContext";
+import { OrganizationLogoImage } from "@/features/organizations/components/OrganizationLogoImage";
 
 type LogoProps = {
     collapsed?: boolean;
+    /** Barre latérale fixe : nom masqué sous le breakpoint lg (icône seule). */
+    responsive?: boolean;
+    /** Icône seule, sans marge (ex. en-tête mobile). */
+    iconOnly?: boolean;
 };
 
-export function Logo({ collapsed = false }: LogoProps) {
+/** Icône carrée (logo de l'entreprise ou icône par défaut) + nom de l'entreprise à droite. */
+export function Logo({ collapsed = false, responsive = false, iconOnly = false }: LogoProps) {
+    const { logo, organizationNom } = useBranding();
+    const nom = organizationNom ?? "ImmoGest";
+
+    if (iconOnly) {
+        return (
+            <Link href={ROUTES.DASHBOARD} title={nom} className="shrink-0">
+                <OrganizationLogoImage logo={logo} organizationNom={nom} className="h-10 w-10" />
+            </Link>
+        );
+    }
+
     return (
         <Link
             href={ROUTES.DASHBOARD}
-            className="flex items-center gap-3 px-4 py-5 transition-colors hover:bg-muted"
+            title={collapsed || responsive ? nom : undefined}
+            className={cn(
+                "flex h-20 shrink-0 items-center gap-3 px-4 transition-colors hover:bg-muted",
+                collapsed && "justify-center px-0",
+                responsive && !collapsed && "justify-center px-0 lg:justify-start lg:px-4"
+            )}
         >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
-                <Building2 className="h-6 w-6" />
-            </div>
+            <OrganizationLogoImage logo={logo} organizationNom={nom} className="h-11 w-11" />
 
             {!collapsed && (
-                <div className="flex flex-col">
-          <span className="text-lg font-bold tracking-tight">
-            ImmoGest
-          </span>
+                <div className={cn("flex min-w-0 flex-col", responsive && "hidden lg:flex")}>
+                    <span className="truncate text-base font-bold leading-tight tracking-tight text-foreground">
+                        {nom}
+                    </span>
 
-                    <span className="text-xs text-muted-foreground">
-            Property Management
-          </span>
+                    <span className="truncate text-xs text-muted-foreground">Gestion immobilière</span>
                 </div>
             )}
         </Link>

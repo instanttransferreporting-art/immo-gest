@@ -62,7 +62,7 @@ export function ImpayesTable({ impayes }: ImpayesTableProps) {
                     {impayes.map((impaye) => (
                         <TableRow key={impaye.id}>
                             <TableCell>
-                                <Badge variant="outline" className="rounded-lg font-mono text-emerald-700">
+                                <Badge variant="outline" className="rounded-lg font-mono text-brand-700">
                                     {impaye.numero}
                                 </Badge>
                             </TableCell>

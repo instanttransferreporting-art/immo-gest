@@ -206,7 +206,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                 <input
                     id="isMeuble"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-input accent-emerald-600"
+                    className="h-4 w-4 rounded border-input accent-brand-600"
                     {...register("isMeuble")}
                 />
                 <div>
@@ -218,7 +218,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                     </p>
                 </div>
                 {isMeuble && (
-                    <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                    <span className="ml-auto rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                         Meublé
                     </span>
                 )}
@@ -262,7 +262,7 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
             <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                className="h-10 w-full rounded-xl bg-brand-600 text-white hover:bg-brand-700"
             >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Créer l'unité"}
             </Button>

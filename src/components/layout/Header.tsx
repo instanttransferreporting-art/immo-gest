@@ -6,6 +6,7 @@ import { NotificationButton } from "./NotificationButton";
 import { MobileSidebar } from "./MobileSidebar";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
+import { Logo } from "./Logo";
 
 export function Header() {
 
@@ -28,6 +29,9 @@ export function Header() {
 
             <div className="flex items-center gap-3">
                 <MobileSidebar />
+                <div className="md:hidden">
+                    <Logo iconOnly />
+                </div>
                 <Breadcrumb />
             </div>
 
