@@ -47,7 +47,7 @@ export const immeubleSchema = z.object({
         .number()
         .min(0, { error: V.valueNonNegative })
         .optional(),
-    proprietaireId: z.string().min(1, { error: V.ownerRequired }),
+    proprietaireId: z.string().optional(), // vide = géré directement par l'organisation
 });
 
 export type ImmeubleFormValues = z.infer<typeof immeubleSchema>;

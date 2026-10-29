@@ -53,7 +53,9 @@ export function ImmeubleDetailModal({ immeuble }: ImmeubleDetailModalProps) {
                     <div className="flex justify-between border-b border-border pb-2">
                         <dt className="text-muted-foreground">{t.properties.buildings.owner}</dt>
                         <dd className="font-medium text-foreground">
-                            {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
+                            {immeuble.proprietaire
+                                    ? `${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()
+                                    : t.properties.buildings.directManagement}
                         </dd>
                     </div>
 

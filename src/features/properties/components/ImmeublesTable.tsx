@@ -71,7 +71,9 @@ export function ImmeublesTable({ immeubles, proprietaireOptions }: ImmeublesTabl
                             </TableCell>
                             <TableCell className="text-muted-foreground">{immeuble.ville}</TableCell>
                             <TableCell className="text-muted-foreground">
-                                {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
+                                {immeuble.proprietaire
+                                    ? `${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()
+                                    : t.properties.buildings.directManagement}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                                 {immeuble.valeurEstimative != null

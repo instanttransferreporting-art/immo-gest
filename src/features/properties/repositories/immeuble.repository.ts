@@ -33,7 +33,7 @@ export class ImmeubleRepository {
                 ville: data.ville,
                 nombreNiveaux: data.nombreNiveaux,
                 valeurEstimative: data.valeurEstimative,
-                proprietaireId: data.proprietaireId,
+                proprietaireId: data.proprietaireId || null,
             },
             select: IMMEUBLE_SELECT,
         });
@@ -71,7 +71,7 @@ export class ImmeubleRepository {
                 ville: data.ville,
                 nombreNiveaux: data.nombreNiveaux,
                 valeurEstimative: data.valeurEstimative ?? null,
-                proprietaireId: data.proprietaireId,
+                proprietaireId: data.proprietaireId || null,
             },
         });
     }

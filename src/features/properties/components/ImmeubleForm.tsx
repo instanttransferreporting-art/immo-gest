@@ -69,7 +69,7 @@ export function ImmeubleForm({ proprietaireOptions, onSuccess }: ImmeubleFormPro
                     )}
                     {...register("proprietaireId")}
                 >
-                    <option value="">{t.properties.buildings.selectOwner}</option>
+                    <option value="">{t.properties.buildings.noOwner}</option>
                     {proprietaireOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                             {`${option.nom} ${option.prenom ?? ""}`.trim()}

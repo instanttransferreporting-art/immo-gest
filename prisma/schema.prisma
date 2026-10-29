@@ -172,12 +172,12 @@ model Immeuble {
   ville            String
   nombreNiveaux    Int
   valeurEstimative Float?
-  proprietaireId   String
+  proprietaireId   String? // Null = immeuble géré directement par l'organisation (aucun propriétaire tiers)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  proprietaire Proprietaire @relation(fields: [proprietaireId], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  proprietaire Proprietaire? @relation(fields: [proprietaireId], references: [id])
   unites       Unite[]
   incidents    Incident[]
 

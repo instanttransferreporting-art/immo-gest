@@ -47,7 +47,9 @@ export default async function ImmeubleDetailPage({ params }: PageProps) {
                             <div className="flex justify-between">
                                 <dt className="text-muted-foreground">{t.properties.buildings.owner}</dt>
                                 <dd className="font-medium text-foreground">
-                                    {`${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()}
+                                    {immeuble.proprietaire
+                                    ? `${immeuble.proprietaire.nom} ${immeuble.proprietaire.prenom ?? ""}`.trim()
+                                    : t.properties.buildings.directManagement}
                                 </dd>
                             </div>
                             <div className="flex justify-between">

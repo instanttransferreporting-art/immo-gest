@@ -20,10 +20,13 @@ async function generateReference(organizationId: string): Promise<string> {
 export class ImmeubleService {
     static async create(input: ImmeubleFormValues): Promise<ImmeubleDTO | null> {
         const organizationId = await getCurrentOrganizationId();
-        const proprietaire = await ProprietaireRepository.findById(input.proprietaireId, organizationId);
 
-        if (!proprietaire) {
-            return null;
+        if (input.proprietaireId) {
+            const proprietaire = await ProprietaireRepository.findById(input.proprietaireId, organizationId);
+
+            if (!proprietaire) {
+                return null;
+            }
         }
 
         for (let attempt = 1; attempt <= MAX_REFERENCE_ATTEMPTS; attempt += 1) {
@@ -58,6 +61,15 @@ export class ImmeubleService {
 
     static async update(id: string, input: ImmeubleFormValues): Promise<ImmeubleDTO | null> {
         const organizationId = await getCurrentOrganizationId();
+
+        if (input.proprietaireId) {
+            const proprietaire = await ProprietaireRepository.findById(input.proprietaireId, organizationId);
+
+            if (!proprietaire) {
+                return null;
+            }
+        }
+
         await ImmeubleRepository.update(id, organizationId, input);
         return ImmeubleRepository.findById(id, organizationId);
     }

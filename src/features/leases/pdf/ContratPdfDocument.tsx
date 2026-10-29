@@ -145,7 +145,9 @@ export function ContratPdfDocument({
                 <Text style={styles.sectionTitle}>Entre les soussignés</Text>
                 <Text style={styles.paragraph}>
                     <Text style={styles.value}>Le Bailleur : </Text>
-                    {proprietaireNom}, ci-après représenté par son mandataire de gestion {organizationNom},
+                    {proprietaireNom === organizationNom
+                        ? `${proprietaireNom},`
+                        : `${proprietaireNom}, ci-après représenté par son mandataire de gestion ${organizationNom},`}{" "}
                     d&apos;une part,
                 </Text>
                 <Text style={styles.paragraph}>

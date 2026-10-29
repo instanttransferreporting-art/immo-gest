@@ -26,7 +26,8 @@ export class ContratExportService {
 
         const locataireNom =
             contrat.locataire.raisonSociale ?? `${contrat.locataire.nom} ${contrat.locataire.prenom}`;
-        const proprietaireNom = `${contrat.unite.immeuble.proprietaire.nom} ${contrat.unite.immeuble.proprietaire.prenom ?? ""}`.trim();
+        const proprietaire = contrat.unite.immeuble.proprietaire;
+        const proprietaireNom = proprietaire ? `${proprietaire.nom} ${proprietaire.prenom ?? ""}`.trim() : organization.nom;
 
         const buffer = await renderToBuffer(
             <ContratPdfDocument

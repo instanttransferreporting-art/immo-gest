@@ -45,7 +45,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
             ville: immeuble.ville,
             nombreNiveaux: immeuble.nombreNiveaux,
             valeurEstimative: immeuble.valeurEstimative ?? undefined,
-            proprietaireId: immeuble.proprietaireId,
+            proprietaireId: immeuble.proprietaireId ?? "",
         },
     });
 
@@ -58,7 +58,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                 ville: immeuble.ville,
                 nombreNiveaux: immeuble.nombreNiveaux,
                 valeurEstimative: immeuble.valeurEstimative ?? undefined,
-                proprietaireId: immeuble.proprietaireId,
+                proprietaireId: immeuble.proprietaireId ?? "",
             });
         }
     }
@@ -109,7 +109,7 @@ export function ImmeubleEditModal({ immeuble, proprietaireOptions, onSuccess }: 
                             )}
                             {...register("proprietaireId")}
                         >
-                            <option value="">{t.properties.buildings.selectOwner}</option>
+                            <option value="">{t.properties.buildings.noOwner}</option>
                             {proprietaireOptions.map((option) => (
                                 <option key={option.id} value={option.id}>
                                     {`${option.nom} ${option.prenom ?? ""}`.trim()}

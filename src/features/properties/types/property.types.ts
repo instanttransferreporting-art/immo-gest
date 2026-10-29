@@ -36,8 +36,8 @@ export type ImmeubleDTO = Readonly<{
     ville: string;
     nombreNiveaux: number;
     valeurEstimative: number | null;
-    proprietaireId: string;
-    proprietaire: ProprietaireOptionDTO;
+    proprietaireId: string | null;
+    proprietaire: ProprietaireOptionDTO | null;
     createdAt: Date;
 }>;
 
