@@ -47,12 +47,22 @@ export default async function LoginPage() {
 
             <div className="flex flex-col justify-center">
                 <CardHeader className="flex flex-col items-center gap-3 pt-8 text-center md:hidden">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
-                        <Building2 className="h-6 w-6" />
+                    <div className="flex h-12 items-center justify-center rounded-xl text-white shadow-sm">
+                        <div className="self-start rounded-2xl bg-white px-4 py-2 shadow-md">
+                            <Image
+                                src="/logo_immo_star.png"
+                                alt={t.common.appName}
+                                width={1725}
+                                height={912}
+                                priority
+                                className="h-14 w-auto"
+                            />
+                        </div>
+                        {/*<Building2 className="h-6 w-6" />*/}
                     </div>
-                    <h1 className="text-xl font-bold tracking-tight text-foreground">
-                        {t.common.appName}
-                    </h1>
+                    {/*<h1 className="text-xl font-bold tracking-tight text-foreground">*/}
+                    {/*    {t.common.appName}*/}
+                    {/*</h1>*/}
                 </CardHeader>
 
                 <CardContent className="px-8 py-8 md:px-10 md:py-12">
