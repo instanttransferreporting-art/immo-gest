@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
     const { t } = await getI18n();
 
-    return { title: t.common.appName, description: t.common.tagline };
+    return { title: t.common.appName, description: t.common.tagline, icons: { icon: "/icon.png" } };
 }
 
 export default async function RootLayout({

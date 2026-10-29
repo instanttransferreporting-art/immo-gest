@@ -34,8 +34,6 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
         router.refresh();
     }
 
-    const hasProprietaires = proprietaireOptions.length > 0;
-
     return (
         <Card className="rounded-2xl border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between px-6">
@@ -48,7 +46,6 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
                         render={
                             <Button
                                 size="sm"
-                                disabled={!hasProprietaires}
                                 className="rounded-lg bg-brand-600 text-white hover:bg-brand-700"
                             />
                         }
@@ -68,12 +65,6 @@ export function ImmeublesPanel({ immeubles, proprietaireOptions }: ImmeublesPane
             </CardHeader>
 
             <CardContent className="px-6">
-                {!hasProprietaires && (
-                    <p className="mb-3 text-sm text-amber-600">
-                        {t.properties.buildings.needOwnerFirst}
-                    </p>
-                )}
-
                 <ImmeublesTable immeubles={immeubles} proprietaireOptions={proprietaireOptions} />
             </CardContent>
         </Card>

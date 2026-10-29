@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Building2 } from "lucide-react";
 
@@ -28,11 +29,15 @@ export default async function LoginPage() {
     return (
         <Card className="w-full gap-0 overflow-hidden rounded-3xl border border-border py-0 shadow-xl md:grid md:grid-cols-2">
             <div className="relative hidden flex-col items-center justify-between gap-6 bg-gradient-to-br from-brand-600 to-brand-800 p-8 text-white md:flex">
-                <div className="flex items-center gap-3 self-start">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-                        <Building2 className="h-5 w-5" />
-                    </div>
-                    <span className="text-lg font-bold tracking-tight">{t.common.appName}</span>
+                <div className="self-start rounded-2xl bg-white px-4 py-2 shadow-md">
+                    <Image
+                        src="/logo_immo_star.png"
+                        alt={t.common.appName}
+                        width={1725}
+                        height={912}
+                        priority
+                        className="h-14 w-auto"
+                    />
                 </div>
 
                 <AuthIllustration />
