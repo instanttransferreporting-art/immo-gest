@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -13,7 +13,8 @@ import { createContrat } from "@/features/leases/actions/contrat.actions";
 import { contratSchema, type ContratFormValues } from "@/features/leases/schemas/lease.schema";
 import { calculateProrata } from "@/features/leases/services/prorata.calculator";
 import { calculateDateFinAuto, calculateMontantContrat } from "@/features/leases/services/contrat-calculator";
-import { FrequenceEcheance } from "@/generated/prisma/enums";
+import { computeChargesAmount } from "@/features/units/services/charges.calculator";
+import { FrequenceEcheance, TypeLocataire } from "@/generated/prisma/enums";
 import type { ContratDTO, LocataireOptionDTO, UniteLibreOptionDTO } from "@/features/leases/types/lease.types";
 import { useI18n } from "@/i18n/client";
 
@@ -27,6 +28,11 @@ type ContratFormProps = {
 // d'un jour selon le fuseau horaire local (ex: minuit WAT -> 23h UTC la veille).
 const toDateInputValue = (date: Date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+// Nombre de mois de loyer proposés pour la caution ; « personnalisé » = montant saisi à la main.
+const DEPOSIT_MONTH_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
+const DEFAULT_DEPOSIT_MONTHS_PHYSIQUE = 3;
+const DEFAULT_DEPOSIT_MONTHS_MORALE = 2;
 
 export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: ContratFormProps) {
     const { t, tv, f } = useI18n();
@@ -46,7 +52,13 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
         },
     });
 
+    // null = montant de caution saisi manuellement
+    const [moisCaution, setMoisCaution] = useState<number | null>(DEFAULT_DEPOSIT_MONTHS_PHYSIQUE);
+    const chargesTouched = useRef(false);
+    const dateFinTouched = useRef(false);
+
     const uniteId = watch("uniteId");
+    const locataireId = watch("locataireId");
     const dateDebut = watch("dateDebut");
     const loyerBase = watch("loyerBase");
     const frequence = watch("frequence");
@@ -75,27 +87,71 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
             ? calculateProrata(dateDebut, loyerBase)
             : null;
 
+    // Sélection d'une unité : loyer et nature du logement préremplis.
+    // Les charges et la caution sont recalculées par les effets ci-dessous.
     useEffect(() => {
         const selectedUnite = uniteOptions.find((option) => option.id === uniteId);
 
         if (selectedUnite) {
+            chargesTouched.current = false;
             setValue("loyerBase", selectedUnite.loyerMensuel);
-            setValue("charges", 0);
-            setValue("depotGarantie", selectedUnite.caution);
             setValue("isMeuble", selectedUnite.isMeuble);
 
             // Pré-sélectionner la fréquence selon l'unité si meublée
             if (selectedUnite.isMeuble && selectedUnite.frequencePaiement === "NUITEE") {
                 setValue("frequence", FrequenceEcheance.QUOTIDIEN);
+                setValue("depotGarantie", selectedUnite.caution);
+                setMoisCaution(null);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uniteId]);
 
-    // Pour les baux classiques (hors nuitée), la date de fin est fixée
-    // automatiquement au 31 décembre de l'année de début (règle fiscale).
+    // Charges : calculées d'après l'unité (forfait ou % du loyer) tant qu'elles n'ont pas été modifiées à la main.
     useEffect(() => {
-        if (!isNuitee && dateDebut instanceof Date && !Number.isNaN(dateDebut.getTime())) {
+        const selectedUnite = uniteOptions.find((option) => option.id === uniteId);
+
+        if (selectedUnite && !chargesTouched.current) {
+            const loyer = Number.isFinite(loyerBase) ? loyerBase : 0;
+            setValue(
+                "charges",
+                Math.round(
+                    computeChargesAmount({
+                        typeCharges: selectedUnite.typeCharges,
+                        valeurCharges: selectedUnite.valeurCharges,
+                        loyerMensuel: loyer,
+                    })
+                )
+            );
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [uniteId, loyerBase]);
+
+    // Nombre de mois de caution par défaut : 3 pour une personne physique, 2 pour une société.
+    useEffect(() => {
+        const selectedLocataire = locataireOptions.find((option) => option.id === locataireId);
+
+        if (selectedLocataire && !isNuitee) {
+            setMoisCaution(
+                selectedLocataire.type === TypeLocataire.MORALE
+                    ? DEFAULT_DEPOSIT_MONTHS_MORALE
+                    : DEFAULT_DEPOSIT_MONTHS_PHYSIQUE
+            );
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [locataireId]);
+
+    // Caution = nombre de mois × loyer de base (sauf montant personnalisé et baux à la nuitée).
+    useEffect(() => {
+        if (moisCaution !== null && !isNuitee && Number.isFinite(loyerBase) && loyerBase > 0) {
+            setValue("depotGarantie", moisCaution * loyerBase);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [moisCaution, loyerBase, isNuitee]);
+
+    // Date de fin proposée : 31 décembre de l'année de début. Modifiable ; on ne l'écrase plus une fois modifiée.
+    useEffect(() => {
+        if (!isNuitee && !dateFinTouched.current && dateDebut instanceof Date && !Number.isNaN(dateDebut.getTime())) {
             setValue("dateFin", calculateDateFinAuto(dateDebut));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,6 +178,9 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
 
         toast.add({ title: result.message, type: "success" });
         reset({ frequence: FrequenceEcheance.MENSUEL });
+        chargesTouched.current = false;
+        dateFinTouched.current = false;
+        setMoisCaution(DEFAULT_DEPOSIT_MONTHS_PHYSIQUE);
         onSuccess?.(result.data);
     }
 
@@ -223,32 +282,30 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                             <Input
                                 id="dateFin"
                                 type="date"
-                                disabled={!isNuitee}
-                                className={cn("h-10 rounded-xl", !isNuitee && "bg-muted text-muted-foreground", errors.dateFin && "border-red-500")}
+                                className={cn("h-10 rounded-xl", errors.dateFin && "border-red-500")}
                                 value={
                                     field.value instanceof Date && !Number.isNaN(field.value.getTime())
                                         ? toDateInputValue(field.value)
                                         : ""
                                 }
-                                onChange={(event) =>
-                                    field.onChange(event.target.value ? new Date(event.target.value) : new Date(""))
-                                }
+                                onChange={(event) => {
+                                    dateFinTouched.current = true;
+                                    field.onChange(event.target.value ? new Date(event.target.value) : new Date(""));
+                                }}
                                 onBlur={field.onBlur}
                             />
                         )}
                     />
-                    {!isNuitee ? (
-                        <p className="text-xs text-muted-foreground">
-                            {t.leases.form.endDateAuto}
-                        </p>
+                    {errors.dateFin ? (
+                        <p className="animate-pulse text-sm text-red-500">{tv(errors.dateFin.message)}</p>
                     ) : (
-                        errors.dateFin && <p className="animate-pulse text-sm text-red-500">{tv(errors.dateFin.message)}</p>
+                        !isNuitee && <p className="text-xs text-muted-foreground">{t.leases.form.endDateAuto}</p>
                     )}
                 </div>
             </div>
 
-            {/* Loyer, charges, caution */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {/* Loyer, charges */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <label htmlFor="loyerBase" className="text-sm font-medium text-foreground">
                         {isNuitee ? t.leases.form.nightlyRate : t.leases.baseRent}
@@ -274,9 +331,44 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         type="number"
                         min={0}
                         className={cn("h-10 rounded-xl", errors.charges && "border-red-500")}
-                        {...register("charges", { valueAsNumber: true })}
+                        {...register("charges", {
+                            valueAsNumber: true,
+                            onChange: () => {
+                                chargesTouched.current = true;
+                            },
+                        })}
                     />
                     {errors.charges && <p className="animate-pulse text-sm text-red-500">{tv(errors.charges.message)}</p>}
+                </div>
+
+            </div>
+
+            {/* Caution : nombre de mois de loyer + montant (modifiable à la main) */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                    <label htmlFor="moisCaution" className="text-sm font-medium text-foreground">
+                        {t.leases.form.depositMonths}
+                    </label>
+                    <select
+                        id="moisCaution"
+                        value={moisCaution === null ? "custom" : String(moisCaution)}
+                        onChange={(event) =>
+                            setMoisCaution(event.target.value === "custom" ? null : Number(event.target.value))
+                        }
+                        className="h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    >
+                        {DEPOSIT_MONTH_OPTIONS.map((months) => (
+                            <option key={months} value={months}>
+                                {t.leases.form.depositMonthsOption(months)}
+                            </option>
+                        ))}
+                        <option value="custom">{t.leases.form.depositCustom}</option>
+                    </select>
+                    <p className="text-xs text-muted-foreground">
+                        {moisCaution !== null && Number.isFinite(loyerBase) && loyerBase > 0
+                            ? t.leases.form.depositMonthsHint(moisCaution, f.currency(loyerBase))
+                            : t.leases.form.depositMonthsDefaultHint}
+                    </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -288,7 +380,10 @@ export function ContratForm({ uniteOptions, locataireOptions, onSuccess }: Contr
                         type="number"
                         min={0}
                         className={cn("h-10 rounded-xl", errors.depotGarantie && "border-red-500")}
-                        {...register("depotGarantie", { valueAsNumber: true })}
+                        {...register("depotGarantie", {
+                            valueAsNumber: true,
+                            onChange: () => setMoisCaution(null),
+                        })}
                     />
                     {errors.depotGarantie && (
                         <p className="animate-pulse text-sm text-red-500">{tv(errors.depotGarantie.message)}</p>

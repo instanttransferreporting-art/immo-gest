@@ -265,7 +265,7 @@ model Locataire {
   dateNaissance      DateTime?
   profession         String?
   telephone          String
-  email              String // Unique par organisation
+  email              String? // Facultatif ; unique par organisation quand renseigné
   adresse            String
   pieceIdentite      String // Numéro de CNI / Passeport / Carte de séjour
   revenuMensuelMoyen Float? // Obligatoire pour les physiques

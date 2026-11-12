@@ -21,6 +21,6 @@ export type FactureDTO = Readonly<{
         id: string;
         numeroContrat: string;
         unite: Readonly<{ numero: string; immeuble: Readonly<{ nom: string }> }>;
-        locataire: Readonly<{ nom: string; prenom: string; raisonSociale: string | null; email: string }>;
+        locataire: Readonly<{ nom: string; prenom: string; raisonSociale: string | null; email: string | null }>;
     }>;
 }>;

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { createLocataire } from "@/features/tenants/actions/locataire.actions";
@@ -23,7 +24,7 @@ type LocataireFormInput = {
     nom: string;
     prenom: string;
     telephone: string;
-    email: string;
+    email?: string;
     adresse: string;
     pieceIdentite: string;
     dateNaissance?: Date;
@@ -57,6 +58,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
     const {
         register,
+        control,
         handleSubmit,
         reset,
         formState: { errors, isSubmitting },
@@ -138,12 +140,19 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                     <label htmlFor="telephone" className="text-sm font-medium text-foreground">
                         {t.common.phone}
                     </label>
-                    <Input
-                        id="telephone"
-                        placeholder="+237690000000"
-                        className={cn("h-10 rounded-xl", errors.telephone && "border-red-500")}
-                        {...register("telephone")}
-                    />
+                    <Controller
+ control={control}
+ name="telephone"
+ render={({ field }) => (
+ <PhoneInput
+ id="telephone"
+ value={field.value}
+ onChange={field.onChange}
+ onBlur={field.onBlur}
+ invalid={!!errors.telephone}
+ />
+ )}
+ />
                     {errors.telephone && (
                         <p className="animate-pulse text-sm text-red-500">{tv(errors.telephone.message)}</p>
                     )}
@@ -151,7 +160,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
                 <div className="space-y-1.5">
                     <label htmlFor="email" className="text-sm font-medium text-foreground">
-                        {t.common.email}
+                        {t.common.email} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                     </label>
                     <Input
                         id="email"
@@ -200,14 +209,16 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
                     <div className="space-y-1.5">
                         <label htmlFor="revenuMensuelMoyen" className="text-sm font-medium text-foreground">
-                            {t.tenants.averageMonthlyIncome}
+                            {t.tenants.averageMonthlyIncome} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                         </label>
                         <Input
                             id="revenuMensuelMoyen"
                             type="number"
                             min={0}
                             className={cn("h-10 rounded-xl", errors.revenuMensuelMoyen && "border-red-500")}
-                            {...register("revenuMensuelMoyen", { valueAsNumber: true })}
+                            {...register("revenuMensuelMoyen", {
+                                setValueAs: (value) => (value === "" || value == null || Number.isNaN(Number(value)) ? undefined : Number(value)),
+                            })}
                         />
                         {errors.revenuMensuelMoyen && (
                             <p className="animate-pulse text-sm text-red-500">{tv(errors.revenuMensuelMoyen.message)}</p>
@@ -261,12 +272,19 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
                             <label htmlFor="telephoneMoral" className="text-sm font-medium text-foreground">
                                 {t.tenants.companyPhone}
                             </label>
-                            <Input
-                                id="telephoneMoral"
-                                placeholder="+237690000000"
-                                className={cn("h-10 rounded-xl", errors.telephoneMoral && "border-red-500")}
-                                {...register("telephoneMoral")}
-                            />
+                            <Controller
+ control={control}
+ name="telephoneMoral"
+ render={({ field }) => (
+ <PhoneInput
+ id="telephoneMoral"
+ value={field.value}
+ onChange={field.onChange}
+ onBlur={field.onBlur}
+ invalid={!!errors.telephoneMoral}
+ />
+ )}
+ />
                             {errors.telephoneMoral && (
                                 <p className="animate-pulse text-sm text-red-500">{tv(errors.telephoneMoral.message)}</p>
                             )}
@@ -274,7 +292,7 @@ export function LocataireForm({ onSuccess }: LocataireFormProps) {
 
                         <div className="space-y-1.5">
                             <label htmlFor="emailMoral" className="text-sm font-medium text-foreground">
-                                {t.tenants.companyEmail}
+                                {t.tenants.companyEmail} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                             </label>
                             <Input
                                 id="emailMoral"

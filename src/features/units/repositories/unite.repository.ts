@@ -25,6 +25,8 @@ const UNITE_LIBRE_OPTION_SELECT = {
     id: true,
     numero: true,
     loyerMensuel: true,
+    typeCharges: true,
+    valeurCharges: true,
     caution: true,
     isMeuble: true,
     frequencePaiement: true,

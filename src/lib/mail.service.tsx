@@ -20,7 +20,7 @@ export type MailAttachment = {
 };
 
 type AvisEcheanceParams = {
-    to: string;
+    to: string | null;
     organizationNom: string;
     organizationLogo: string | null;
     locataireNom: string;
@@ -32,7 +32,7 @@ type AvisEcheanceParams = {
 };
 
 type QuittanceParams = {
-    to: string;
+    to: string | null;
     organizationNom: string;
     organizationLogo: string | null;
     locataireNom: string;
@@ -46,7 +46,7 @@ type QuittanceParams = {
 };
 
 type RelanceParams = {
-    to: string;
+    to: string | null;
     organizationNom: string;
     organizationLogo: string | null;
     locataireNom: string;

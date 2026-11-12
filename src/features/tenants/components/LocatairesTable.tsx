@@ -79,7 +79,7 @@ export function LocatairesTable({ locataires }: LocatairesTableProps) {
                                     {isPhysique ? locataire.telephone : locataire.telephoneMoral ?? locataire.telephone}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">
-                                    {isPhysique ? locataire.email : locataire.emailMoral ?? locataire.email}
+                                    {(isPhysique ? locataire.email : locataire.emailMoral ?? locataire.email) || "—"}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">{locataire.pieceIdentite}</TableCell>
                                 <TableCell>

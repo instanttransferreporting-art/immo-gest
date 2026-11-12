@@ -92,7 +92,7 @@ export function LocataireDetailModal({ locataire }: LocataireDetailModalProps) {
                     <div className="flex justify-between border-b border-border pb-2">
                         <dt className="text-muted-foreground">{t.common.email}</dt>
                         <dd className="font-medium text-foreground break-all">
-                            {isPhysique ? locataire.email : (locataire.emailMoral ?? locataire.email)}
+                            {(isPhysique ? locataire.email : (locataire.emailMoral ?? locataire.email)) || "—"}
                         </dd>
                     </div>
 

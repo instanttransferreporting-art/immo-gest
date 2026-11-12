@@ -42,7 +42,6 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
 
     const typeCharges = watch("typeCharges");
     const frequencePaiement = watch("frequencePaiement");
-    const isMeuble = watch("isMeuble");
 
     async function onSubmit(values: UniteFormValues) {
         const result = await createUnite(values);
@@ -197,29 +196,6 @@ export function UniteForm({ immeubleId, onSuccess }: UniteFormProps) {
                     {...register("caution", { valueAsNumber: true })}
                 />
                 {errors.caution && <p className="animate-pulse text-sm text-red-500">{tv(errors.caution.message)}</p>}
-            </div>
-
-            {/* Meublé toggle */}
-            <div className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
-                <input
-                    id="isMeuble"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-input accent-brand-600"
-                    {...register("isMeuble")}
-                />
-                <div>
-                    <label htmlFor="isMeuble" className="text-sm font-medium text-foreground cursor-pointer">
-                        {t.units.furnishedUnit}
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                        {t.units.furnishedHint}
-                    </p>
-                </div>
-                {isMeuble && (
-                    <span className="ml-auto rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                        {t.units.furnished}
-                    </span>
-                )}
             </div>
 
             {/* Fréquence de paiement */}

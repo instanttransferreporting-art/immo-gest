@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import {
@@ -30,7 +31,7 @@ type LocataireFormInput = {
     nom: string;
     prenom: string;
     telephone: string;
-    email: string;
+    email?: string;
     adresse: string;
     pieceIdentite: string;
     dateNaissance?: Date;
@@ -54,7 +55,7 @@ function toDefaultValues(locataire: LocataireDTO): LocataireFormInput {
         nom: locataire.nom,
         prenom: locataire.prenom,
         telephone: locataire.telephone,
-        email: locataire.email,
+        email: locataire.email ?? undefined,
         adresse: locataire.adresse,
         pieceIdentite: locataire.pieceIdentite,
         dateNaissance: locataire.dateNaissance ?? undefined,
@@ -79,6 +80,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
 
     const {
         register,
+        control,
         handleSubmit,
         reset,
         formState: { errors, isSubmitting },
@@ -190,12 +192,19 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                             <label htmlFor="edit-telephone" className="text-sm font-medium text-foreground">
                                 {t.common.phone}
                             </label>
-                            <Input
-                                id="edit-telephone"
-                                placeholder="+237690000000"
-                                className={cn("h-10 rounded-xl", errors.telephone && "border-red-500")}
-                                {...register("telephone")}
-                            />
+                            <Controller
+ control={control}
+ name="telephone"
+ render={({ field }) => (
+ <PhoneInput
+ id="edit-telephone"
+ value={field.value}
+ onChange={field.onChange}
+ onBlur={field.onBlur}
+ invalid={!!errors.telephone}
+ />
+ )}
+ />
                             {errors.telephone && (
                                 <p className="animate-pulse text-sm text-red-500">{tv(errors.telephone.message)}</p>
                             )}
@@ -203,7 +212,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
 
                         <div className="space-y-1.5">
                             <label htmlFor="edit-email" className="text-sm font-medium text-foreground">
-                                {t.common.email}
+                                {t.common.email} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                             </label>
                             <Input
                                 id="edit-email"
@@ -260,14 +269,16 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
 
                             <div className="space-y-1.5">
                                 <label htmlFor="edit-revenuMensuelMoyen" className="text-sm font-medium text-foreground">
-                                    {t.tenants.averageMonthlyIncome}
+                                    {t.tenants.averageMonthlyIncome} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                                 </label>
                                 <Input
                                     id="edit-revenuMensuelMoyen"
                                     type="number"
                                     min={0}
                                     className={cn("h-10 rounded-xl", errors.revenuMensuelMoyen && "border-red-500")}
-                                    {...register("revenuMensuelMoyen", { valueAsNumber: true })}
+                                    {...register("revenuMensuelMoyen", {
+                                setValueAs: (value) => (value === "" || value == null || Number.isNaN(Number(value)) ? undefined : Number(value)),
+                            })}
                                 />
                                 {errors.revenuMensuelMoyen && (
                                     <p className="animate-pulse text-sm text-red-500">
@@ -327,12 +338,19 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
                                     <label htmlFor="edit-telephoneMoral" className="text-sm font-medium text-foreground">
                                         {t.tenants.companyPhone}
                                     </label>
-                                    <Input
-                                        id="edit-telephoneMoral"
-                                        placeholder="+237690000000"
-                                        className={cn("h-10 rounded-xl", errors.telephoneMoral && "border-red-500")}
-                                        {...register("telephoneMoral")}
-                                    />
+                                    <Controller
+ control={control}
+ name="telephoneMoral"
+ render={({ field }) => (
+ <PhoneInput
+ id="edit-telephoneMoral"
+ value={field.value}
+ onChange={field.onChange}
+ onBlur={field.onBlur}
+ invalid={!!errors.telephoneMoral}
+ />
+ )}
+ />
                                     {errors.telephoneMoral && (
                                         <p className="animate-pulse text-sm text-red-500">
                                             {tv(errors.telephoneMoral.message)}
@@ -342,7 +360,7 @@ export function LocataireEditModal({ locataire, onSuccess }: LocataireEditModalP
 
                                 <div className="space-y-1.5">
                                     <label htmlFor="edit-emailMoral" className="text-sm font-medium text-foreground">
-                                        {t.tenants.companyEmail}
+                                        {t.tenants.companyEmail} <span className="text-xs font-normal text-muted-foreground">{t.leases.form.optionalSuffix}</span>
                                     </label>
                                     <Input
                                         id="edit-emailMoral"

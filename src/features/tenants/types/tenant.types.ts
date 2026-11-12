@@ -17,7 +17,7 @@ export type LocataireDTO = Readonly<{
     dateNaissance: Date | null;
     profession: string | null;
     telephone: string;
-    email: string;
+    email: string | null;
     adresse: string;
     pieceIdentite: string;
     revenuMensuelMoyen: number | null;
@@ -32,6 +32,7 @@ export type LocataireDTO = Readonly<{
 
 export type LocataireOptionDTO = Readonly<{
     id: string;
+    type: TypeLocataire;
     nom: string;
     prenom: string;
     raisonSociale: string | null;

@@ -5,6 +5,8 @@ import { V } from "@/i18n/validation-keys";
 
 const PHONE_REGEX = /^\+[1-9]\d{6,14}$/;
 
+const optionalEmail = z.union([z.literal(""), z.string().trim().email({ error: V.emailInvalid })]).optional();
+
 const baseLocataireSchema = z.object({
     nom: z.string().min(2, { error: V.nameMin2 }),
     prenom: z.string().min(1, { error: V.firstNameRequired }),
@@ -12,7 +14,8 @@ const baseLocataireSchema = z.object({
         .string()
         .min(1, { error: V.phoneRequired })
         .regex(PHONE_REGEX, { error: V.invalidPhone }),
-    email: z.string().min(1, { error: V.emailRequired }).email({ error: V.emailInvalid }),
+    // Facultatif : une chaîne vide est acceptée (convertie en « aucun email » à l'enregistrement)
+    email: optionalEmail,
     adresse: z.string().min(1, { error: V.addressRequired }),
     pieceIdentite: z.string().min(1, { error: V.idNumberRequired }),
 });
@@ -21,9 +24,11 @@ export const locatairePhysiqueSchema = baseLocataireSchema.extend({
     type: z.literal(TypeLocataire.PHYSIQUE),
     dateNaissance: z.coerce.date({ error: V.birthDateInvalid }).optional(),
     profession: z.string().optional(),
+    // Facultatif
     revenuMensuelMoyen: z
         .number({ error: V.monthlyIncomeRequired })
-        .positive({ error: V.incomePositive }),
+        .positive({ error: V.incomePositive })
+        .optional(),
 });
 
 export const locataireMoraleSchema = baseLocataireSchema.extend({
@@ -35,7 +40,7 @@ export const locataireMoraleSchema = baseLocataireSchema.extend({
         .string()
         .min(1, { error: V.companyPhoneRequired })
         .regex(PHONE_REGEX, { error: V.invalidPhone }),
-    emailMoral: z.string().min(1, { error: V.companyEmailRequired }).email({ error: V.emailInvalid }),
+    emailMoral: optionalEmail,
 });
 
 export const locataireSchema = z.discriminatedUnion("type", [

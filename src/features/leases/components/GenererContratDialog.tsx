@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2, Plus, Printer, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,35 @@ type Format = "docx" | "pdf";
 const SELECT_CLASS =
     "h-10 w-full rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
+
+// Pièces proposées pour la composition du logement : [singulier, pluriel].
+const ROOM_PRESETS: ReadonlyArray<readonly [string, string]> = [
+    ["salon", "salons"],
+    ["chambre", "chambres"],
+    ["cuisine", "cuisines"],
+    ["salle de bain", "salles de bain"],
+    ["douche", "douches"],
+    ["toilettes", "toilettes"],
+    ["salle à manger", "salles à manger"],
+    ["bureau", "bureaux"],
+    ["véranda", "vérandas"],
+    ["balcon", "balcons"],
+    ["garage", "garages"],
+];
+
+// Natures de charges proposées pour les charges communes.
+const CHARGE_PRESETS = [
+    "eau",
+    "électricité",
+    "gardiennage",
+    "jardinage",
+    "entretien des parties communes",
+    "ordures ménagères",
+    "forfaitaire",
+] as const;
+
+const INLINE_ADD_CLASS =
+    "h-9 min-w-0 flex-1 rounded-xl border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
 function Field({
     label,
@@ -63,6 +92,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     );
 }
 
+/** Durée proposée : du début jusqu'au 31 décembre de la même année (en mois calendaires). */
+function defaultDurationMonths(dateDebut: string | undefined): number {
+    const start = dateDebut ? new Date(dateDebut) : new Date();
+
+    return Number.isNaN(start.getTime()) ? 12 : 12 - start.getUTCMonth();
+}
+
 export function GenererContratDialog({ contratId, defaults }: GenererContratDialogProps) {
     const { t, tv, f } = useI18n();
 
@@ -70,9 +106,65 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
     const [generated, setGenerated] = useState<ContratDocumentValues | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
 
+    // Composition du logement : quantités par pièce (liste extensible)
+    const [rooms, setRooms] = useState<Record<string, number>>({});
+    const [customRooms, setCustomRooms] = useState<string[]>([]);
+    const [roomDraft, setRoomDraft] = useState("");
+
+    // Nature des charges (liste extensible)
+    const [charges, setCharges] = useState<string[]>([]);
+    const [chargeDraft, setChargeDraft] = useState("");
+
+    const roomKeys = [...ROOM_PRESETS.map(([singular]) => singular), ...customRooms];
+    const totalRooms = roomKeys.reduce((sum, key) => sum + (rooms[key] ?? 0), 0);
+    const chargeOptions = [
+        ...CHARGE_PRESETS,
+        ...charges.filter((charge) => !(CHARGE_PRESETS as readonly string[]).includes(charge)),
+    ];
+
+    function buildComposition(): string {
+        const items = roomKeys
+            .filter((key) => (rooms[key] ?? 0) > 0)
+            .map((key) => {
+                const count = rooms[key];
+                const plural = ROOM_PRESETS.find(([singular]) => singular === key)?.[1] ?? key;
+                return `${count} ${count > 1 ? plural : key}`;
+            });
+
+        return items.length > 0 ? `${totalRooms} pièce${totalRooms > 1 ? "s" : ""} : ${items.join(", ")}` : "";
+    }
+
+    function addCustomRoom() {
+        const label = roomDraft.trim().toLowerCase();
+
+        if (label && !roomKeys.includes(label)) {
+            setCustomRooms((previous) => [...previous, label]);
+            setRooms((previous) => ({ ...previous, [label]: 1 }));
+        }
+
+        setRoomDraft("");
+    }
+
+    function toggleCharge(label: string) {
+        setCharges((previous) =>
+            previous.includes(label) ? previous.filter((item) => item !== label) : [...previous, label]
+        );
+    }
+
+    function addCustomCharge() {
+        const label = chargeDraft.trim().toLowerCase();
+
+        if (label && !charges.includes(label)) {
+            setCharges((previous) => [...previous, label]);
+        }
+
+        setChargeDraft("");
+    }
+
     const {
         register,
         handleSubmit,
+        watch,
         setError,
         formState: { errors },
     } = useForm<ContratDocumentDefaults>({ defaultValues: defaults });
@@ -80,7 +172,8 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
     const error = (name: keyof ContratDocumentDefaults) => tv(errors[name]?.message as string | undefined);
     const inputClass = (name: keyof ContratDocumentDefaults) => cn("h-10 rounded-xl", errors[name] && "border-red-500");
 
-    function onSubmit(values: ContratDocumentDefaults) {
+    function onSubmit(formValues: ContratDocumentDefaults) {
+        const values = { ...formValues, composition: buildComposition(), natureCharges: charges.join(", ") };
         const parsed = contratDocumentSchema.safeParse(values);
 
         if (!parsed.success) {
@@ -123,6 +216,50 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
             link.download = filename;
             link.click();
             URL.revokeObjectURL(url);
+        } finally {
+            setDownloading(null);
+        }
+    }
+
+    // Génère le PDF puis ouvre directement la boîte de dialogue d'impression.
+    async function printPdf(index: 1 | 2) {
+        if (!generated) {
+            return;
+        }
+
+        setDownloading(`${index}-print`);
+
+        try {
+            const response = await fetch(`/api/contrats/${contratId}/document`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ values: generated, index, format: "pdf" }),
+            });
+
+            if (!response.ok) {
+                const body = (await response.json().catch(() => null)) as { error?: string } | null;
+                toast.add({ title: body?.error ?? t.leases.generate.failed, type: "error" });
+                return;
+            }
+
+            const url = URL.createObjectURL(await response.blob());
+            const frame = document.createElement("iframe");
+            frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+            frame.src = url;
+            frame.onload = () => {
+                try {
+                    frame.contentWindow?.focus();
+                    frame.contentWindow?.print();
+                } catch {
+                    toast.add({ title: t.leases.generate.printFailed, type: "error" });
+                }
+
+                setTimeout(() => {
+                    frame.remove();
+                    URL.revokeObjectURL(url);
+                }, 60_000);
+            };
+            document.body.appendChild(frame);
         } finally {
             setDownloading(null);
         }
@@ -192,7 +329,21 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     </p>
                                 </div>
 
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="rounded-lg"
+                                        disabled={downloading !== null}
+                                        onClick={() => printPdf(period.index)}
+                                    >
+                                        {downloading === `${period.index}-print` ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Printer className="h-4 w-4" />
+                                        )}
+                                        {t.leases.generate.print}
+                                    </Button>
                                     {(["docx", "pdf"] as const).map((format) => (
                                         <Button
                                             key={format}
@@ -270,8 +421,55 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                                     {...register("surface", { valueAsNumber: true })}
                                 />
                             </Field>
-                            <Field label={t.leases.generate.fields.composition} hint={t.leases.generate.fields.compositionHint} error={error("composition")}>
-                                <Input className={inputClass("composition")} {...register("composition")} />
+                            <Field
+                                label={t.leases.generate.fields.composition}
+                                hint={t.leases.generate.fields.compositionHint}
+                                error={error("composition")}
+                                className="sm:col-span-2"
+                            >
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                    {roomKeys.map((key) => (
+                                        <label
+                                            key={key}
+                                            className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-1.5 text-sm"
+                                        >
+                                            <span className="capitalize">{key}</span>
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                value={rooms[key] ?? 0}
+                                                onChange={(event) =>
+                                                    setRooms((previous) => ({
+                                                        ...previous,
+                                                        [key]: Math.max(0, Math.floor(Number(event.target.value) || 0)),
+                                                    }))
+                                                }
+                                                className="h-8 w-14 rounded-lg border border-input bg-transparent px-2 text-center text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={roomDraft}
+                                        onChange={(event) => setRoomDraft(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") {
+                                                event.preventDefault();
+                                                addCustomRoom();
+                                            }
+                                        }}
+                                        placeholder={t.leases.generate.fields.addRoom}
+                                        className={INLINE_ADD_CLASS}
+                                    />
+                                    <Button type="button" variant="outline" className="h-9 rounded-xl" onClick={addCustomRoom}>
+                                        <Plus className="h-4 w-4" />
+                                        {t.leases.generate.fields.addItem}
+                                    </Button>
+                                </div>
+                                <p className="text-sm font-medium text-foreground">
+                                    {t.leases.generate.fields.roomsTotal(totalRooms)}
+                                </p>
                             </Field>
                         </Section>
 
@@ -282,6 +480,9 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             <Field label={t.leases.generate.fields.signatureDate} error={error("dateSignature")}>
                                 <Input type="date" className={inputClass("dateSignature")} {...register("dateSignature")} />
                             </Field>
+                            <p className="rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+                                {t.leases.generate.fields.durationSummary(defaultDurationMonths(watch("dateDebut")))}
+                            </p>
                             <label className="flex items-start gap-3 rounded-xl border border-border px-4 py-3 text-sm">
                                 <input
                                     type="checkbox"
@@ -369,10 +570,49 @@ export function GenererContratDialog({ contratId, defaults }: GenererContratDial
                             </Field>
                             <Field
                                 label={t.leases.generate.fields.chargesNature}
-                                hint={t.leases.generate.fields.chargesNatureHint}
-                                error={error("natureCharges")}
+                                hint={t.leases.generate.fields.chargesPickHint}
+                                className="sm:col-span-2"
                             >
-                                <Input className={inputClass("natureCharges")} {...register("natureCharges")} />
+                                <div className="flex flex-wrap gap-2">
+                                    {chargeOptions.map((label) => {
+                                        const active = charges.includes(label);
+
+                                        return (
+                                            <button
+                                                key={label}
+                                                type="button"
+                                                onClick={() => toggleCharge(label)}
+                                                className={cn(
+                                                    "flex items-center gap-1 rounded-full border px-3 py-1 text-sm capitalize transition-colors",
+                                                    active
+                                                        ? "border-brand-600 bg-brand-50 text-brand-700"
+                                                        : "border-border text-muted-foreground hover:text-foreground"
+                                                )}
+                                            >
+                                                {label}
+                                                {active && <X className="h-3 w-3" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={chargeDraft}
+                                        onChange={(event) => setChargeDraft(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") {
+                                                event.preventDefault();
+                                                addCustomCharge();
+                                            }
+                                        }}
+                                        placeholder={t.leases.generate.fields.addCharge}
+                                        className={INLINE_ADD_CLASS}
+                                    />
+                                    <Button type="button" variant="outline" className="h-9 rounded-xl" onClick={addCustomCharge}>
+                                        <Plus className="h-4 w-4" />
+                                        {t.leases.generate.fields.addItem}
+                                    </Button>
+                                </div>
                             </Field>
                         </Section>
 

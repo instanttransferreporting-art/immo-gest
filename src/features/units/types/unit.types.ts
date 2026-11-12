@@ -22,6 +22,8 @@ export type UniteLibreOptionDTO = Readonly<{
     id: string;
     numero: string;
     loyerMensuel: number;
+    typeCharges: TypeCharges;
+    valeurCharges: number;
     caution: number;
     isMeuble: boolean;
     frequencePaiement: FrequencePaiement;

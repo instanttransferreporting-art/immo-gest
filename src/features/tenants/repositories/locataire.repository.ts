@@ -33,6 +33,9 @@ const LOCATAIRE_SELECT = {
     },
 } as const;
 
+// Une chaîne vide violerait l'unicité (organisation, email) dès le 2e locataire sans email : on stocke NULL.
+const emailOrNull = (email: string | undefined) => email?.trim() || null;
+
 export class LocataireRepository {
     static async create(organizationId: string, data: LocataireFormValues) {
         const isPhysique = data.type === TypeLocataire.PHYSIQUE;
@@ -44,7 +47,7 @@ export class LocataireRepository {
                 nom: data.nom,
                 prenom: data.prenom,
                 telephone: data.telephone,
-                email: data.email,
+                email: emailOrNull(data.email),
                 adresse: data.adresse,
                 pieceIdentite: data.pieceIdentite,
                 dateNaissance: isPhysique ? data.dateNaissance : undefined,
@@ -54,7 +57,7 @@ export class LocataireRepository {
                 rccm: !isPhysique ? data.rccm : undefined,
                 niu: !isPhysique ? data.niu : undefined,
                 telephoneMoral: !isPhysique ? data.telephoneMoral : undefined,
-                emailMoral: !isPhysique ? data.emailMoral : undefined,
+                emailMoral: !isPhysique ? emailOrNull(data.emailMoral) : undefined,
             },
             select: LOCATAIRE_SELECT,
         });
@@ -70,7 +73,7 @@ export class LocataireRepository {
                 nom: data.nom,
                 prenom: data.prenom,
                 telephone: data.telephone,
-                email: data.email,
+                email: emailOrNull(data.email),
                 adresse: data.adresse,
                 pieceIdentite: data.pieceIdentite,
                 dateNaissance: isPhysique ? data.dateNaissance ?? null : null,
@@ -80,7 +83,7 @@ export class LocataireRepository {
                 rccm: !isPhysique ? data.rccm : null,
                 niu: !isPhysique ? data.niu : null,
                 telephoneMoral: !isPhysique ? data.telephoneMoral : null,
-                emailMoral: !isPhysique ? data.emailMoral : null,
+                emailMoral: !isPhysique ? emailOrNull(data.emailMoral) : null,
             },
         });
 
@@ -105,7 +108,7 @@ export class LocataireRepository {
     static async findAllOptions(organizationId: string) {
         return prisma.locataire.findMany({
             where: { organizationId },
-            select: { id: true, nom: true, prenom: true, raisonSociale: true },
+            select: { id: true, type: true, nom: true, prenom: true, raisonSociale: true },
             orderBy: { nom: "asc" },
         });
     }

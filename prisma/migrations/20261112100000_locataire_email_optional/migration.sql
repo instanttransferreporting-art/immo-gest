@@ -1,0 +1,1 @@
+ALTER TABLE "locataires" ALTER COLUMN "email" DROP NOT NULL;
